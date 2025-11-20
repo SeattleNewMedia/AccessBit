@@ -7398,7 +7398,7 @@ class AccessibilityWidget {
     
                         <label class="toggle-switch">
     
-                            <input type="checkbox" id="vision-impaired" tabindex="0" aria-label="Vision Impaired Profile - Enhances text readability and visual clarity" aria-describedby="vision-impaired-desc">
+                            <input type="checkbox" id="vision-impaired" tabindex="0" aria-label="" aria-describedby="vision-impaired-desc">
     
                             <span class="slider"></span>
     
@@ -7408,7 +7408,7 @@ class AccessibilityWidget {
     
                             <div>
     
-                                <h4>Vision Impaired Profile</h4>
+                                <h4 id="vision-impaired-title">Vision Impaired Profile</h4>
     
                                 <p id="vision-impaired-desc">Enhances text readability and visual clarity</p>
     
@@ -8658,7 +8658,9 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "Clear flashes & reduces color",
     
-                    // Vision impaired feature removed
+                    visionImpaired: "Vision Impaired Profile",
+    
+                    visionImpairedDesc: "Enhances text readability and visual clarity",
     
                     adhdFriendly: "ADHD Friendly Profile",
     
@@ -8837,7 +8839,8 @@ class AccessibilityWidget {
                     profilesTitle: "Elige el perfil de accesibilidad adecuado para ti",
         seizureSafe: "Perfil Anti-Convulsiones",
                     seizureSafeDesc: "Elimina destellos y reduce colores",
-        // Vision impaired feature removed
+                    visionImpaired: "Perfil para Personas con Discapacidad Visual",
+                    visionImpairedDesc: "Mejora la legibilidad del texto y la claridad visual",
                     adhdFriendly: "Perfil Amigable para TDAH",
                     adhdFriendlyDesc: "Más enfoque y menos distracciones",
                     cognitiveDisability: "Perfil de Discapacidad Cognitiva",
@@ -8942,7 +8945,9 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "Entfernt Blitze und reduziert Farben",
     
-                    // Vision impaired feature removed
+                    visionImpaired: "Profil für Sehbehinderte",
+    
+                    visionImpairedDesc: "Verbessert die Textlesbarkeit und visuelle Klarheit",
     
                     adhdFriendly: "ADHS-freundliches Profil",
     
@@ -9123,7 +9128,8 @@ class AccessibilityWidget {
         profilesTitle: "Choisissez le bon profil d'accessibilité pour vous",
         seizureSafe: "Profil Anti-Épilepsie",
         seizureSafeDesc: "Élimine les flashs et réduit les couleurs",
-        // Vision impaired feature removed
+        visionImpaired: "Profil pour Déficience Visuelle",
+        visionImpairedDesc: "Améliore la lisibilité du texte et la clarté visuelle",
         adhdFriendly: "Profil TDAH",
         adhdFriendlyDesc: "Plus de concentration et moins de distractions",
         cognitiveDisability: "Profil Déficience Cognitive",
@@ -9221,7 +9227,8 @@ class AccessibilityWidget {
         profilesTitle: "Escolha o perfil de acessibilidade certo para você",
         seizureSafe: "Perfil Anti-Convulsões",
         seizureSafeDesc: "Elimina flashes e reduz cores",
-        // Vision impaired feature removed
+        visionImpaired: "Perfil para Deficiência Visual",
+        visionImpairedDesc: "Melhora a legibilidade do texto e a clareza visual",
                     adhdFriendly: "Perfil Amigável para TDAH",
         adhdFriendlyDesc: "Mais foco e menos distrações",
                     cognitiveDisability: "Perfil de Deficiência Cognitiva",
@@ -9321,7 +9328,8 @@ class AccessibilityWidget {
                     profilesTitle: "Scegli il profilo di accessibilità giusto per te",
         seizureSafe: "Profilo Anti-Epilettico",
         seizureSafeDesc: "Elimina i flash e riduce i colori",
-        // Vision impaired feature removed
+        visionImpaired: "Profilo per Ipovedenti",
+        visionImpairedDesc: "Migliora la leggibilità del testo e la chiarezza visiva",
                     adhdFriendly: "Profilo Amichevole per ADHD",
         adhdFriendlyDesc: "Più concentrazione e meno distrazioni",
         cognitiveDisability: "Profilo per Disabilità Cognitive",
@@ -9421,7 +9429,8 @@ class AccessibilityWidget {
         profilesTitle: "בחרו את פרופיל הנגישות הנכון עבורכם",
         seizureSafe: "פרופיל בטוח מפני התקפים",
         seizureSafeDesc: "מבטל הבזקים ומפחית צבעים",
-        // Vision impaired feature removed
+        visionImpaired: "פרופיל ללקויי ראייה",
+        visionImpairedDesc: "משפר את קריאות הטקסט והבהירות הוויזואלית",
         adhdFriendly: "פרופיל ידידותי ל-ADHD",
         adhdFriendlyDesc: "יותר ריכוז ופחות הסחות דעת",
         cognitiveDisability: "פרופיל לקות קוגניטיבית",
@@ -9526,7 +9535,9 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "מסיר הבזקים ומפחית צבעים",
     
-                    // Vision impaired feature removed
+                    visionImpaired: "פרופיל ללקויי ראייה",
+    
+                    visionImpairedDesc: "משפר את קריאות הטקסט והבהירות הוויזואלית",
     
                     adhdFriendly: "פרופיל ידידותי ל-ADHD",
     
@@ -9707,7 +9718,8 @@ class AccessibilityWidget {
         profilesTitle: "Выберите подходящий профиль доступности",
         seizureSafe: "Профиль против эпилепсии",
         seizureSafeDesc: "Устраняет вспышки и снижает цвета",
-                    // Vision impaired feature removed
+                    visionImpaired: "Профиль для слабовидящих",
+                    visionImpairedDesc: "Улучшает читаемость текста и визуальную четкость",
                     adhdFriendly: "Профиль для СДВГ",
         adhdFriendlyDesc: "Больше концентрации и меньше отвлекающих факторов",
                     cognitiveDisability: "Профиль когнитивных нарушений",
@@ -9806,7 +9818,8 @@ class AccessibilityWidget {
         profilesTitle: "為您選擇合適的無障礙設定檔",
         seizureSafe: "防癲癇設定檔",
         seizureSafeDesc: "消除閃爍並減少顏色",
-        // Vision impaired feature removed
+        visionImpaired: "視力障礙設定檔",
+        visionImpairedDesc: "增強文字可讀性和視覺清晰度",
         adhdFriendly: "ADHD友善設定檔",
         adhdFriendlyDesc: "更多專注，更少分心",
         cognitiveDisability: "認知障礙設定檔",
@@ -9910,7 +9923,9 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "يزيل الومضات ويقلل الألوان",
     
-                    // Vision impaired feature removed
+                    visionImpaired: "ملف للمعاقين بصرياً",
+    
+                    visionImpairedDesc: "يحسن قابلية قراءة النص والوضوح البصري",
     
                     adhdFriendly: "ملف صديق لاضطراب فرط الحركة",
     
@@ -10090,7 +10105,8 @@ class AccessibilityWidget {
         profilesTitle: "اختر ملف إمكانية الوصول المناسب لك",
         seizureSafe: "ملف آمن من النوبات",
         seizureSafeDesc: "يزيل الومضات ويقلل الألوان",
-        // Vision impaired feature removed
+        visionImpaired: "ملف للمعاقين بصرياً",
+        visionImpairedDesc: "يحسن قابلية قراءة النص والوضوح البصري",
         adhdFriendly: "ملف صديق لاضطراب فرط الحركة",
         adhdFriendlyDesc: "مزيد من التركيز وأقل تشتيت",
         cognitiveDisability: "ملف الإعاقة المعرفية",
@@ -10837,7 +10853,10 @@ class AccessibilityWidget {
     
                 
     
-                const title = profileItem.querySelector('h4');
+                // For vision-impaired, use the specific ID, otherwise use querySelector
+                const title = featureId === 'vision-impaired' 
+                    ? profileItem.querySelector('#vision-impaired-title') || profileItem.querySelector('h4')
+                    : profileItem.querySelector('h4');
     
                 const desc = profileItem.querySelector('p:not(.profile-description p)');
 
@@ -10865,7 +10884,18 @@ class AccessibilityWidget {
     
                     case 'vision-impaired':
     
-                     
+                        if (title) title.textContent = this.getTranslation(langCode, 'visionImpaired', 'Vision Impaired Profile');
+    
+                        if (desc) desc.textContent = this.getTranslation(langCode, 'visionImpairedDesc', 'Enhances text readability and visual clarity');
+    
+                        // Update aria-label for the checkbox
+                        const checkbox = this.shadowRoot.getElementById('vision-impaired');
+                        if (checkbox) {
+                            const titleText = this.getTranslation(langCode, 'visionImpaired', 'Vision Impaired Profile');
+                            const descText = this.getTranslation(langCode, 'visionImpairedDesc', 'Enhances text readability and visual clarity');
+                            checkbox.setAttribute('aria-label', `${titleText} - ${descText}`);
+                        }
+    
                         break;
     
                     case 'adhd-friendly':
@@ -13686,20 +13716,23 @@ class AccessibilityWidget {
         }
         
         updateContentScale() {
-            const body = document.body;
-            
-           
+            // Ensure document is ready
+            if (!document.head) {
+                console.warn('Document head not ready for content scaling');
+                return;
+            }
             
             // If content scale is 100%, reset to normal
             if (this.contentScale === 100) {
-               
-                
                 // Remove any existing content scaling CSS
                 const existingStyle = document.getElementById('content-scaling-styles');
                 if (existingStyle) {
                     existingStyle.remove();
                 }
-                
+                // Also remove any inline styles that might have been set
+                if (document.documentElement) {
+                    document.documentElement.style.removeProperty('font-size');
+                }
                 return;
             }
             
@@ -13711,19 +13744,30 @@ class AccessibilityWidget {
                 document.head.appendChild(style);
             }
             
-            const scale = this.contentScale / 100;
+            // Use percentage on html root - this scales all rem-based units
+            // Percentage is relative to browser default (16px), so 120% = 19.2px
             style.textContent = `
-                /* Content scaling via root font-size to preserve layout flow */
+                /* Content scaling via root font-size - scales all rem units */
                 html {
                     font-size: ${this.contentScale}% !important;
                 }
-                
-                /* Do not alter line-height; let site CSS control it */
                 
                 /* Ensure body and html can scroll properly */
                 html, body {
                     overflow-x: hidden !important;
                     overflow-y: auto !important;
+                }
+                
+                /* Scale text elements that use em/rem units */
+                body, p, h1, h2, h3, h4, h5, h6, span, div, a, li, td, th, label {
+                    font-size: ${this.contentScale}% !important;
+                }
+                
+                /* Reset accessibility UI to normal size */
+                .accessibility-panel, #accessibility-icon, .accessibility-icon, 
+                accessibility-widget, ACCESSIBILITY-WIDGET,
+                accessibility-widget *, #accessibility-icon * {
+                    font-size: initial !important;
                 }
                 
                 /* Media scales with text */
@@ -13732,18 +13776,21 @@ class AccessibilityWidget {
                     height: auto !important;
                 }
                 
-                /* Form controls follow root scaling; avoid transforms */
+                /* Form controls follow root scaling */
                 button, input, textarea, select {
-                    font-size: inherit !important;
-                }
-                
-                /* Keep the accessibility UI unscaled */
-                .accessibility-panel, #accessibility-icon, .accessibility-icon, accessibility-widget, ACCESSIBILITY-WIDGET {
-                    font-size: initial !important;
+                    font-size: ${this.contentScale}% !important;
                 }
             `;
             
-      
+            // Also set directly on html element as fallback
+            if (document.documentElement) {
+                document.documentElement.style.setProperty('font-size', `${this.contentScale}%`, 'important');
+            }
+            
+            // Force a reflow to ensure styles are applied
+            if (document.body) {
+                document.body.offsetHeight; // Trigger reflow
+            }
         }
         
         updateContentScaleDisplay() {
