@@ -3,7 +3,7 @@
     try {
         // Skip accessibility widget if in reader mode or if page is being processed for reader mode
         const isReaderMode = document.documentElement.classList.contains('reader-mode') || 
-            (document.body && document.body.classList.contains('reader-mode')) ||
+            document.body.classList.contains('reader-mode') ||
             window.location.search.includes('reader-mode') ||
             document.querySelector('[data-reader-mode]') ||
             document.querySelector('.reader-mode') ||
@@ -21,7 +21,7 @@
             window.location.search.includes('print') ||
             // Check for reader mode classes that might be added by browsers
             document.documentElement.getAttribute('data-reader-mode') ||
-            (document.body && document.body.getAttribute('data-reader-mode'));
+            document.body.getAttribute('data-reader-mode');
             
         if (isReaderMode) {
            
@@ -1151,6 +1151,8 @@ function applyVisionImpaired(on) {
     }
 })();
 
+// Prevent duplicate declaration if script loads multiple times
+if (typeof AccessibilityWidget === 'undefined') {
 class AccessibilityWidget {
     constructor() {
     
@@ -1181,7 +1183,7 @@ class AccessibilityWidget {
             this.isOpeningDropdown = false; // Flag to prevent immediate close
     
             // Set the KV API URL for your worker
-            this.kvApiUrl = 'https://accessibility-widget.web-8fb.workers.dev/';
+            this.kvApiUrl = 'https://accessibility-widget.web-8fb.workers.dev';
             
 
             // CRITICAL: Check for seizure-safe mode immediately and apply it before any animations start
@@ -1258,8 +1260,9 @@ class AccessibilityWidget {
             try {
                 const siteId = await this.getSiteId();
                 if (!siteId) return false;
-                // Endpoint deprecated; consider presence of siteId sufficient
-                return true;
+                
+                const response = await fetch(`${this.kvApiUrl}/api/accessibility/user-data?siteId=${siteId}`);
+                return response.ok;
             } catch (error) {
                 return false;
             }
@@ -1297,37 +1300,40 @@ class AccessibilityWidget {
             }
         }
         
-        // Check payment status (staging free, custom domains require active paid)
+        // Check payment status
         async checkPaymentStatus() {
             
             
             try {
-                // Staging sites are free - check for all staging patterns
-                const host = window.location.hostname || '';
-                const isStagingDomain = host.endsWith('.webflow.io') || 
-                                       host.endsWith('.webflow.com') || 
-                                       host.includes('localhost') ||
-                                       host.includes('127.0.0.1') ||
-                                       host.includes('staging');
-                if (isStagingDomain) {
-                    return true;
+                const siteId = await this.getSiteId();
+                if (!siteId) {
+                    
+                    return false;
                 }
-                const base1 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
-                const response = await fetch(`${base1}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`);
+                
+                const response = await fetch(`${this.kvApiUrl}/api/accessibility/check-payment-status?siteId=${siteId}&domain=${encodeURIComponent(window.location.hostname)}`);
                 
                 // Handle rate limit errors with retry
                 if (response.status === 429) {
                     
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     
-                    const base2 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
-                    const retryResponse = await fetch(`${base2}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`);
+                    const retryResponse = await fetch(`${this.kvApiUrl}/api/accessibility/check-payment-status?siteId=${siteId}&domain=${encodeURIComponent(window.location.hostname)}`);
                     if (!retryResponse.ok) {
                         
                         return false;
                     }
                     
                     const paymentData = await retryResponse.json();
+                    
+                    
+                    
+                    
+                    
+                    
+                    for (const [key, value] of Object.entries(paymentData)) {
+                        
+                    }
                     return this.processPaymentResponse(paymentData);
                 }
                 
@@ -1338,6 +1344,13 @@ class AccessibilityWidget {
                 
                 const paymentData = await response.json();
                 
+                
+                
+                
+                
+                for (const [key, value] of Object.entries(paymentData)) {
+                    
+                }
                 return this.processPaymentResponse(paymentData);
                 
             } catch (error) {
@@ -1351,12 +1364,14 @@ class AccessibilityWidget {
             
             
             
-            // Determine active/cancelled from Stripe-derived fields
-            if (!paymentData || typeof paymentData !== 'object') return false;
-            const cancelled = paymentData.subscriptionStatus === 'cancelled' || paymentData.paymentStatus === 'cancelled' || paymentData.isSubscribed === false;
-            if (cancelled) return false;
-            const active = paymentData.paymentStatus === 'paid' || paymentData.subscriptionStatus === 'complete' || paymentData.subscriptionStatus === 'active' || paymentData.isSubscribed === true;
-            return !!active;
+            // Check if payment is active
+            if (paymentData.hasAccess === false) {
+                
+                return false;
+            }
+            
+            
+            return paymentData.hasAccess === true;
         }
         
         // Validate domain access
@@ -1367,55 +1382,10 @@ class AccessibilityWidget {
                 const siteId = await this.getSiteId();
                 const domain = window.location.hostname;
                 
-                // Check if this is a staging domain (always allow)
-                const isStagingDomain = domain && (
-                    domain.endsWith('.webflow.io') || 
-                    domain.endsWith('.webflow.com') || 
-                    domain.includes('localhost') ||
-                    domain.includes('127.0.0.1') ||
-                    domain.includes('staging')
-                );
-                if (isStagingDomain) {
-                    return true;
-                }
-                
-                // Security: Validate domain format
-                if (!domain || typeof domain !== 'string' || domain.length > 253) {
-                    return false;
-                }
-                // Basic domain validation - alphanumeric, dots, hyphens only
-                if (!/^[a-zA-Z0-9.-]+$/.test(domain)) {
-                    return false;
-                }
-                
-                // Read siteToken from this script tag
-                let siteTokenParam = null;
-                try {
-                    const scriptEl = document.currentScript || 
-                                   document.querySelector('script[src*="test.js"]') ||
-                                   document.querySelector('script[src*="new.js"]') ||
-                                   document.querySelector('script[src*="accessibility"]');
-                    if (scriptEl && scriptEl.src) {
-                        const u = new URL(scriptEl.src);
-                        siteTokenParam = u.searchParams.get('siteToken');
-                        // Security: Validate token format if present (alphanumeric and common token chars only)
-                        if (siteTokenParam && (!/^[a-zA-Z0-9._-]+$/.test(siteTokenParam) || siteTokenParam.length > 500)) {
-                            siteTokenParam = null;
-                        }
-                    }
-                } catch {}
-                
-                // Security: Validate siteId if present
-                if (siteId && (typeof siteId !== 'string' || siteId.length > 100 || !/^[a-zA-Z0-9_-]+$/.test(siteId))) {
-                    return false;
-                }
-                
-                const visitorId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
-                const base3 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
-                const response = await fetch(`${base3}/api/accessibility/validate-domain`, {
+                const response = await fetch(`${this.kvApiUrl}/api/accessibility/validate-domain`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ domain, siteId, siteToken: siteTokenParam, visitorId })
+                    body: JSON.stringify({ domain, siteId })
                 });
                 
                 if (!response.ok) return false;
@@ -1468,7 +1438,20 @@ class AccessibilityWidget {
             
         }
         
-        
+        // Get user email (implement based on your auth system)
+        getUserEmail() {
+            // Try to get email from various sources
+            const sessionData = sessionStorage.getItem('wf_hybrid_user');
+            if (sessionData) {
+                try {
+                    const parsed = JSON.parse(sessionData);
+                    return parsed.email || parsed.userInfo?.email;
+                } catch (e) {}
+            }
+            
+            // Return default email without prompting
+            return 'user@example.com';
+        }
         
         // ===== END PAYMENT VALIDATION METHODS =====
         
@@ -1615,7 +1598,39 @@ class AccessibilityWidget {
         }
         
         // Set up aggressive monitoring for any text animations that might start
-        // REMOVED: Duplicate setupSeizureSafeMonitoring() - using more comprehensive version below
+        setupSeizureSafeMonitoring() {
+            try {
+                // Set up MutationObserver to watch for dynamically added text animation elements
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList') {
+                            mutation.addedNodes.forEach((node) => {
+                                if (node.nodeType === Node.ELEMENT_NODE) {
+                                    // Check if the added node has text animation classes
+                                    const textAnimationClasses = ['fade-up', 'fade-left', 'fade-right', 'fade-in', 'fade-up-multi-text', 'fade-up-multi-text-fast', 'char', 'word', 'split', 'splitting'];
+                                    const hasAnimationClass = textAnimationClasses.some(className => node.classList.contains(className));
+                                    if (hasAnimationClass) {
+                                        // Force the animation to complete immediately
+                                        node.style.animation = 'none';
+                                        node.style.transition = 'none';
+                                        node.style.opacity = '1';
+                                        node.style.visibility = 'visible';
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                // Start observing
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            } catch (e) {
+                
+            }
+        }
         
         // Set up aggressive monitoring for text animations when seizure-safe mode is active
         setupSeizureSafeMonitoring() {
@@ -4560,17 +4575,7 @@ class AccessibilityWidget {
     
             icon.setAttribute('aria-describedby', 'accessibility-icon-description');
     
-            // Security: Use DOM methods instead of innerHTML for safe HTML insertion
-            icon.textContent = '';
-            const iconElement = document.createElement('i');
-            iconElement.className = 'fas fa-universal-access';
-            iconElement.setAttribute('aria-hidden', 'true');
-            icon.appendChild(iconElement);
-            const descriptionSpan = document.createElement('span');
-            descriptionSpan.id = 'accessibility-icon-description';
-            descriptionSpan.className = 'sr-only';
-            descriptionSpan.textContent = 'Click to open accessibility settings panel';
-            icon.appendChild(descriptionSpan);
+            icon.innerHTML = '<i class="fas fa-universal-access" aria-hidden="true"></i><span id="accessibility-icon-description" class="sr-only">Click to open accessibility settings panel</span>';
     
             icon.style.pointerEvents = 'auto';
             
@@ -8653,9 +8658,7 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "Clear flashes & reduces color",
     
-                    visionImpaired: "Vision Impaired Profile",
-    
-                    visionImpairedDesc: "Enhances text readability and visual clarity",
+                    // Vision impaired feature removed
     
                     adhdFriendly: "ADHD Friendly Profile",
     
@@ -8834,8 +8837,7 @@ class AccessibilityWidget {
                     profilesTitle: "Elige el perfil de accesibilidad adecuado para ti",
         seizureSafe: "Perfil Anti-Convulsiones",
                     seizureSafeDesc: "Elimina destellos y reduce colores",
-        visionImpaired: "Perfil para Baja Visión",
-        visionImpairedDesc: "Mejora la legibilidad del texto y la claridad visual",
+        // Vision impaired feature removed
                     adhdFriendly: "Perfil Amigable para TDAH",
                     adhdFriendlyDesc: "Más enfoque y menos distracciones",
                     cognitiveDisability: "Perfil de Discapacidad Cognitiva",
@@ -8940,9 +8942,7 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "Entfernt Blitze und reduziert Farben",
     
-                    visionImpaired: "Profil für Sehbehinderte",
-    
-                    visionImpairedDesc: "Verbessert die Textlesbarkeit und visuelle Klarheit",
+                    // Vision impaired feature removed
     
                     adhdFriendly: "ADHS-freundliches Profil",
     
@@ -9123,8 +9123,7 @@ class AccessibilityWidget {
         profilesTitle: "Choisissez le bon profil d'accessibilité pour vous",
         seizureSafe: "Profil Anti-Épilepsie",
         seizureSafeDesc: "Élimine les flashs et réduit les couleurs",
-        visionImpaired: "Profil pour Malvoyants",
-        visionImpairedDesc: "Améliore la lisibilité du texte et la clarté visuelle",
+        // Vision impaired feature removed
         adhdFriendly: "Profil TDAH",
         adhdFriendlyDesc: "Plus de concentration et moins de distractions",
         cognitiveDisability: "Profil Déficience Cognitive",
@@ -9222,8 +9221,7 @@ class AccessibilityWidget {
         profilesTitle: "Escolha o perfil de acessibilidade certo para você",
         seizureSafe: "Perfil Anti-Convulsões",
         seizureSafeDesc: "Elimina flashes e reduz cores",
-        visionImpaired: "Perfil para Baixa Visão",
-        visionImpairedDesc: "Melhora a legibilidade do texto e a clareza visual",
+        // Vision impaired feature removed
                     adhdFriendly: "Perfil Amigável para TDAH",
         adhdFriendlyDesc: "Mais foco e menos distrações",
                     cognitiveDisability: "Perfil de Deficiência Cognitiva",
@@ -9323,8 +9321,7 @@ class AccessibilityWidget {
                     profilesTitle: "Scegli il profilo di accessibilità giusto per te",
         seizureSafe: "Profilo Anti-Epilettico",
         seizureSafeDesc: "Elimina i flash e riduce i colori",
-        visionImpaired: "Profilo per Ipovedenti",
-        visionImpairedDesc: "Migliora la leggibilità del testo e la chiarezza visiva",
+        // Vision impaired feature removed
                     adhdFriendly: "Profilo Amichevole per ADHD",
         adhdFriendlyDesc: "Più concentrazione e meno distrazioni",
         cognitiveDisability: "Profilo per Disabilità Cognitive",
@@ -9424,8 +9421,7 @@ class AccessibilityWidget {
         profilesTitle: "בחרו את פרופיל הנגישות הנכון עבורכם",
         seizureSafe: "פרופיל בטוח מפני התקפים",
         seizureSafeDesc: "מבטל הבזקים ומפחית צבעים",
-        visionImpaired: "פרופיל לכבדי ראייה",
-        visionImpairedDesc: "משפר את קריאות הטקסט ואת הבהירות החזותית",
+        // Vision impaired feature removed
         adhdFriendly: "פרופיל ידידותי ל-ADHD",
         adhdFriendlyDesc: "יותר ריכוז ופחות הסחות דעת",
         cognitiveDisability: "פרופיל לקות קוגניטיבית",
@@ -9530,9 +9526,7 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "מסיר הבזקים ומפחית צבעים",
     
-                    visionImpaired: "פרופיל לכבדי ראייה",
-    
-                    visionImpairedDesc: "משפר את קריאות הטקסט ואת הבהירות החזותית",
+                    // Vision impaired feature removed
     
                     adhdFriendly: "פרופיל ידידותי ל-ADHD",
     
@@ -9713,8 +9707,7 @@ class AccessibilityWidget {
         profilesTitle: "Выберите подходящий профиль доступности",
         seizureSafe: "Профиль против эпилепсии",
         seizureSafeDesc: "Устраняет вспышки и снижает цвета",
-        visionImpaired: "Профиль для слабовидящих",
-        visionImpairedDesc: "Улучшает читаемость текста и визуальную четкость",
+                    // Vision impaired feature removed
                     adhdFriendly: "Профиль для СДВГ",
         adhdFriendlyDesc: "Больше концентрации и меньше отвлекающих факторов",
                     cognitiveDisability: "Профиль когнитивных нарушений",
@@ -9813,8 +9806,7 @@ class AccessibilityWidget {
         profilesTitle: "為您選擇合適的無障礙設定檔",
         seizureSafe: "防癲癇設定檔",
         seizureSafeDesc: "消除閃爍並減少顏色",
-        visionImpaired: "視障者設定檔",
-        visionImpairedDesc: "增強文字可讀性並提升整體視覺清晰度",
+        // Vision impaired feature removed
         adhdFriendly: "ADHD友善設定檔",
         adhdFriendlyDesc: "更多專注，更少分心",
         cognitiveDisability: "認知障礙設定檔",
@@ -9918,9 +9910,7 @@ class AccessibilityWidget {
     
                     seizureSafeDesc: "يزيل الومضات ويقلل الألوان",
     
-                    visionImpaired: "ملف لضعاف البصر",
-    
-                    visionImpairedDesc: "يعزز وضوح النص والعناصر المرئية",
+                    // Vision impaired feature removed
     
                     adhdFriendly: "ملف صديق لاضطراب فرط الحركة",
     
@@ -11169,36 +11159,26 @@ class AccessibilityWidget {
             
     
             if (resetBtn) {
-                // Security: Use textContent for safe text insertion, create icon separately
-                resetBtn.textContent = '';
-                const resetIcon = document.createElement('i');
-                resetIcon.className = 'fas fa-redo';
-                resetIcon.setAttribute('aria-hidden', 'true');
-                resetBtn.appendChild(resetIcon);
-                const resetText = document.createTextNode(' ' + (translations.resetSettings || 'Reset Settings'));
-                resetBtn.appendChild(resetText);
+    
+                resetBtn.innerHTML = `<i class="fas fa-redo"></i> ${translations.resetSettings || 'Reset Settings'}`;
+    
+        
+    
             }
     
             if (statementBtn) {
-                // Security: Use textContent for safe text insertion, create icon separately
-                statementBtn.textContent = '';
-                const statementIcon = document.createElement('i');
-                statementIcon.className = 'fas fa-file-alt';
-                statementIcon.setAttribute('aria-hidden', 'true');
-                statementBtn.appendChild(statementIcon);
-                const statementText = document.createTextNode(' ' + (translations.statement || 'Statement'));
-                statementBtn.appendChild(statementText);
+    
+                statementBtn.innerHTML = `<i class="fas fa-file-alt"></i> ${translations.statement || 'Statement'}`;
+   
+    
             }
     
             if (hideBtn) {
-                // Security: Use textContent for safe text insertion, create icon separately
-                hideBtn.textContent = '';
-                const hideIcon = document.createElement('i');
-                hideIcon.className = 'fas fa-eye-slash';
-                hideIcon.setAttribute('aria-hidden', 'true');
-                hideBtn.appendChild(hideIcon);
-                const hideText = document.createTextNode(' ' + (translations.hideInterface || 'Hide Interface'));
-                hideBtn.appendChild(hideText);
+    
+                hideBtn.innerHTML = `<i class="fas fa-eye-slash"></i> ${translations.hideInterface || 'Hide Interface'}`;
+    
+            
+    
             }
     
             
@@ -13732,12 +13712,13 @@ class AccessibilityWidget {
             }
             
             const scale = this.contentScale / 100;
-            
             style.textContent = `
-                /* Content scaling using zoom - works in Chrome, Safari, Edge, Firefox 110+ */
+                /* Content scaling via root font-size to preserve layout flow */
                 html {
-                    zoom: ${scale} !important;
+                    font-size: ${this.contentScale}% !important;
                 }
+                
+                /* Do not alter line-height; let site CSS control it */
                 
                 /* Ensure body and html can scroll properly */
                 html, body {
@@ -13745,9 +13726,20 @@ class AccessibilityWidget {
                     overflow-y: auto !important;
                 }
                 
-                /* Keep the accessibility UI unscaled - counter the zoom */
+                /* Media scales with text */
+                img, video, canvas, iframe {
+                    max-width: 100% !important;
+                    height: auto !important;
+                }
+                
+                /* Form controls follow root scaling; avoid transforms */
+                button, input, textarea, select {
+                    font-size: inherit !important;
+                }
+                
+                /* Keep the accessibility UI unscaled */
                 .accessibility-panel, #accessibility-icon, .accessibility-icon, accessibility-widget, ACCESSIBILITY-WIDGET {
-                    zoom: ${1 / scale} !important;
+                    font-size: initial !important;
                 }
             `;
             
@@ -16645,17 +16637,9 @@ class AccessibilityWidget {
             const saved = localStorage.getItem('accessibility-settings');
     
             if (saved) {
-                // Security: Add error handling for JSON parsing to prevent prototype pollution
-                try {
-                    this.settings = JSON.parse(saved);
-                    // Validate that settings is an object and not null
-                    if (typeof this.settings !== 'object' || this.settings === null || Array.isArray(this.settings)) {
-                        this.settings = {};
-                    }
-                } catch (e) {
-                    console.warn('Failed to parse saved settings, using defaults:', e);
-                    this.settings = {};
-                }
+    
+                this.settings = JSON.parse(saved);
+    
             }
     
             
@@ -16898,34 +16882,13 @@ class AccessibilityWidget {
                     return;
                 }
                 
-                // Security: Validate siteId format
-                if (typeof siteId !== 'string' || siteId.length > 100 || !/^[a-zA-Z0-9_-]+$/.test(siteId)) {
-                    console.warn('Invalid siteId format, skipping KV save');
-                    return;
-                }
-                
-                // Security: Sanitize URL to remove sensitive query parameters
-                let sanitizedUrl = window.location.href;
-                try {
-                    const url = new URL(window.location.href);
-                    // Remove potentially sensitive query parameters
-                    const sensitiveParams = ['token', 'password', 'secret', 'key', 'auth', 'session', 'sid'];
-                    sensitiveParams.forEach(param => {
-                        url.searchParams.delete(param);
-                    });
-                    sanitizedUrl = url.toString();
-                } catch {
-                    // If URL parsing fails, use origin only
-                    sanitizedUrl = window.location.origin + window.location.pathname;
-                }
-                
                 // Prepare settings data for KV
                 const settingsData = {
                     siteId: siteId,
                     settings: this.settings,
                     timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent ? navigator.userAgent.substring(0, 500) : '', // Limit length
-                    url: sanitizedUrl
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
                 };
        
                 
@@ -20048,103 +20011,64 @@ class AccessibilityWidget {
         
         // Override global audio/video methods to prevent any new audio from playing
         overrideGlobalAudioMethods() {
-            // Initialize originalMethods if not already initialized
-            if (!this.originalMethods) {
-                this.originalMethods = {};
-            }
+
             
-            // Override HTMLAudioElement methods
-            if (typeof HTMLAudioElement !== 'undefined' && !this.originalMethods.audioPlay) {
-                this.originalMethods.audioPlay = HTMLAudioElement.prototype.play;
+            // Override HTMLAudioElement and HTMLVideoElement methods
+            if (typeof HTMLAudioElement !== 'undefined') {
+                const originalPlay = HTMLAudioElement.prototype.play;
                 HTMLAudioElement.prototype.play = function() {
-                    // Immediately mute and pause to prevent any sound
+               
                     this.muted = true;
                     this.volume = 0;
-                    if (!this.paused) {
-                        this.pause();
-                    }
-                    // Return a resolved promise that doesn't actually play
                     return Promise.resolve();
                 };
             }
             
-            // Override HTMLVideoElement methods
-            if (typeof HTMLVideoElement !== 'undefined' && !this.originalMethods.videoPlay) {
-                this.originalMethods.videoPlay = HTMLVideoElement.prototype.play;
+            if (typeof HTMLVideoElement !== 'undefined') {
+                const originalVideoPlay = HTMLVideoElement.prototype.play;
                 HTMLVideoElement.prototype.play = function() {
-                    // Immediately mute and pause to prevent any sound
+                   
                     this.muted = true;
                     this.volume = 0;
-                    if (!this.paused) {
-                        this.pause();
-                    }
-                    // Return a resolved promise that doesn't actually play
                     return Promise.resolve();
                 };
             }
             
             // Override Web Audio API methods
             if (typeof AudioContext !== 'undefined') {
-                // Override createBufferSource
-                if (!this.originalMethods.createBufferSource) {
-                    this.originalMethods.createBufferSource = AudioContext.prototype.createBufferSource;
-                    AudioContext.prototype.createBufferSource = function() {
-                        // Return a dummy object that doesn't produce sound
-                        return {
-                            connect: () => {},
-                            start: () => {},
-                            stop: () => {},
-                            disconnect: () => {},
-                            pause: () => {}
-                        };
+                const originalCreateBufferSource = AudioContext.prototype.createBufferSource;
+                AudioContext.prototype.createBufferSource = function() {
+               
+                    return {
+                        connect: () => {},
+                        start: () => {},
+                        stop: () => {},
+                        disconnect: () => {}
                     };
-                }
-                
-                // Override AudioContext constructor to track all instances
-                if (!this.originalMethods.AudioContext) {
-                    const OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (OriginalAudioContext) {
-                        this.originalMethods.AudioContext = OriginalAudioContext;
-                        const self = this;
-                        window.AudioContext = function(...args) {
-                            const context = new OriginalAudioContext(...args);
-                            // Immediately suspend if mute is active
-                            if (self.settings['mute-sound']) {
-                                context.suspend();
-                            }
-                            return context;
-                        };
-                        window.AudioContext.prototype = OriginalAudioContext.prototype;
-                        
-                        // Also override webkitAudioContext if it exists
-                        if (window.webkitAudioContext) {
-                            window.webkitAudioContext = window.AudioContext;
-                        }
-                    }
-                }
+                };
             }
             
             // Override common audio library methods
             if (typeof window !== 'undefined') {
                 // Override Howler.js if present
-                if (window.Howl && !this.originalMethods.howl) {
-                    this.originalMethods.howl = window.Howl;
+                if (window.Howl) {
+                    const originalHowl = window.Howl;
                     window.Howl = function() {
+                 
                         return {
                             play: () => {},
                             pause: () => {},
                             stop: () => {},
                             mute: () => {},
-                            volume: () => {},
-                            unload: () => {}
+                            volume: () => {}
                         };
                     };
                 }
                 
                 // Override SoundJS if present
-                if (window.createjs && window.createjs.Sound && !this.originalMethods.soundJS) {
-                    this.originalMethods.soundJS = window.createjs.Sound.play;
+                if (window.createjs && window.createjs.Sound) {
                     window.createjs.Sound.play = function() {
+                
                         return null;
                     };
                 }
@@ -20214,6 +20138,7 @@ class AccessibilityWidget {
         
         // Restore global audio methods
         restoreGlobalAudioMethods() {
+            
             if (this.originalMethods) {
                 // Restore HTMLAudioElement methods
                 if (this.originalMethods.audioPlay && typeof HTMLAudioElement !== 'undefined') {
@@ -20229,19 +20154,13 @@ class AccessibilityWidget {
                 if (this.originalMethods.createBufferSource && typeof AudioContext !== 'undefined') {
                     AudioContext.prototype.createBufferSource = this.originalMethods.createBufferSource;
                 }
-                
-                // Restore AudioContext constructor
-                if (this.originalMethods.AudioContext) {
-                    window.AudioContext = this.originalMethods.AudioContext;
-                    if (window.webkitAudioContext) {
-                        window.webkitAudioContext = this.originalMethods.AudioContext;
-                    }
-                }
             }
         }
         
         // Add event listeners to catch new media elements
         addMediaEventListeners() {
+          
+            
             // Listen for new audio/video elements being added to the DOM
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -20249,29 +20168,15 @@ class AccessibilityWidget {
                         if (node.nodeType === 1) { // Element node
                             // Check if it's a media element
                             if (node.tagName === 'AUDIO' || node.tagName === 'VIDEO') {
+                    
                                 this.muteElement(node);
-                            }
-                            
-                            // Check for iframes being added
-                            if (node.tagName === 'IFRAME') {
-                                // Mute iframe immediately
-                                setTimeout(() => {
-                                    this.muteIframePlayer(node);
-                                }, 100); // Small delay to allow iframe to load
                             }
                             
                             // Check for media elements within the added node
                             const mediaElements = node.querySelectorAll ? node.querySelectorAll('audio, video') : [];
                             mediaElements.forEach(element => {
+                         
                                 this.muteElement(element);
-                            });
-                            
-                            // Check for iframes within the added node
-                            const iframes = node.querySelectorAll ? node.querySelectorAll('iframe') : [];
-                            iframes.forEach(iframe => {
-                                setTimeout(() => {
-                                    this.muteIframePlayer(iframe);
-                                }, 100);
                             });
                         }
                     });
@@ -20285,38 +20190,6 @@ class AccessibilityWidget {
             
             // Store observer for cleanup
             this.mediaObserver = observer;
-            
-            // Add global event listeners to catch any media that tries to play
-            const handlePlayEvent = (e) => {
-                if (this.settings['mute-sound']) {
-                    const element = e.target;
-                    if (element.tagName === 'AUDIO' || element.tagName === 'VIDEO') {
-                        element.muted = true;
-                        element.volume = 0;
-                        element.pause();
-                        element.currentTime = 0;
-                    }
-                }
-            };
-            
-            const handlePlayingEvent = (e) => {
-                if (this.settings['mute-sound']) {
-                    const element = e.target;
-                    if (element.tagName === 'AUDIO' || element.tagName === 'VIDEO') {
-                        element.muted = true;
-                        element.volume = 0;
-                        element.pause();
-                    }
-                }
-            };
-            
-            // Add event listeners to document for capturing phase
-            document.addEventListener('play', handlePlayEvent, true);
-            document.addEventListener('playing', handlePlayingEvent, true);
-            
-            // Store handlers for cleanup
-            this.globalPlayHandler = handlePlayEvent;
-            this.globalPlayingHandler = handlePlayingEvent;
         }
         
         // Remove media event listeners
@@ -20324,17 +20197,7 @@ class AccessibilityWidget {
             if (this.mediaObserver) {
                 this.mediaObserver.disconnect();
                 this.mediaObserver = null;
-            }
-            
-            // Remove global event listeners
-            if (this.globalPlayHandler) {
-                document.removeEventListener('play', this.globalPlayHandler, true);
-                this.globalPlayHandler = null;
-            }
-            
-            if (this.globalPlayingHandler) {
-                document.removeEventListener('playing', this.globalPlayingHandler, true);
-                this.globalPlayingHandler = null;
+               
             }
         }
         
@@ -20352,7 +20215,7 @@ class AccessibilityWidget {
         
         // Enhanced muting for iframe-based players (YouTube, Vimeo, etc.)
         muteIframePlayer(iframe) {
-            if (!iframe || !iframe.contentWindow) return;
+           
             
             try {
                 // Try to access iframe content (may fail due to CORS)
@@ -20369,157 +20232,30 @@ class AccessibilityWidget {
                     });
                 }
             } catch (e) {
-                // CORS error expected for cross-origin iframes
+               
             }
             
             // Try to mute via postMessage (for supported players)
-            // Security: Use specific target origins instead of wildcard
             try {
-                const iframeSrc = iframe.src || iframe.getAttribute('src') || '';
-                if (!iframeSrc) return;
+                iframe.contentWindow?.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: 'mute',
+                    args: ''
+                }), '*');
                 
-                let targetOrigin = null;
-                let platform = null;
+                iframe.contentWindow?.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: 'setVolume',
+                    args: '0'
+                }), '*');
                 
-                // Extract origin from iframe src for security
-                try {
-                    const iframeUrl = new URL(iframeSrc);
-                    targetOrigin = iframeUrl.origin;
-                    
-                    // Detect platform for specific commands
-                    const hostname = iframeUrl.hostname.toLowerCase();
-                    if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-                        platform = 'youtube';
-                        targetOrigin = 'https://www.youtube.com';
-                    } else if (hostname.includes('vimeo.com')) {
-                        platform = 'vimeo';
-                        targetOrigin = 'https://player.vimeo.com';
-                    } else if (hostname.includes('soundcloud.com')) {
-                        platform = 'soundcloud';
-                        targetOrigin = 'https://w.soundcloud.com';
-                    } else if (hostname.includes('spotify.com')) {
-                        platform = 'spotify';
-                        targetOrigin = 'https://open.spotify.com';
-                    } else if (hostname.includes('twitch.tv')) {
-                        platform = 'twitch';
-                        targetOrigin = 'https://player.twitch.tv';
-                    } else if (hostname.includes('dailymotion.com')) {
-                        platform = 'dailymotion';
-                        targetOrigin = 'https://www.dailymotion.com';
-                    } else if (hostname.includes('jwplayer.com') || hostname.includes('jwplatform.com')) {
-                        platform = 'jwplayer';
-                    } else if (hostname.includes('brightcove.com')) {
-                        platform = 'brightcove';
-                    } else if (hostname.includes('wistia.com')) {
-                        platform = 'wistia';
-                    }
-                } catch {
-                    // If URL parsing fails, check for known video domains
-                    if (iframeSrc.includes('youtube.com') || iframeSrc.includes('youtu.be')) {
-                        platform = 'youtube';
-                        targetOrigin = 'https://www.youtube.com';
-                    } else if (iframeSrc.includes('vimeo.com')) {
-                        platform = 'vimeo';
-                        targetOrigin = 'https://player.vimeo.com';
-                    } else if (iframeSrc.includes('soundcloud.com')) {
-                        platform = 'soundcloud';
-                        targetOrigin = 'https://w.soundcloud.com';
-                    } else if (iframeSrc.includes('spotify.com')) {
-                        platform = 'spotify';
-                        targetOrigin = 'https://open.spotify.com';
-                    } else if (iframeSrc.includes('twitch.tv')) {
-                        platform = 'twitch';
-                        targetOrigin = 'https://player.twitch.tv';
-                    }
-                }
-                
-                if (!targetOrigin) return;
-                
-                // Send platform-specific mute commands
-                if (platform === 'youtube') {
-                    // YouTube iframe API commands
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        event: 'command',
-                        func: 'mute',
-                        args: ''
-                    }), targetOrigin);
-                    
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        event: 'command',
-                        func: 'setVolume',
-                        args: '0'
-                    }), targetOrigin);
-                    
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        event: 'command',
-                        func: 'pauseVideo',
-                        args: ''
-                    }), targetOrigin);
-                } else if (platform === 'vimeo') {
-                    // Vimeo Player API commands
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        method: 'setVolume',
-                        value: 0
-                    }), targetOrigin);
-                    
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        method: 'pause'
-                    }), targetOrigin);
-                } else if (platform === 'soundcloud') {
-                    // SoundCloud Widget API
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        method: 'setVolume',
-                        value: 0
-                    }), targetOrigin);
-                    
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        method: 'pause'
-                    }), targetOrigin);
-                } else if (platform === 'spotify') {
-                    // Spotify Embed API
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        command: 'setVolume',
-                        value: 0
-                    }), targetOrigin);
-                } else if (platform === 'twitch') {
-                    // Twitch Player API
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        type: 'mute'
-                    }), targetOrigin);
-                } else if (platform === 'dailymotion') {
-                    // Dailymotion Player API
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        command: 'mute'
-                    }), targetOrigin);
-                } else if (platform === 'jwplayer') {
-                    // JW Player API
-                    iframe.contentWindow.postMessage(JSON.stringify({
-                        type: 'mute'
-                    }), targetOrigin);
-                } else {
-                    // Generic postMessage attempts for unknown players
-                    // Try common mute commands
-                    const muteCommands = [
-                        { method: 'mute' },
-                        { command: 'mute' },
-                        { type: 'mute' },
-                        { action: 'mute' },
-                        { method: 'setVolume', value: 0 },
-                        { command: 'setVolume', value: 0 },
-                        { method: 'pause' },
-                        { command: 'pause' }
-                    ];
-                    
-                    muteCommands.forEach(cmd => {
-                        try {
-                            iframe.contentWindow.postMessage(JSON.stringify(cmd), targetOrigin);
-                        } catch (e) {
-                            // Ignore errors
-                        }
-                    });
-                }
+                iframe.contentWindow?.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: 'pauseVideo',
+                    args: ''
+                }), '*');
             } catch (e) {
-                // Ignore errors
+               
             }
             
             // Keep iframe visible but muted
@@ -20654,18 +20390,13 @@ class AccessibilityWidget {
                 
                 // Handle different types of media elements
                 if (element.tagName === 'AUDIO' || element.tagName === 'VIDEO') {
-                    // Standard HTML5 media - force mute and pause immediately
-                    try {
-                        element.muted = true;
-                        element.volume = 0;
-                        element.pause(); // Always pause, even if already paused
-                        element.currentTime = 0; // Reset to beginning
-                        // Add event listeners to prevent unmuting or playing
-                        this.addMuteEventListeners(element);
-                        totalMuted++;
-                    } catch (e) {
-                        // Ignore errors for individual elements
+                    // Standard HTML5 media
+                    element.muted = true;
+                    element.volume = 0;
+                    if (!element.paused) {
+                        element.pause();
                     }
+                    totalMuted++;
                 } else if (element.tagName === 'IFRAME') {
                     // Handle iframe-based players (YouTube, Vimeo, etc.)
                     this.muteIframePlayer(element);
@@ -20724,17 +20455,10 @@ class AccessibilityWidget {
                 
                 // Only mute actual media elements - DO NOT HIDE ANY CONTENT
                 if (element.tagName === 'AUDIO' || element.tagName === 'VIDEO') {
-                    try {
-                        element.muted = true;
-                        element.volume = 0;
-                        element.pause(); // Always pause, even if already paused
-                        element.currentTime = 0; // Reset to beginning
-                        // Add event listeners to prevent unmuting or playing
-                        this.addMuteEventListeners(element);
-                        totalMuted++;
-                    } catch (e) {
-                        // Ignore errors for individual elements
-                    }
+                    element.muted = true;
+                    element.volume = 0;
+                    if (!element.paused) element.pause();
+                    totalMuted++;
                 }
                 // Don't hide any other elements - just mute actual media
             });
@@ -20746,59 +20470,38 @@ class AccessibilityWidget {
                 
                 // Only mute actual media elements - don't hide anything
                 if (source.tagName === 'AUDIO' || source.tagName === 'VIDEO') {
-                    try {
-                        source.muted = true;
-                        source.volume = 0;
-                        source.pause(); // Always pause
-                        source.currentTime = 0; // Reset to beginning
-                        // Add event listeners to prevent unmuting or playing
-                        this.addMuteEventListeners(source);
-                        totalMuted++;
-                    } catch (e) {
-                        // Ignore errors for individual elements
-                    }
+                    source.muted = true;
+                    source.volume = 0;
+                    if (!source.paused) source.pause();
+                    totalMuted++;
                 }
             });
             
-            // 4. Check iframes for media - use enhanced muteIframePlayer function
+            // 4. Check iframes for media
             const iframes = document.querySelectorAll('iframe');
   
             iframes.forEach((iframe, index) => {
                 try {
-                    // First try direct access (same-origin iframes)
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
                     if (iframeDoc) {
                         const iframeAudio = iframeDoc.querySelectorAll('audio');
                         const iframeVideo = iframeDoc.querySelectorAll('video');
 
-                        [...iframeAudio, ...iframeVideo].forEach(element => {
+                        
+                        const iframeMedia = iframeDoc.querySelectorAll('audio, video, [class*="audio"], [class*="video"], [class*="player"]');
+
+                        iframeMedia.forEach(element => {
                             // Only mute actual media elements - don't hide anything
                             if (element.tagName === 'AUDIO' || element.tagName === 'VIDEO') {
-                                try {
-                                    element.volume = 0;
-                                    element.muted = true;
-                                    element.pause(); // Always pause
-                                    element.currentTime = 0; // Reset to beginning
-                                    totalMuted++;
-                                } catch (e) {
-                                    // Ignore errors for iframe content (CORS)
-                                }
+                                element.volume = 0;
+                                element.muted = true;
+                                if (!element.paused) element.pause();
+                                totalMuted++;
                             }
                         });
                     }
-                    
-                    // Always try postMessage for cross-origin iframes (YouTube, Vimeo, etc.)
-                    // This works even when direct access fails due to CORS
-                    this.muteIframePlayer(iframe);
-                    totalMuted++;
                 } catch (e) {
-                    // If direct access fails, still try postMessage
-                    try {
-                        this.muteIframePlayer(iframe);
-                        totalMuted++;
-                    } catch (e2) {
-                        // Ignore errors
-                    }
+                    
                 }
             });
             
@@ -20833,22 +20536,22 @@ class AccessibilityWidget {
         
         // Simple direct restoration
         restoreAllMediaDirectly() {
+          
+            
             const allAudio = document.querySelectorAll('audio');
             const allVideo = document.querySelectorAll('video');
             
-            // Remove mute event listeners and restore media
-            [...allAudio, ...allVideo].forEach(element => {
-                try {
-                    // Remove event listeners if they were added
-                    this.removeMuteEventListeners(element);
-                    // Restore media properties
-                    element.muted = false;
-                    // Restore volume to a reasonable default (1.0 = 100%)
-                    element.volume = 1;
-                } catch (e) {
-                    // Ignore errors for individual elements
-                }
+            allAudio.forEach(element => {
+                element.muted = false;
+                element.volume = 1;
             });
+            
+            allVideo.forEach(element => {
+                element.muted = false;
+                element.volume = 1;
+            });
+            
+      
         }
         
         // Enhanced aggressive monitoring to catch any media that might start playing
@@ -20875,11 +20578,13 @@ class AccessibilityWidget {
                         }
                     });
                     
-                    // Mute all iframe players (not just specific ones)
+                    // Mute iframe players
                     allIframes.forEach(iframe => {
-                        // Try to mute all iframes, not just known ones
-                        // The muteIframePlayer function will handle unknown players with generic commands
-                        this.muteIframePlayer(iframe);
+                        if (iframe.src && (iframe.src.includes('youtube') || iframe.src.includes('vimeo') || 
+                            iframe.src.includes('soundcloud') || iframe.src.includes('spotify') ||
+                            iframe.src.includes('player') || iframe.src.includes('embed'))) {
+                            this.muteIframePlayer(iframe);
+                        }
                     });
                     
                     // Mute embed/object players
@@ -23453,11 +23158,198 @@ class AccessibilityWidget {
         }
         
         // 2. JS Loop Blocking: Override requestAnimationFrame to freeze high-performance animations
-        // REMOVED: Duplicate overrideRequestAnimationFrame() - using more comprehensive version at line 24467
+        overrideRequestAnimationFrame() {
+            // Store the original function to allow restoration later
+            if (!window._originalRequestAnimationFrame) {
+                window._originalRequestAnimationFrame = window.requestAnimationFrame;
+            }
+            
+            // Block visual animations but preserve scroll-related animations
+            window.requestAnimationFrame = (callback) => {
+                if (callback && typeof callback === 'function') {
+                    try {
+                        const callbackStr = callback.toString().toLowerCase();
+                        
+                        // Allow scroll-related animations
+                        if (callbackStr.includes('scroll') || 
+                            callbackStr.includes('wheel') || 
+                            callbackStr.includes('touch') ||
+                            callbackStr.includes('mouse') ||
+                            callbackStr.includes('lenis') ||
+                            callbackStr.includes('gsap') ||
+                            callbackStr.includes('scrolltrigger') ||
+                            callbackStr.includes('locomotive') ||
+                            callbackStr.includes('smooth') ||
+                            callbackStr.includes('parallax')) {
+                            return window._originalRequestAnimationFrame(callback);
+                        }
+                        
+                        // Block visual animations (Lottie, CSS animations, etc.)
+                        if (callbackStr.includes('animation') || 
+                            callbackStr.includes('animate') ||
+                            callbackStr.includes('lottie') ||
+                            callbackStr.includes('fade') ||
+                            callbackStr.includes('slide') ||
+                            callbackStr.includes('bounce') ||
+                            callbackStr.includes('pulse') ||
+                            callbackStr.includes('shake') ||
+                            callbackStr.includes('flash') ||
+                            callbackStr.includes('blink') ||
+                            callbackStr.includes('glow') ||
+                            callbackStr.includes('spin') ||
+                            callbackStr.includes('rotate') ||
+                            callbackStr.includes('scale') ||
+                            callbackStr.includes('zoom') ||
+                            callbackStr.includes('wiggle') ||
+                            callbackStr.includes('jiggle') ||
+                            callbackStr.includes('twist') ||
+                            callbackStr.includes('flip') ||
+                            callbackStr.includes('swing') ||
+                            callbackStr.includes('wobble') ||
+                            callbackStr.includes('tilt')) {
+                            return 0; // Block visual animations
+                        }
+                        
+                        // Allow other callbacks (scroll, etc.)
+                        return window._originalRequestAnimationFrame(callback);
+                    } catch (e) {
+                        
+                        return 0;
+                    }
+                }
+                return 0;
+            };
+            
+       
+        }
         
         // 3. API Controls: Execute .stop() or .pause() methods on known animation libraries
-        // REMOVED: Duplicate stopAnimationLibraries() - using more comprehensive version at line 24703
-        // REMOVED: Duplicate replaceAnimatedMedia() - using more comprehensive version at line 24832
+        stopAnimationLibraries() {
+            // Stop Lottie animations (but don't destroy them)
+            if (typeof lottie !== 'undefined' && lottie.getRegisteredAnimations) {
+                try {
+                    lottie.getRegisteredAnimations().forEach(anim => {
+                        if (anim && typeof anim.stop === 'function') {
+                            anim.stop();
+                        }
+                        if (anim && typeof anim.pause === 'function') {
+                            anim.pause();
+                        }
+                        // REMOVED: anim.destroy() - Don't destroy, just stop
+                    });
+                   
+                } catch (e) {
+                   
+                }
+            }
+            
+            // AGGRESSIVE: Stop GSAP visual animations (but preserve scroll)
+            if (typeof gsap !== 'undefined') {
+                try {
+                    // Kill visual animations but preserve scroll-related ones
+                    if (gsap.killTweensOf) {
+                        gsap.killTweensOf('.fade-up, .fade-left, .fade-right, .fade-in, .slide-in, .scale-in, .zoom-in, .bounce, .pulse, .shake, .flash, .blink, .glow, .spin, .rotate, .scale, .zoom, .wiggle, .jiggle, .twist, .flip, .swing, .wobble, .tilt');
+                    }
+                 
+                } catch (error) {
+                   
+                }
+            }
+
+            // AGGRESSIVE: Stop Three.js animations
+            if (typeof THREE !== 'undefined') {
+                try {
+                    // Stop all THREE.js animations
+                    if (window.scene && window.scene.children) {
+                        window.scene.children.forEach(child => {
+                            if (child.animations && child.animations.length > 0) {
+                                child.animations.forEach(anim => {
+                                    if (anim.stop) anim.stop();
+                                    if (anim.pause) anim.pause();
+                                });
+                            }
+                        });
+                    }
+              
+                } catch (error) {
+                    
+                }
+            }
+
+            // AGGRESSIVE: Stop Swiper animations
+            if (typeof Swiper !== 'undefined') {
+                try {
+                    // Find and stop all Swiper instances
+                    document.querySelectorAll('.swiper').forEach(swiperEl => {
+                        if (swiperEl.swiper && swiperEl.swiper.autoplay) {
+                            swiperEl.swiper.autoplay.stop();
+                        }
+                    });
+                   
+                } catch (error) {
+            
+                }
+            }
+
+            // AGGRESSIVE: Stop AOS animations
+            if (typeof AOS !== 'undefined') {
+                try {
+                    AOS.refresh();
+                 
+                } catch (error) {
+                    
+                }
+            }
+            
+            // Stop Three.js animations
+            if (typeof THREE !== 'undefined') {
+                try {
+                    // Stop all render loops
+                    const renderers = document.querySelectorAll('canvas');
+                    renderers.forEach(canvas => {
+                        if (canvas._threeRenderer) {
+                            canvas._threeRenderer.setAnimationLoop(null);
+                        }
+                    });
+               
+                } catch (e) {
+                   
+                }
+            }
+        }
+        
+        // 4. Media Replacement: Pause autoplay videos and replace animated GIFs with static placeholders
+        replaceAnimatedMedia() {
+            // Stop autoplay videos
+            document.querySelectorAll('video[autoplay]').forEach(video => {
+                video.pause();
+                video.removeAttribute('autoplay');
+            });
+            
+            // Stop autoplay audio
+            document.querySelectorAll('audio[autoplay]').forEach(audio => {
+                audio.pause();
+                audio.removeAttribute('autoplay');
+            });
+            
+            // Replace animated GIFs with static placeholder
+            document.querySelectorAll('img[src$=".gif"]').forEach(img => {
+                if (!img.dataset.originalSrc) {
+                    img.dataset.originalSrc = img.src;
+                    // Use a tiny transparent pixel as placeholder
+                    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+                }
+            });
+            
+            // Replace APNGs with static placeholder
+            document.querySelectorAll('img[src$=".png"]').forEach(img => {
+                if (!img.dataset.originalSrc && img.src.includes('apng')) {
+                    img.dataset.originalSrc = img.src;
+                    img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+                }
+            });
+           
+        }
         
         // 5. Stop DOM manipulation animations (setTimeout/setInterval loops)
         stopDOMAnimationLoops() {
@@ -23584,43 +23476,12 @@ class AccessibilityWidget {
             // Handle embedded media (YouTube, Vimeo, etc.)
             document.querySelectorAll('iframe[src*="youtube"], iframe[src*="vimeo"], iframe[src*="dailymotion"]').forEach(iframe => {
                 try {
-                    // Security: Validate URL before manipulation to prevent XSS
-                    const src = iframe.src;
-                    if (!src || typeof src !== 'string') return;
-                    
-                    // Validate URL format and allowed domains
-                    let isValidUrl = false;
-                    try {
-                        const url = new URL(src);
-                        const allowedDomains = ['youtube.com', 'youtu.be', 'vimeo.com', 'dailymotion.com', 'player.vimeo.com'];
-                        isValidUrl = allowedDomains.some(domain => url.hostname.includes(domain));
-                    } catch {
-                        // If URL parsing fails, skip modification
-                        return;
-                    }
-                    
-                    if (!isValidUrl) return;
-                    
                     // Try to pause embedded videos by modifying src
+                    const src = iframe.src;
                     if (src.includes('autoplay=1')) {
-                        const newSrc = src.replace('autoplay=1', 'autoplay=0');
-                        // Double-check the new URL is still valid
-                        try {
-                            new URL(newSrc);
-                            iframe.src = newSrc;
-                        } catch {
-                            // Invalid URL, skip
-                        }
+                        iframe.src = src.replace('autoplay=1', 'autoplay=0');
                     } else if (!src.includes('autoplay=')) {
-                        const separator = src.includes('?') ? '&' : '?';
-                        const newSrc = src + separator + 'autoplay=0';
-                        // Double-check the new URL is still valid
-                        try {
-                            new URL(newSrc);
-                            iframe.src = newSrc;
-                        } catch {
-                            // Invalid URL, skip
-                        }
+                        iframe.src = src + (src.includes('?') ? '&' : '?') + 'autoplay=0';
                     }
                 } catch (e) {
                   
@@ -23695,7 +23556,12 @@ class AccessibilityWidget {
         }
         
         // Restore requestAnimationFrame
-        // REMOVED: Duplicate restoreRequestAnimationFrame() - using more comprehensive version at line 24737
+        restoreRequestAnimationFrame() {
+            if (window._originalRequestAnimationFrame) {
+                window.requestAnimationFrame = window._originalRequestAnimationFrame;
+              
+            }
+        }
         
         // Restore setTimeout and setInterval
         restoreDOMAnimationLoops() {
@@ -24963,22 +24829,8 @@ class AccessibilityWidget {
                 iframes.forEach(iframe => {
                     try {
                         // Try to pause iframe content if possible
-                        // Security: Use specific target origins instead of wildcard
                         if (iframe.contentWindow && iframe.contentWindow.postMessage) {
-                            const iframeSrc = iframe.src || '';
-                            let targetOrigin = '*';
-                            try {
-                                const iframeUrl = new URL(iframeSrc);
-                                targetOrigin = iframeUrl.origin;
-                            } catch {
-                                // If URL parsing fails, check for known video domains
-                                if (iframeSrc.includes('youtube.com') || iframeSrc.includes('youtu.be')) {
-                                    targetOrigin = 'https://www.youtube.com';
-                                } else if (iframeSrc.includes('vimeo.com')) {
-                                    targetOrigin = 'https://player.vimeo.com';
-                                }
-                            }
-                            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', targetOrigin);
+                            iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
                          
                         }
                     } catch (error) {
@@ -26374,43 +26226,12 @@ class AccessibilityWidget {
                 const iframes = document.querySelectorAll('iframe[src*="youtube"], iframe[src*="vimeo"], iframe[src*="dailymotion"]');
                 iframes.forEach(iframe => {
                     try {
-                        // Security: Validate URL before manipulation to prevent XSS
-                        const src = iframe.src;
-                        if (!src || typeof src !== 'string') return;
-                        
-                        // Validate URL format and allowed domains
-                        let isValidUrl = false;
-                        try {
-                            const url = new URL(src);
-                            const allowedDomains = ['youtube.com', 'youtu.be', 'vimeo.com', 'dailymotion.com', 'player.vimeo.com'];
-                            isValidUrl = allowedDomains.some(domain => url.hostname.includes(domain));
-                        } catch {
-                            // If URL parsing fails, skip modification
-                            return;
-                        }
-                        
-                        if (!isValidUrl) return;
-                        
                         // Try to stop embedded videos by modifying src
+                        const src = iframe.src;
                         if (src.includes('autoplay=1')) {
-                            const newSrc = src.replace('autoplay=1', 'autoplay=0');
-                            // Double-check the new URL is still valid
-                            try {
-                                new URL(newSrc);
-                                iframe.src = newSrc;
-                            } catch {
-                                // Invalid URL, skip
-                            }
+                            iframe.src = src.replace('autoplay=1', 'autoplay=0');
                         } else if (!src.includes('autoplay=0')) {
-                            const separator = src.includes('?') ? '&' : '?';
-                            const newSrc = src + separator + 'autoplay=0';
-                            // Double-check the new URL is still valid
-                            try {
-                                new URL(newSrc);
-                                iframe.src = newSrc;
-                            } catch {
-                                // Invalid URL, skip
-                            }
+                            iframe.src = src + (src.includes('?') ? '&' : '?') + 'autoplay=0';
                         }
                         iframe.setAttribute('data-seizure-safe-stopped', 'true');
                     } catch (_) {}
@@ -28858,8 +28679,7 @@ class AccessibilityWidget {
                 
                 // Add cache busting to ensure fresh data
                 const cacheBuster = `_t=${Date.now()}`;
-                const baseCfg = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
-                const apiUrl = `${baseCfg}/api/accessibility/config?siteId=${this.siteId}&${cacheBuster}`;
+                const apiUrl = `${this.kvApiUrl}/api/accessibility/config?siteId=${this.siteId}&${cacheBuster}`;
                 
                 
                 const response = await fetch(apiUrl, {
@@ -28939,21 +28759,151 @@ class AccessibilityWidget {
             });
         }
     
-        // Get site ID for API calls via script tag (no storage, no mapping)
+        // Get site ID for API calls
         async getSiteId() {
-          try {
-            const scriptEl = document.currentScript || 
-                           document.querySelector('script[src*="test.js"]') ||
-                           document.querySelector('script[src*="new.js"]') ||
-                           document.querySelector('script[src*="accessibility"]');
-            if (scriptEl && scriptEl.src) {
-              const u = new URL(scriptEl.src);
-              const sid = u.searchParams.get('siteId');
-              if (sid) return sid;
-            }
-          } catch {}
-          return null;
+          
+        
+        // Method 1: Check sessionStorage first (set during authorization)
+        let siteId = sessionStorage.getItem('accessibility_site_id');
+        if (siteId) {
+     
+            return siteId;
         }
+        
+        // Method 2: Check if siteId was embedded by the script injection
+        if (window.ACCESSIBILITY_SITE_ID) {
+          
+            return window.ACCESSIBILITY_SITE_ID;
+        }
+        
+        // Method 3: Check if siteId is in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        siteId = urlParams.get('siteId');
+        if (siteId) {
+        
+            return siteId;
+        }
+        
+        // Method 4: Check localStorage
+        siteId = localStorage.getItem('accessibility_site_id');
+        if (siteId) {
+      
+            return siteId;
+        }
+        
+        // Method 4.5: Check sessionStorage for Apps & Integrations flow
+        const sessionData = sessionStorage.getItem('wf_hybrid_user');
+        if (sessionData) {
+            try {
+                const parsed = JSON.parse(sessionData);
+                if (parsed.siteInfo && parsed.siteInfo.siteId) {
+
+                    return parsed.siteInfo.siteId;
+                }
+            } catch (error) {
+    
+            }
+        }
+        
+        // Method 5: Check meta tags
+        const metaSiteId = document.querySelector('meta[name="site-id"]');
+        if (metaSiteId) {
+            siteId = metaSiteId.getAttribute('content');
+          
+            return siteId;
+        }
+        
+        // Method 6: Check body data attribute
+        const bodySiteId = document.body.getAttribute('data-site-id');
+        if (bodySiteId) {
+            siteId = bodySiteId;
+            
+            return siteId;
+        }
+        
+            // Method 7: Domain-based lookup (NEW - This is the key!)
+            const hostname = window.location.hostname;
+
+            
+            if (!this.kvApiUrl) {
+            
+                return null;
+            }
+            
+
+            
+            try {
+                const response = await fetch(`${this.kvApiUrl}/api/accessibility/domain-lookup?domain=${hostname}`);
+          
+            
+            // Handle rate limit errors with retry
+            if (response.status === 429) {
+         
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const retryResponse = await fetch(`${this.kvApiUrl}/api/accessibility/domain-lookup?domain=${hostname}`);
+                if (retryResponse.ok) {
+                    const data = await retryResponse.json();
+             
+                    return data.siteId;
+                } else {
+                   
+                }
+            } else if (response.ok) {
+                const data = await response.json();
+             
+                return data.siteId;
+            } else {
+                const errorText = await response.text();
+                
+            }
+        } catch (error) {
+       
+        }
+        
+        // Method 8: Try without www prefix
+        if (hostname.startsWith('www.')) {
+            const domainWithoutWww = hostname.substring(4);
+        
+            
+            if (!this.kvApiUrl) {
+
+                return null;
+            }
+            
+
+            
+            try {
+                const response = await fetch(`${this.kvApiUrl}/api/accessibility/domain-lookup?domain=${domainWithoutWww}`);
+             
+                // Handle rate limit errors with retry
+                if (response.status === 429) {
+
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    const retryResponse = await fetch(`${this.kvApiUrl}/api/accessibility/domain-lookup?domain=${domainWithoutWww}`);
+                    if (retryResponse.ok) {
+                        const data = await retryResponse.json();
+
+                        return data.siteId;
+                    } else {
+
+                    }
+                } else if (response.ok) {
+                    const data = await response.json();
+                    
+                    return data.siteId;
+                } else {
+                    const errorText = await response.text();
+                    
+                }
+            } catch (error) {
+               
+            }
+        }
+        
+        return null;
+    }
     
     applyCustomizations(customizationData) {
         
@@ -31545,7 +31495,7 @@ class AccessibilityWidget {
                 const currentDomain = window.location.hostname;
               
                 
-                // Check if this is a staging domain (always allow without payment)
+                // Check if this is a staging domain (always allow)
                 const isStagingDomain = currentDomain.includes('.webflow.io') || 
                                        currentDomain.includes('.webflow.com') || 
                                        currentDomain.includes('localhost') ||
@@ -31553,68 +31503,30 @@ class AccessibilityWidget {
                                        currentDomain.includes('staging');
                 
                 if (isStagingDomain) {
-                    return { hasAccess: true, isStaging: true, reason: 'Staging domain - no payment required' };
+                    
+                    return { hasAccess: true, isStaging: true };
                 }
                 
-                // Security: Validate domain format
-                if (!currentDomain || typeof currentDomain !== 'string' || currentDomain.length > 253) {
-                    return { hasAccess: false, isStaging: false };
-                }
-                // Basic domain validation - alphanumeric, dots, hyphens only
-                if (!/^[a-zA-Z0-9.-]+$/.test(currentDomain)) {
-                    return { hasAccess: false, isStaging: false };
+                // For custom domains, check payment status
+                const siteId = sessionStorage.getItem('contrastkit') || 
+                              sessionStorage.getItem('webflow_site_id') || 
+                              sessionStorage.getItem('siteId');
+                
+                if (!siteId) {
+
                 }
                 
-                // For custom domains, validate with signed token from script tag
-                let siteIdParam = null; let siteTokenParam = null;
-                try {
-                    // Try to find the script tag - check for both test.js and new.js
-                    const scriptEl = document.currentScript || 
-                                   document.querySelector('script[src*="test.js"]') ||
-                                   document.querySelector('script[src*="new.js"]') ||
-                                   document.querySelector('script[src*="accessibility"]');
-                    if (scriptEl && scriptEl.src) {
-                        const u = new URL(scriptEl.src);
-                        siteIdParam = u.searchParams.get('siteId');
-                        siteTokenParam = u.searchParams.get('siteToken');
-                        // Security: Validate token format if present
-                        if (siteTokenParam && (!/^[a-zA-Z0-9._-]+$/.test(siteTokenParam) || siteTokenParam.length > 500)) {
-                            siteTokenParam = null;
-                        }
-                        // Security: Validate siteId format if present
-                        if (siteIdParam && (typeof siteIdParam !== 'string' || siteIdParam.length > 100 || !/^[a-zA-Z0-9_-]+$/.test(siteIdParam))) {
-                            siteIdParam = null;
-                        }
-                    }
-                } catch {}
-                const visitorId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
-                const base = ((this && this.kvApiUrl) ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
-                let resp = await fetch(`${base}/api/accessibility/validate-domain`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ domain: currentDomain, siteId: siteIdParam, siteToken: siteTokenParam, visitorId })
-                });
-                if (!resp.ok) {
-                    try {
-                        const err = await resp.json();
-                        if (resp.status === 401 && err && err.error) {
-                            await new Promise(r => setTimeout(r, 500));
-                            resp = await fetch(`${base}/api/accessibility/validate-domain`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ domain: currentDomain, siteId: siteIdParam, siteToken: siteTokenParam, visitorId })
-                            });
-                        }
-                    } catch {}
+                // Check payment status via API
+                const response = await fetch(`https://accessibility-widget.web-8fb.workers.dev/api/accessibility/check-payment-status?domain=${encodeURIComponent(currentDomain)}${siteId ? `&siteId=${siteId}` : ''}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Payment check failed: ${response.status}`);
                 }
-                if (!resp.ok) {
-                    return { hasAccess: false };
-                }
-                const v = await resp.json();
-                if (v && v.isValid) {
-                    return { hasAccess: true };
-                }
-                return { hasAccess: false };
+                
+                const paymentData = await response.json();
+               
+                
+                return paymentData;
                 
             } catch (error) {
                 
@@ -31654,25 +31566,19 @@ class AccessibilityWidget {
         }
         
         // Final reader mode check - prevent any widget initialization in reader mode
-        // Consolidated reader mode check - using same comprehensive check as top of file
         const checkReaderMode = () => {
-            const isReaderMode = document.documentElement.classList.contains('reader-mode') || 
-                (document.body && document.body.classList.contains('reader-mode')) ||
+            if (document.documentElement.classList.contains('reader-mode') || 
+                document.body.classList.contains('reader-mode') ||
                 window.location.search.includes('reader-mode') ||
                 document.querySelector('[data-reader-mode]') ||
                 document.querySelector('.reader-mode') ||
                 document.querySelector('#reader-mode') ||
                 window.location.hash.includes('reader') ||
-                document.title.toLowerCase().includes('reader') ||
-                document.querySelector('meta[name="reader-mode"]') ||
-                document.querySelector('meta[name="reading-mode"]') ||
-                window.navigator.userAgent.includes('Reader') ||
-                window.navigator.userAgent.includes('Readability') ||
-                window.location.search.includes('read') ||
-                window.location.search.includes('print') ||
-                document.documentElement.getAttribute('data-reader-mode') ||
-                (document.body && document.body.getAttribute('data-reader-mode'));
-            return !isReaderMode;
+                document.title.toLowerCase().includes('reader')) {
+
+                return false;
+            }
+            return true;
         };
         
         // Override all widget functions if reader mode is detected
@@ -31697,4 +31603,7 @@ class AccessibilityWidget {
         }
         
     })();
+}
+
+// End of AccessibilityWidget guard
     
