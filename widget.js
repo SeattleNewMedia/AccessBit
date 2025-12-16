@@ -54,9 +54,23 @@
             immediateStyle.id = 'accessibility-seizure-immediate-early';
             immediateStyle.textContent = `
                 /* APPLY GREYISH COLOR FILTER IMMEDIATELY - Reduce color intensity to prevent seizures */
-                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
-                body.seizure-safe *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]),
-                html.seizure-safe *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]) {
+                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
+                body.seizure-safe img,
+                body.seizure-safe video,
+                body.seizure-safe canvas,
+                body.seizure-safe svg,
+                body.seizure-safe picture,
+                body.seizure-safe iframe,
+                body.seizure-safe embed,
+                body.seizure-safe object,
+                html.seizure-safe img,
+                html.seizure-safe video,
+                html.seizure-safe canvas,
+                html.seizure-safe svg,
+                html.seizure-safe picture,
+                html.seizure-safe iframe,
+                html.seizure-safe embed,
+                html.seizure-safe object {
                     filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                 }
@@ -127,7 +141,16 @@
                     visibility: visible !important;
                 }
                 /* HOVER ANIMATIONS: Disable all hover-triggered animations */
-                body.seizure-safe *:hover, body.seizure-safe *:focus, body.seizure-safe *:active, body.seizure-safe *[class*="hover"], body.seizure-safe *[class*="focus"], body.seizure-safe *[class*="active"], body.seizure-safe *[data-hover], body.seizure-safe *[data-focus], body.seizure-safe *[data-active] {
+                /* Exclude dropdown menus and submenus from this rule to prevent them from becoming visible */
+                body.seizure-safe *:hover:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *:focus:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *:active:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *[class*="hover"]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *[class*="focus"]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *[class*="active"]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *[data-hover]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *[data-focus]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
+                body.seizure-safe *[data-active]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul) {
                     animation: none !important;
                     transition: none !important;
                     animation-fill-mode: forwards !important;
@@ -135,9 +158,7 @@
                     visibility: visible !important;
                 }
                 
-                /* CRITICAL: Exclude dropdown menus from visibility forcing - they should remain hidden until explicitly opened */
-                /* This rule must come after the hover rule above to override it for dropdowns */
-                /* Handle both normal and hover states to prevent auto-opening */
+                /* CRITICAL: Keep dropdown menus hidden when closed - override any visibility forcing */
                 body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [id*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
@@ -161,10 +182,10 @@
                 body.seizure-safe [class*="submenu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover {
-                    /* Allow dropdowns to maintain their original visibility state - override the hover rule */
-                    opacity: inherit !important;
-                    visibility: inherit !important;
-                    display: inherit !important;
+                    /* Force closed dropdowns to remain hidden - override any visibility forcing */
+                    opacity: 0 !important;
+                    visibility: hidden !important;
+                    display: none !important;
                 }
                 /* LETTER-BY-LETTER ANIMATIONS: Force all text animations to final state */
                 /* Hide per-character/word spans ONLY after JS has consolidated text on the container.
@@ -428,10 +449,10 @@
                             animation: none !important;
                             transition: none !important;
                         }
-                        /* Restore layout-affecting properties to stylesheet values - exclude nav/header */
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]), 
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"])::before, 
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"])::after {
+                        /* Restore layout-affecting properties to stylesheet values - exclude nav/header and dropdowns */
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul), 
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul)::before, 
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul)::after {
                             transform: unset !important;
                             translate: unset !important;
                             scale: unset !important;
@@ -7857,7 +7878,7 @@ class AccessibilityWidget {
     html body.big-black-cursor,
     body.big-black-cursor *,
     html body.big-black-cursor * {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy1ibGFjayIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjMiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjMDAwMDAwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1ibGFjaykiLz48L3N2Zz4=') 20 10, auto !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy1ibGFjayIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjMiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjMDAwMDAwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1ibGFjaykiLz48L3N2Zz4=') 32 16, auto !important;
     }
     
     /* Big Black Cursor - Hand Pointer for Links - Higher specificity to override default */
@@ -7877,7 +7898,7 @@ class AccessibilityWidget {
     body.big-black-cursor .btn,
     body.big-black-cursor [class*="button"],
     body.big-black-cursor [class*="link"] {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtYmxhY2siIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC4zIi8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLWJsYWNrKSIvPjwvc3ZnPg==') 24 10, pointer !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtYmxhY2siIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC4zIi8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLWJsYWNrKSIvPjwvc3ZnPg==') 32 20, pointer !important;
     }
     
     /* Big White Cursor - Arrow Cursor (default) */
@@ -7885,7 +7906,7 @@ class AccessibilityWidget {
     html body.big-white-cursor,
     body.big-white-cursor *,
     html body.big-white-cursor * {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy13aGl0ZSIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjUiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy13aGl0ZSkiLz48L3N2Zz4=') 20 10, auto !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy13aGl0ZSIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjUiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy13aGl0ZSkiLz48L3N2Zz4=') 32 16, auto !important;
     }
     
     /* Big White Cursor - Hand Pointer for Links - Higher specificity to override default */
@@ -7905,7 +7926,7 @@ class AccessibilityWidget {
     body.big-white-cursor .btn,
     body.big-white-cursor [class*="button"],
     body.big-white-cursor [class*="link"] {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtd2hpdGUiIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC41Ii8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLXdoaXRlKSIvPjwvc3ZnPg==') 24 10, pointer !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtd2hpdGUiIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC41Ii8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLXdoaXRlKSIvPjwvc3ZnPg==') 32 20, pointer !important;
     }
                 /* Hide Interface Modal Styles */
                 .hide-interface-modal {
@@ -16258,13 +16279,46 @@ class AccessibilityWidget {
                     break;
     
                 case 'header':
-                    // Find header on current page - try multiple common selectors
-                    const headerElement = document.querySelector('header, .header, nav, .navbar, [class*="header"], [id*="header"], [role="banner"]');
+                    // Find header on current page - try multiple common selectors in order of priority
+                    const headerSelectors = [
+                        'header',
+                        '[role="banner"]',
+                        '.header',
+                        '#header',
+                        '[class*="header"]:not([class*="subheader"]):not([class*="sub-header"])',
+                        '[id*="header"]:not([id*="subheader"]):not([id*="sub-header"])',
+                        'nav',
+                        '.navbar',
+                        '[class*="navbar"]',
+                        '[class*="nav-bar"]',
+                        '[class*="site-header"]',
+                        '[class*="main-header"]',
+                        '[class*="page-header"]'
+                    ];
+                    
+                    let headerElement = null;
+                    for (const selector of headerSelectors) {
+                        const element = document.querySelector(selector);
+                        if (element) {
+                            // Check if element is actually a header (not a nested nav inside header)
+                            const isTopLevelHeader = !element.closest('header, [role="banner"], .header, [class*="header"]');
+                            if (isTopLevelHeader || selector === 'header' || selector === '[role="banner"]') {
+                                headerElement = element;
+                                break;
+                            }
+                        }
+                    }
+                    
                     if (headerElement) {
-                        headerElement.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'start',
-                            inline: 'nearest'
+                        // Get the actual position of the header (accounting for fixed/sticky headers)
+                        const rect = headerElement.getBoundingClientRect();
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const headerTop = rect.top + scrollTop;
+                        
+                        // Scroll to header position
+                        window.scrollTo({ 
+                            top: Math.max(0, headerTop - 20), // Add small offset for better visibility
+                            behavior: 'smooth' 
                         });
                     } else {
                         // If no header found, scroll to top
@@ -16321,17 +16375,18 @@ class AccessibilityWidget {
                     break;
     
                 case 'portfolio':
-                    // First try to find portfolio section on current page
-                    const portfolioElement = this.findElementBySelector('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
-                    if (portfolioElement) {
-                        this.scrollToElement('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
+                    // First try to find portfolio link in navigation (prioritize navigation over page sections)
+                    // Check multiple selectors to find portfolio links, including dropdown menus
+                    const portfolioLink = document.querySelector('a[href*="portfolio"], a[href*="/portfolio"], a[href$="/portfolio"], nav a[href*="portfolio"], .nav a[href*="portfolio"], [class*="nav"] a[href*="portfolio"], [class*="menu"] a[href*="portfolio"], [class*="header"] a[href*="portfolio"], [class*="dropdown"] a[href*="portfolio"], [class*="menu-item"] a[href*="portfolio"]');
+                    if (portfolioLink && portfolioLink.href) {
+                        window.location.href = portfolioLink.href;
                     } else {
-                        // Try to find portfolio link in navigation
-                        const portfolioLink = document.querySelector('a[href*="portfolio"], nav a[href*="portfolio"], .nav a[href*="portfolio"]');
-                        if (portfolioLink && portfolioLink.href) {
-                            window.location.href = portfolioLink.href;
+                        // If no navigation link found, try to find portfolio section on current page
+                        const portfolioElement = this.findElementBySelector('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
+                        if (portfolioElement) {
+                            this.scrollToElement('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
                         } else {
-                            // Don't navigate to non-existent paths - just scroll to top or show message
+                            // Don't navigate to non-existent paths - just scroll to top
                             // This prevents 404 errors
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
@@ -18445,8 +18500,15 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-contrast-fix';
             style.textContent = `
                 /* Simple High Contrast Mode - Only increase contrast, preserve everything else */
-                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
-                body.high-contrast *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
+                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
+                body.high-contrast img,
+                body.high-contrast video,
+                body.high-contrast canvas,
+                body.high-contrast svg,
+                body.high-contrast picture,
+                body.high-contrast iframe,
+                body.high-contrast embed,
+                body.high-contrast object {
                     filter: contrast(1.1) brightness(1.05) !important;
                     -webkit-filter: contrast(1.1) brightness(1.05) !important;
                 }
@@ -18785,8 +18847,15 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-saturation-css';
             style.textContent = `
                 /* Simple High Saturation Mode - Only increase saturation, preserve everything else */
-                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
-                body.high-saturation *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
+                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
+                body.high-saturation img,
+                body.high-saturation video,
+                body.high-saturation canvas,
+                body.high-saturation svg,
+                body.high-saturation picture,
+                body.high-saturation iframe,
+                body.high-saturation embed,
+                body.high-saturation object {
                     filter: saturate(1.2) !important;
                     -webkit-filter: saturate(1.2) !important;
                 }
@@ -18811,8 +18880,15 @@ class AccessibilityWidget {
             style.id = 'accessibility-low-saturation-css';
             style.textContent = `
                 /* Low Saturation Mode - Simple filter overlay approach */
-                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
-                body.low-saturation *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
+                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
+                body.low-saturation img,
+                body.low-saturation video,
+                body.low-saturation canvas,
+                body.low-saturation svg,
+                body.low-saturation picture,
+                body.low-saturation iframe,
+                body.low-saturation embed,
+                body.low-saturation object {
                     filter: saturate(0.6) !important;
                     -webkit-filter: saturate(0.6) !important;
                 }
@@ -18847,8 +18923,15 @@ class AccessibilityWidget {
     
             style.textContent = `
                 /* Monochrome effect - Simple filter overlay approach */
-                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
-                body.monochrome *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
+                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
+                body.monochrome img,
+                body.monochrome video,
+                body.monochrome canvas,
+                body.monochrome svg,
+                body.monochrome picture,
+                body.monochrome iframe,
+                body.monochrome embed,
+                body.monochrome object {
                     filter: grayscale(100%) !important;
                     -webkit-filter: grayscale(100%) !important;
                 }
