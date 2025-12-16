@@ -9,7 +9,13 @@
             document.querySelector('[data-webflow-design-mode]') ||
             (typeof window.webflow !== 'undefined' && 
              typeof window.webflow.getSiteInfo === 'function' && 
-             window.location.hostname.includes('webflow.com'));
+             window.location.hostname.includes('webflow.com')) ||
+            // Additional Designer detection patterns
+            (window.parent !== window && window.parent.location && window.parent.location.hostname.includes('webflow.com')) ||
+            document.querySelector('[data-wf-page]') && window.location.hostname.includes('webflow.com');
+        
+        // Store Designer state globally for conditional operations
+        window.__accessibilityWidgetIsDesigner = isDesigner;
         
         if (isDesigner) {
             // Exit early - widget should not run in Designer
@@ -618,13 +624,16 @@
                     window.clearInterval = window.__origClearInterval;
                     window.clearTimeout = window.__origClearTimeout;
                     
-                    // Disable Web Animations API - Only when seizure-safe is active
+                    // Disable Web Animations API - Only when seizure-safe is active AND not in Designer
                     try {
-                        if (!window.__origElementAnimate) {
+                        if (!window.__origElementAnimate && !window.__accessibilityWidgetIsDesigner) {
                             window.__origElementAnimate = Element.prototype.animate;
                             Element.prototype.animate = function(...args) {
-                                // Only block if seizure-safe or stop-animation mode is active
-                                const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
+                                // Double-check Designer state and only block if seizure-safe is active
+                                if (window.__accessibilityWidgetIsDesigner) {
+                                    return window.__origElementAnimate.apply(this, args);
+                                }
+                                const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
                                 if (isActive) {
                                     // return a stub Animation
                                     return {
@@ -958,13 +967,21 @@
                     hideClosedDropdowns();
                     
                     // Watch for changes to dropdown states
+                    // CRITICAL: Skip if in Designer to avoid conflicts
                     try {
+                        if (window.__accessibilityWidgetIsDesigner) return;
+                        
                         const dropdownObserver = new MutationObserver(() => {
+                            // Double-check Designer state
+                            if (window.__accessibilityWidgetIsDesigner) return;
                             if (document.body && document.body.classList.contains('seizure-safe')) {
                                 hideClosedDropdowns();
                             }
                         });
-                        dropdownObserver.observe(document.documentElement, {
+                        
+                        // Scope observer to body instead of entire document for better performance
+                        const observeTarget = document.body || document.documentElement;
+                        dropdownObserver.observe(observeTarget, {
                             subtree: true,
                             childList: true,
                             attributes: true,
@@ -1028,8 +1045,17 @@
                             };
                             
                             // Initial sweep - limit to first 5000 elements for safety
+                            // CRITICAL: Skip if in Designer to avoid conflicts
                             try {
-                                const all = document.querySelectorAll('*');
+                                if (window.__accessibilityWidgetIsDesigner) return;
+                                
+                                // Use more specific selectors instead of '*' to reduce scope
+                                const targetSelectors = [
+                                    '[class*="animate"]', '[class*="fade"]', '[class*="slide"]',
+                                    '[data-animation]', '[data-transition]', '[style*="animation"]',
+                                    '[style*="transition"]'
+                                ];
+                                const all = document.querySelectorAll(targetSelectors.join(', '));
                                 let count = 0;
                                 for (const el of all) {
                                     neutralizeElement(el);
@@ -1039,13 +1065,23 @@
                             } catch (_) {}
                             
                             // Observe future changes to styles/classes and neutralize
+                            // CRITICAL: Skip if in Designer to avoid conflicts
                             try {
+                                if (window.__accessibilityWidgetIsDesigner) return;
+                                
                                 const styleObserver = new MutationObserver((mutations) => {
+                                    // Double-check Designer state
+                                    if (window.__accessibilityWidgetIsDesigner) return;
                                     if (!(document.body && document.body.classList.contains('seizure-safe'))) return;
+                                    
                                     for (const m of mutations) {
                                         const target = m.target;
                                         if (!(target instanceof Element)) continue;
                                         if (isExempt(target)) continue;
+                                        
+                                        // Skip if target is inside Designer-specific containers
+                                        if (target.closest('[data-webflow-design-mode], [data-wf-page]')) continue;
+                                        
                                         try {
                                             const inline = (target.getAttribute && target.getAttribute('style')) || '';
                                             if (/animation|transition|transform|opacity|filter/i.test(inline)) {
@@ -1059,7 +1095,10 @@
                                         } catch (_) {}
                                     }
                                 });
-                                styleObserver.observe(document.documentElement, {
+                                
+                                // Scope observer to body instead of entire document for better performance
+                                const observeTarget = document.body || document.documentElement;
+                                styleObserver.observe(observeTarget, {
                                     subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class']
                                 });
                                 window.__seizureStyleObserver = styleObserver;
@@ -1108,17 +1147,33 @@
                     } catch (_) {}
                     
                     // Install hard blockers at the API level for inline styles when seizure-safe is active
+                    // CRITICAL: Skip if in Designer to avoid conflicts
                     try {
+                        if (window.__accessibilityWidgetIsDesigner) return;
+                        
                         if (!window.__installStyleHardBlockers) {
                             window.__installStyleHardBlockers = function() {
-                                const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
+                                // Double-check Designer state
+                                if (window.__accessibilityWidgetIsDesigner) return;
+                                
+                                const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
                                 if (!isActive) return;
                                 try {
                                     if (!window.__origSetProperty) {
                                         window.__origSetProperty = CSSStyleDeclaration.prototype.setProperty;
                                         CSSStyleDeclaration.prototype.setProperty = function(name, value, priority) {
+                                            // Double-check Designer state
+                                            if (window.__accessibilityWidgetIsDesigner) {
+                                                return window.__origSetProperty.call(this, name, value, priority);
+                                            }
+                                            
+                                            // Skip if element is inside Designer-specific containers
+                                            if (this.ownerElement && this.ownerElement.closest('[data-webflow-design-mode], [data-wf-page]')) {
+                                                return window.__origSetProperty.call(this, name, value, priority);
+                                            }
+                                            
                                             // Only block if seizure-safe or stop-animation mode is active
-                                            const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
+                                            const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
                                             if (!isActive) {
                                                 return window.__origSetProperty.call(this, name, value, priority);
                                             }
@@ -1135,7 +1190,17 @@
                                     if (!window.__origStyleAttrSetter) {
                                         window.__origStyleAttrSetter = Element.prototype.setAttribute;
                                         Element.prototype.setAttribute = function(attr, val) {
-                                            const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
+                                            // Double-check Designer state
+                                            if (window.__accessibilityWidgetIsDesigner) {
+                                                return window.__origStyleAttrSetter.call(this, attr, val);
+                                            }
+                                            
+                                            // Skip if element is inside Designer-specific containers
+                                            if (this.closest && this.closest('[data-webflow-design-mode], [data-wf-page]')) {
+                                                return window.__origStyleAttrSetter.call(this, attr, val);
+                                            }
+                                            
+                                            const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
                                             if (String(attr).toLowerCase() === 'style' && typeof val === 'string' && isActive) {
                                                 // Strip blacklisted properties from inline style strings
                                                 let cleaned = val
