@@ -158,9 +158,24 @@
                     visibility: visible !important;
                 }
                 
+                /* CRITICAL: Keep intentionally hidden elements hidden (modals, tooltips, overlays, etc.) */
+                body.seizure-safe [hidden],
+                body.seizure-safe [aria-hidden="true"],
+                body.seizure-safe [class*="modal"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
+                body.seizure-safe [class*="tooltip"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
+                body.seizure-safe [class*="overlay"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
+                body.seizure-safe [class*="popup"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
+                body.seizure-safe [role="dialog"]:not([class*="show"]):not([class*="open"]):not([class*="active"]):not([aria-hidden="false"]),
+                body.seizure-safe [role="tooltip"]:not([class*="show"]):not([class*="open"]):not([class*="active"]):not([aria-hidden="false"]) {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                }
+                
                 /* CRITICAL: Keep dropdown menus hidden when closed - override any visibility forcing */
-                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
-                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
+                /* Check for Webflow dropdowns and other common patterns */
+                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):not(.w-dropdown-list[style*="display: block"]):not(.w-dropdown-list[style*="display:flex"]),
+                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):not(.w-dropdown-list[style*="display: block"]):not(.w-dropdown-list[style*="display:flex"]):hover,
                 body.seizure-safe [id*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [id*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [class*="menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):not(nav):not(header),
@@ -171,6 +186,11 @@
                 body.seizure-safe [role="menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [role="menubar"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [role="menubar"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
+                /* Webflow specific dropdown patterns */
+                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]),
+                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]):hover,
+                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
+                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 /* Also handle common dropdown patterns like ul/ol inside nav items */
                 body.seizure-safe nav ul:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe nav ul:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
@@ -181,8 +201,15 @@
                 body.seizure-safe [class*="submenu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [class*="submenu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
-                body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover {
-                    /* Force closed dropdowns to remain hidden - override any visibility forcing */
+                body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
+                /* Hide Lottie animations and other animation elements inside closed dropdowns */
+                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"],
+                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"] *,
+                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]) [data-animation-type="lottie"],
+                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]) [data-animation-type="lottie"] *,
+                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"],
+                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"] * {
+                    /* Force closed dropdowns and their Lottie animations to remain hidden - override any visibility forcing */
                     opacity: 0 !important;
                     visibility: hidden !important;
                     display: none !important;
@@ -450,15 +477,17 @@
                             transition: none !important;
                         }
                         /* Restore layout-affecting properties to stylesheet values - exclude nav/header and dropdowns */
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul), 
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul)::before, 
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul)::after {
+                        /* CRITICAL: Exclude hidden elements (modals, tooltips, overlays, etc.) from opacity/visibility unset */
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul):not([class*="modal"]):not([class*="tooltip"]):not([class*="overlay"]):not([class*="popup"]):not([role="dialog"]):not([role="tooltip"]):not([aria-hidden="true"]):not([hidden]):not([style*="display: none"]):not([style*="visibility: hidden"]):not([style*="opacity: 0"]), 
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul):not([class*="modal"]):not([class*="tooltip"]):not([class*="overlay"]):not([class*="popup"]):not([role="dialog"]):not([role="tooltip"]):not([aria-hidden="true"]):not([hidden]):not([style*="display: none"]):not([style*="visibility: hidden"]):not([style*="opacity: 0"])::before, 
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul):not([class*="modal"]):not([class*="tooltip"]):not([class*="overlay"]):not([class*="popup"]):not([role="dialog"]):not([role="tooltip"]):not([aria-hidden="true"]):not([hidden]):not([style*="display: none"]):not([style*="visibility: hidden"]):not([style*="opacity: 0"])::after {
                             transform: unset !important;
                             translate: unset !important;
                             scale: unset !important;
                             rotate: unset !important;
-                            opacity: unset !important;
-                            visibility: unset !important;
+                            /* CRITICAL: Do NOT unset opacity/visibility - this makes hidden elements visible */
+                            /* REMOVED: opacity: unset !important; */
+                            /* REMOVED: visibility: unset !important; */
                             /* CRITICAL: Do NOT unset position - this breaks sticky/fixed navigation */
                             /* REMOVED: position: unset !important; */
                             top: unset !important;
@@ -821,6 +850,88 @@
                     // Apply immediately and also on DOMContentLoaded as a second safety
                     window.__applySeizureSafeDOMFreeze();
                     
+                    // Hide closed Webflow dropdowns and their Lottie animations
+                    const hideClosedDropdowns = () => {
+                        try {
+                            // Find all Webflow dropdown lists
+                            const dropdownLists = document.querySelectorAll('.w-dropdown-list, [class*="dropdown-list"]');
+                            dropdownLists.forEach(dropdown => {
+                                try {
+                                    // Check if dropdown is actually open
+                                    const isOpen = dropdown.style.display === 'block' || 
+                                                  dropdown.style.display === 'flex' ||
+                                                  dropdown.classList.contains('w--open') ||
+                                                  dropdown.getAttribute('aria-hidden') === 'false' ||
+                                                  (dropdown.closest('.w-dropdown') && dropdown.closest('.w-dropdown').classList.contains('w--open'));
+                                    
+                                    // If not open, force it to be hidden
+                                    if (!isOpen) {
+                                        dropdown.style.display = 'none';
+                                        dropdown.style.visibility = 'hidden';
+                                        dropdown.style.opacity = '0';
+                                        
+                                        // Also hide all Lottie animations inside the closed dropdown
+                                        const lottieElements = dropdown.querySelectorAll('[data-animation-type="lottie"], [data-src*=".json"], .lottie-animation');
+                                        lottieElements.forEach(lottie => {
+                                            lottie.style.display = 'none';
+                                            lottie.style.visibility = 'hidden';
+                                            lottie.style.opacity = '0';
+                                        });
+                                    }
+                                } catch (_) {}
+                            });
+                            
+                            // Also check for other dropdown patterns
+                            const otherDropdowns = document.querySelectorAll('[class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"])');
+                            otherDropdowns.forEach(dropdown => {
+                                try {
+                                    // Check if it's a dropdown list (not the toggle button)
+                                    if (dropdown.classList.contains('dropdown-list') || 
+                                        dropdown.classList.contains('dropdown-menu') ||
+                                        dropdown.getAttribute('role') === 'menu' ||
+                                        dropdown.id && dropdown.id.includes('dropdown')) {
+                                        const computedStyle = window.getComputedStyle(dropdown);
+                                        // If it's not explicitly shown, hide it
+                                        if (computedStyle.display === 'none' || 
+                                            computedStyle.visibility === 'hidden' ||
+                                            computedStyle.opacity === '0') {
+                                            dropdown.style.display = 'none';
+                                            dropdown.style.visibility = 'hidden';
+                                            dropdown.style.opacity = '0';
+                                            
+                                            // Hide Lottie animations inside
+                                            const lottieElements = dropdown.querySelectorAll('[data-animation-type="lottie"], [data-src*=".json"], .lottie-animation');
+                                            lottieElements.forEach(lottie => {
+                                                lottie.style.display = 'none';
+                                                lottie.style.visibility = 'hidden';
+                                                lottie.style.opacity = '0';
+                                            });
+                                        }
+                                    }
+                                } catch (_) {}
+                            });
+                        } catch (_) {}
+                    };
+                    
+                    // Run immediately and set up observer to keep checking
+                    hideClosedDropdowns();
+                    
+                    // Watch for changes to dropdown states
+                    try {
+                        const dropdownObserver = new MutationObserver(() => {
+                            if (document.body && document.body.classList.contains('seizure-safe')) {
+                                hideClosedDropdowns();
+                            }
+                        });
+                        dropdownObserver.observe(document.documentElement, {
+                            subtree: true,
+                            childList: true,
+                            attributes: true,
+                            attributeFilter: ['style', 'class', 'aria-expanded', 'aria-hidden']
+                        });
+                        window.__seizureDropdownObserver = dropdownObserver;
+                    } catch (_) {}
+                    
                     // Install aggressive animation blocker to neutralize JS-driven animations
                     try {
                         if (!window.__animationBlockerInstalled) {
@@ -841,6 +952,23 @@
                             const neutralizeElement = (el) => {
                                 if (!el || isExempt(el)) return;
                                 try {
+                                    // Check if element is intentionally hidden - don't force it visible
+                                    const computedStyle = window.getComputedStyle(el);
+                                    const isHidden = computedStyle.display === 'none' || 
+                                                    computedStyle.visibility === 'hidden' ||
+                                                    computedStyle.opacity === '0' ||
+                                                    el.hasAttribute('hidden') ||
+                                                    el.getAttribute('aria-hidden') === 'true' ||
+                                                    el.closest('[hidden], [aria-hidden="true"], [class*="modal"]:not([class*="show"]), [class*="tooltip"]:not([class*="show"]), [class*="overlay"]:not([class*="show"]), [role="dialog"]:not([class*="show"]), [role="tooltip"]:not([class*="show"]), [class*="popup"]:not([class*="show"])');
+                                    
+                                    // If element is intentionally hidden, don't modify its opacity/visibility
+                                    if (isHidden) {
+                                        // Only neutralize animations, not visibility
+                                        el.style.animation = 'none';
+                                        el.style.transition = 'none';
+                                        return;
+                                    }
+                                    
                                     el.style.animation = 'none';
                                     el.style.transition = 'none';
                                     el.style.willChange = 'auto';
@@ -853,6 +981,7 @@
                                     if (!(el.matches && el.matches(ICON_SELECTOR)) && !inRotationContext) {
                                         el.style.transform = 'none';
                                     }
+                                    // Only set opacity to 1 if element is not hidden
                                     el.style.opacity = '1';
                                 } catch (_) {}
                             };
@@ -16285,41 +16414,53 @@ class AccessibilityWidget {
                         '[role="banner"]',
                         '.header',
                         '#header',
+                        '[class*="site-header"]',
+                        '[class*="main-header"]',
+                        '[class*="page-header"]',
                         '[class*="header"]:not([class*="subheader"]):not([class*="sub-header"])',
                         '[id*="header"]:not([id*="subheader"]):not([id*="sub-header"])',
                         'nav',
                         '.navbar',
                         '[class*="navbar"]',
-                        '[class*="nav-bar"]',
-                        '[class*="site-header"]',
-                        '[class*="main-header"]',
-                        '[class*="page-header"]'
+                        '[class*="nav-bar"]'
                     ];
                     
                     let headerElement = null;
                     for (const selector of headerSelectors) {
-                        const element = document.querySelector(selector);
-                        if (element) {
-                            // Check if element is actually a header (not a nested nav inside header)
-                            const isTopLevelHeader = !element.closest('header, [role="banner"], .header, [class*="header"]');
-                            if (isTopLevelHeader || selector === 'header' || selector === '[role="banner"]') {
-                                headerElement = element;
-                                break;
+                        try {
+                            const element = document.querySelector(selector);
+                            if (element) {
+                                // For semantic headers, use them directly
+                                if (selector === 'header' || selector === '[role="banner"]') {
+                                    headerElement = element;
+                                    break;
+                                }
+                                // For other selectors, check if it's a top-level header
+                                const isTopLevelHeader = !element.closest('header, [role="banner"]');
+                                if (isTopLevelHeader) {
+                                    headerElement = element;
+                                    break;
+                                }
                             }
-                        }
+                        } catch (_) {}
                     }
                     
                     if (headerElement) {
-                        // Get the actual position of the header (accounting for fixed/sticky headers)
-                        const rect = headerElement.getBoundingClientRect();
-                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                        const headerTop = rect.top + scrollTop;
-                        
-                        // Scroll to header position
-                        window.scrollTo({ 
-                            top: Math.max(0, headerTop - 20), // Add small offset for better visibility
-                            behavior: 'smooth' 
-                        });
+                        try {
+                            // Get the actual position of the header (accounting for fixed/sticky headers)
+                            const rect = headerElement.getBoundingClientRect();
+                            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+                            const headerTop = rect.top + scrollTop;
+                            
+                            // Scroll to header position
+                            window.scrollTo({ 
+                                top: Math.max(0, headerTop - 20), // Add small offset for better visibility
+                                behavior: 'smooth' 
+                            });
+                        } catch (_) {
+                            // Fallback: scroll to top
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
                     } else {
                         // If no header found, scroll to top
                         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -16375,9 +16516,48 @@ class AccessibilityWidget {
                     break;
     
                 case 'portfolio':
-                    // First try to find portfolio link in navigation (prioritize navigation over page sections)
+                    // First check if we're already on a portfolio page
+                    const currentPath = window.location.pathname.toLowerCase();
+                    if (currentPath.includes('portfolio')) {
+                        // Already on portfolio page, scroll to top of portfolio section
+                        const portfolioSection = document.querySelector('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
+                        if (portfolioSection) {
+                            portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        } else {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                        break;
+                    }
+                    
+                    // Try to find portfolio link in navigation (prioritize navigation over page sections)
                     // Check multiple selectors to find portfolio links, including dropdown menus
-                    const portfolioLink = document.querySelector('a[href*="portfolio"], a[href*="/portfolio"], a[href$="/portfolio"], nav a[href*="portfolio"], .nav a[href*="portfolio"], [class*="nav"] a[href*="portfolio"], [class*="menu"] a[href*="portfolio"], [class*="header"] a[href*="portfolio"], [class*="dropdown"] a[href*="portfolio"], [class*="menu-item"] a[href*="portfolio"]');
+                    const portfolioLinkSelectors = [
+                        'a[href*="/portfolio"]',
+                        'a[href$="/portfolio"]',
+                        'a[href*="portfolio"]',
+                        'nav a[href*="portfolio"]',
+                        '.nav a[href*="portfolio"]',
+                        '[class*="nav"] a[href*="portfolio"]',
+                        '[class*="menu"] a[href*="portfolio"]',
+                        '[class*="header"] a[href*="portfolio"]',
+                        '[class*="dropdown"] a[href*="portfolio"]',
+                        '[class*="menu-item"] a[href*="portfolio"]',
+                        '.w-dropdown-list a[href*="portfolio"]',
+                        '[role="menu"] a[href*="portfolio"]',
+                        '[role="menubar"] a[href*="portfolio"]'
+                    ];
+                    
+                    let portfolioLink = null;
+                    for (const selector of portfolioLinkSelectors) {
+                        try {
+                            const link = document.querySelector(selector);
+                            if (link && link.href && link.href.includes('portfolio')) {
+                                portfolioLink = link;
+                                break;
+                            }
+                        } catch (_) {}
+                    }
+                    
                     if (portfolioLink && portfolioLink.href) {
                         window.location.href = portfolioLink.href;
                     } else {
@@ -16386,9 +16566,11 @@ class AccessibilityWidget {
                         if (portfolioElement) {
                             this.scrollToElement('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
                         } else {
-                            // Don't navigate to non-existent paths - just scroll to top
-                            // This prevents 404 errors
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            // Try to construct portfolio URL
+                            const baseUrl = window.location.origin;
+                            const portfolioUrl = baseUrl + '/portfolio';
+                            // Navigate to portfolio page
+                            window.location.href = portfolioUrl;
                         }
                     }
                     break;
