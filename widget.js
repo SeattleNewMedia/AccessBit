@@ -75,6 +75,47 @@
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                 }
                 
+                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
+                body.seizure-safe nav[style*="position: fixed"],
+                body.seizure-safe nav[style*="position:fixed"],
+                body.seizure-safe nav[style*="position: sticky"],
+                body.seizure-safe nav[style*="position:sticky"],
+                body.seizure-safe header[style*="position: fixed"],
+                body.seizure-safe header[style*="position:fixed"],
+                body.seizure-safe header[style*="position: sticky"],
+                body.seizure-safe header[style*="position:sticky"],
+                body.seizure-safe [class*="nav"][style*="position: fixed"],
+                body.seizure-safe [class*="nav"][style*="position:fixed"],
+                body.seizure-safe [class*="nav"][style*="position: sticky"],
+                body.seizure-safe [class*="nav"][style*="position:sticky"],
+                body.seizure-safe [class*="header"][style*="position: fixed"],
+                body.seizure-safe [class*="header"][style*="position:fixed"],
+                body.seizure-safe [class*="header"][style*="position: sticky"],
+                body.seizure-safe [class*="header"][style*="position:sticky"],
+                body.seizure-safe [data-sticky],
+                body.seizure-safe [data-fixed],
+                html.seizure-safe nav[style*="position: fixed"],
+                html.seizure-safe nav[style*="position:fixed"],
+                html.seizure-safe nav[style*="position: sticky"],
+                html.seizure-safe nav[style*="position:sticky"],
+                html.seizure-safe header[style*="position: fixed"],
+                html.seizure-safe header[style*="position:fixed"],
+                html.seizure-safe header[style*="position: sticky"],
+                html.seizure-safe header[style*="position:sticky"],
+                html.seizure-safe [class*="nav"][style*="position: fixed"],
+                html.seizure-safe [class*="nav"][style*="position:fixed"],
+                html.seizure-safe [class*="nav"][style*="position: sticky"],
+                html.seizure-safe [class*="nav"][style*="position:sticky"],
+                html.seizure-safe [class*="header"][style*="position: fixed"],
+                html.seizure-safe [class*="header"][style*="position:fixed"],
+                html.seizure-safe [class*="header"][style*="position: sticky"],
+                html.seizure-safe [class*="header"][style*="position:sticky"],
+                html.seizure-safe [data-sticky],
+                html.seizure-safe [data-fixed] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                }
+                
                 /* Exclude widget container and all its contents from color filter */
                 body.seizure-safe #accessibility-widget-container,
                 body.seizure-safe [id*="accessibility-widget"],
@@ -16408,45 +16449,45 @@ class AccessibilityWidget {
                     break;
     
                 case 'header':
-                    // Find header on current page - try multiple common selectors in order of priority
-                    const headerSelectors = [
-                        'header',
-                        '[role="banner"]',
-                        '.header',
-                        '#header',
-                        '[class*="site-header"]',
-                        '[class*="main-header"]',
-                        '[class*="page-header"]',
-                        '[class*="header"]:not([class*="subheader"]):not([class*="sub-header"])',
-                        '[id*="header"]:not([id*="subheader"]):not([id*="sub-header"])',
-                        'nav',
-                        '.navbar',
-                        '[class*="navbar"]',
-                        '[class*="nav-bar"]'
-                    ];
-                    
-                    let headerElement = null;
-                    for (const selector of headerSelectors) {
-                        try {
-                            const element = document.querySelector(selector);
-                            if (element) {
-                                // For semantic headers, use them directly
-                                if (selector === 'header' || selector === '[role="banner"]') {
-                                    headerElement = element;
-                                    break;
+                    try {
+                        // Find header on current page - try multiple common selectors in order of priority
+                        const headerSelectors = [
+                            'header',
+                            '[role="banner"]',
+                            '.header',
+                            '#header',
+                            '[class*="site-header"]',
+                            '[class*="main-header"]',
+                            '[class*="page-header"]',
+                            '[class*="header"]:not([class*="subheader"]):not([class*="sub-header"])',
+                            '[id*="header"]:not([id*="subheader"]):not([id*="sub-header"])',
+                            'nav',
+                            '.navbar',
+                            '[class*="navbar"]',
+                            '[class*="nav-bar"]'
+                        ];
+                        
+                        let headerElement = null;
+                        for (const selector of headerSelectors) {
+                            try {
+                                const element = document.querySelector(selector);
+                                if (element) {
+                                    // For semantic headers, use them directly
+                                    if (selector === 'header' || selector === '[role="banner"]') {
+                                        headerElement = element;
+                                        break;
+                                    }
+                                    // For other selectors, use the first match
+                                    if (!headerElement) {
+                                        headerElement = element;
+                                    }
                                 }
-                                // For other selectors, check if it's a top-level header
-                                const isTopLevelHeader = !element.closest('header, [role="banner"]');
-                                if (isTopLevelHeader) {
-                                    headerElement = element;
-                                    break;
-                                }
+                            } catch (e) {
+                                console.error('Header selector error:', selector, e);
                             }
-                        } catch (_) {}
-                    }
-                    
-                    if (headerElement) {
-                        try {
+                        }
+                        
+                        if (headerElement) {
                             // Get the actual position of the header (accounting for fixed/sticky headers)
                             const rect = headerElement.getBoundingClientRect();
                             const scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
@@ -16457,12 +16498,13 @@ class AccessibilityWidget {
                                 top: Math.max(0, headerTop - 20), // Add small offset for better visibility
                                 behavior: 'smooth' 
                             });
-                        } catch (_) {
-                            // Fallback: scroll to top
+                        } else {
+                            // If no header found, scroll to top
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
-                    } else {
-                        // If no header found, scroll to top
+                    } catch (error) {
+                        console.error('Header navigation error:', error);
+                        // Fallback: scroll to top
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                     break;
@@ -16516,61 +16558,74 @@ class AccessibilityWidget {
                     break;
     
                 case 'portfolio':
-                    // First check if we're already on a portfolio page
-                    const currentPath = window.location.pathname.toLowerCase();
-                    if (currentPath.includes('portfolio')) {
-                        // Already on portfolio page, scroll to top of portfolio section
-                        const portfolioSection = document.querySelector('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
-                        if (portfolioSection) {
-                            portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        } else {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }
-                        break;
-                    }
-                    
-                    // Try to find portfolio link in navigation (prioritize navigation over page sections)
-                    // Check multiple selectors to find portfolio links, including dropdown menus
-                    const portfolioLinkSelectors = [
-                        'a[href*="/portfolio"]',
-                        'a[href$="/portfolio"]',
-                        'a[href*="portfolio"]',
-                        'nav a[href*="portfolio"]',
-                        '.nav a[href*="portfolio"]',
-                        '[class*="nav"] a[href*="portfolio"]',
-                        '[class*="menu"] a[href*="portfolio"]',
-                        '[class*="header"] a[href*="portfolio"]',
-                        '[class*="dropdown"] a[href*="portfolio"]',
-                        '[class*="menu-item"] a[href*="portfolio"]',
-                        '.w-dropdown-list a[href*="portfolio"]',
-                        '[role="menu"] a[href*="portfolio"]',
-                        '[role="menubar"] a[href*="portfolio"]'
-                    ];
-                    
-                    let portfolioLink = null;
-                    for (const selector of portfolioLinkSelectors) {
-                        try {
-                            const link = document.querySelector(selector);
-                            if (link && link.href && link.href.includes('portfolio')) {
-                                portfolioLink = link;
-                                break;
+                    try {
+                        // First check if we're already on a portfolio page
+                        const currentPath = window.location.pathname.toLowerCase();
+                        if (currentPath.includes('portfolio')) {
+                            // Already on portfolio page, scroll to top of portfolio section
+                            const portfolioSection = document.querySelector('[id*="portfolio"], [class*="portfolio"]');
+                            if (portfolioSection) {
+                                portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            } else {
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
                             }
-                        } catch (_) {}
-                    }
-                    
-                    if (portfolioLink && portfolioLink.href) {
-                        window.location.href = portfolioLink.href;
-                    } else {
-                        // If no navigation link found, try to find portfolio section on current page
-                        const portfolioElement = this.findElementBySelector('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
-                        if (portfolioElement) {
-                            this.scrollToElement('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
+                            break;
+                        }
+                        
+                        // Try to find portfolio link in navigation (prioritize navigation over page sections)
+                        // Check multiple selectors to find portfolio links, including dropdown menus
+                        const portfolioLinkSelectors = [
+                            'a[href*="/portfolio"]',
+                            'a[href$="/portfolio"]',
+                            'a[href*="portfolio"]',
+                            'nav a[href*="portfolio"]',
+                            '.nav a[href*="portfolio"]',
+                            '[class*="nav"] a[href*="portfolio"]',
+                            '[class*="menu"] a[href*="portfolio"]',
+                            '[class*="header"] a[href*="portfolio"]',
+                            '[class*="dropdown"] a[href*="portfolio"]',
+                            '[class*="menu-item"] a[href*="portfolio"]',
+                            '.w-dropdown-list a[href*="portfolio"]',
+                            '[role="menu"] a[href*="portfolio"]',
+                            '[role="menubar"] a[href*="portfolio"]'
+                        ];
+                        
+                        let portfolioLink = null;
+                        for (const selector of portfolioLinkSelectors) {
+                            try {
+                                const link = document.querySelector(selector);
+                                if (link && link.href && (link.href.includes('portfolio') || link.href.includes('/portfolio'))) {
+                                    portfolioLink = link;
+                                    break;
+                                }
+                            } catch (e) {
+                                console.error('Portfolio link selector error:', selector, e);
+                            }
+                        }
+                        
+                        if (portfolioLink && portfolioLink.href) {
+                            window.location.href = portfolioLink.href;
                         } else {
-                            // Try to construct portfolio URL
+                            // If no navigation link found, try to find portfolio section on current page
+                            const portfolioElement = document.querySelector('[id*="portfolio"], [class*="portfolio"]');
+                            if (portfolioElement) {
+                                portfolioElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            } else {
+                                // Try to construct portfolio URL
+                                const baseUrl = window.location.origin;
+                                const portfolioUrl = baseUrl + '/portfolio';
+                                // Navigate to portfolio page
+                                window.location.href = portfolioUrl;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Portfolio navigation error:', error);
+                        // Fallback: try to navigate to /portfolio
+                        try {
                             const baseUrl = window.location.origin;
-                            const portfolioUrl = baseUrl + '/portfolio';
-                            // Navigate to portfolio page
-                            window.location.href = portfolioUrl;
+                            window.location.href = baseUrl + '/portfolio';
+                        } catch (_) {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
                     }
                     break;
@@ -18694,6 +18749,29 @@ class AccessibilityWidget {
                     filter: contrast(1.1) brightness(1.05) !important;
                     -webkit-filter: contrast(1.1) brightness(1.05) !important;
                 }
+                
+                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
+                body.high-contrast nav[style*="position: fixed"],
+                body.high-contrast nav[style*="position:fixed"],
+                body.high-contrast nav[style*="position: sticky"],
+                body.high-contrast nav[style*="position:sticky"],
+                body.high-contrast header[style*="position: fixed"],
+                body.high-contrast header[style*="position:fixed"],
+                body.high-contrast header[style*="position: sticky"],
+                body.high-contrast header[style*="position:sticky"],
+                body.high-contrast [class*="nav"][style*="position: fixed"],
+                body.high-contrast [class*="nav"][style*="position:fixed"],
+                body.high-contrast [class*="nav"][style*="position: sticky"],
+                body.high-contrast [class*="nav"][style*="position:sticky"],
+                body.high-contrast [class*="header"][style*="position: fixed"],
+                body.high-contrast [class*="header"][style*="position:fixed"],
+                body.high-contrast [class*="header"][style*="position: sticky"],
+                body.high-contrast [class*="header"][style*="position:sticky"],
+                body.high-contrast [data-sticky],
+                body.high-contrast [data-fixed] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                }
             `;
     
             document.head.appendChild(style);
@@ -19041,6 +19119,29 @@ class AccessibilityWidget {
                     filter: saturate(1.2) !important;
                     -webkit-filter: saturate(1.2) !important;
                 }
+                
+                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
+                body.high-saturation nav[style*="position: fixed"],
+                body.high-saturation nav[style*="position:fixed"],
+                body.high-saturation nav[style*="position: sticky"],
+                body.high-saturation nav[style*="position:sticky"],
+                body.high-saturation header[style*="position: fixed"],
+                body.high-saturation header[style*="position:fixed"],
+                body.high-saturation header[style*="position: sticky"],
+                body.high-saturation header[style*="position:sticky"],
+                body.high-saturation [class*="nav"][style*="position: fixed"],
+                body.high-saturation [class*="nav"][style*="position:fixed"],
+                body.high-saturation [class*="nav"][style*="position: sticky"],
+                body.high-saturation [class*="nav"][style*="position:sticky"],
+                body.high-saturation [class*="header"][style*="position: fixed"],
+                body.high-saturation [class*="header"][style*="position:fixed"],
+                body.high-saturation [class*="header"][style*="position: sticky"],
+                body.high-saturation [class*="header"][style*="position:sticky"],
+                body.high-saturation [data-sticky],
+                body.high-saturation [data-fixed] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                }
             `;
             document.head.appendChild(style);
            
@@ -19073,6 +19174,29 @@ class AccessibilityWidget {
                 body.low-saturation object {
                     filter: saturate(0.6) !important;
                     -webkit-filter: saturate(0.6) !important;
+                }
+                
+                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
+                body.low-saturation nav[style*="position: fixed"],
+                body.low-saturation nav[style*="position:fixed"],
+                body.low-saturation nav[style*="position: sticky"],
+                body.low-saturation nav[style*="position:sticky"],
+                body.low-saturation header[style*="position: fixed"],
+                body.low-saturation header[style*="position:fixed"],
+                body.low-saturation header[style*="position: sticky"],
+                body.low-saturation header[style*="position:sticky"],
+                body.low-saturation [class*="nav"][style*="position: fixed"],
+                body.low-saturation [class*="nav"][style*="position:fixed"],
+                body.low-saturation [class*="nav"][style*="position: sticky"],
+                body.low-saturation [class*="nav"][style*="position:sticky"],
+                body.low-saturation [class*="header"][style*="position: fixed"],
+                body.low-saturation [class*="header"][style*="position:fixed"],
+                body.low-saturation [class*="header"][style*="position: sticky"],
+                body.low-saturation [class*="header"][style*="position:sticky"],
+                body.low-saturation [data-sticky],
+                body.low-saturation [data-fixed] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
                 }
             `;
             document.head.appendChild(style);
@@ -19116,6 +19240,29 @@ class AccessibilityWidget {
                 body.monochrome object {
                     filter: grayscale(100%) !important;
                     -webkit-filter: grayscale(100%) !important;
+                }
+                
+                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
+                body.monochrome nav[style*="position: fixed"],
+                body.monochrome nav[style*="position:fixed"],
+                body.monochrome nav[style*="position: sticky"],
+                body.monochrome nav[style*="position:sticky"],
+                body.monochrome header[style*="position: fixed"],
+                body.monochrome header[style*="position:fixed"],
+                body.monochrome header[style*="position: sticky"],
+                body.monochrome header[style*="position:sticky"],
+                body.monochrome [class*="nav"][style*="position: fixed"],
+                body.monochrome [class*="nav"][style*="position:fixed"],
+                body.monochrome [class*="nav"][style*="position: sticky"],
+                body.monochrome [class*="nav"][style*="position:sticky"],
+                body.monochrome [class*="header"][style*="position: fixed"],
+                body.monochrome [class*="header"][style*="position:fixed"],
+                body.monochrome [class*="header"][style*="position: sticky"],
+                body.monochrome [class*="header"][style*="position:sticky"],
+                body.monochrome [data-sticky],
+                body.monochrome [data-fixed] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
                 }
             `;
     
@@ -24396,9 +24543,30 @@ class AccessibilityWidget {
                         animation-delay: 0s !important;
                         transition-duration: 0s !important;
                         transition-delay: 0s !important;
+                        /* CRITICAL: Force animations to complete to final state so fade-in elements become visible */
+                        animation-fill-mode: forwards !important;
                         
                         /* Stop blinking and flashing text */
                         text-decoration: none !important;
+                    }
+                    
+                    /* Ensure animated elements that start hidden become visible when animations stop */
+                    html.stop-animation *[class*="fade"],
+                    html.stop-animation *[class*="animate"],
+                    html.stop-animation *[class*="slide"],
+                    html.stop-animation *[class*="reveal"],
+                    body.stop-animation *[class*="fade"],
+                    body.stop-animation *[class*="animate"],
+                    body.stop-animation *[class*="slide"],
+                    body.stop-animation *[class*="reveal"],
+                    .stop-animation *[class*="fade"],
+                    .stop-animation *[class*="animate"],
+                    .stop-animation *[class*="slide"],
+                    .stop-animation *[class*="reveal"] {
+                        /* Force elements to be visible - they may start with opacity:0 for fade-in animations */
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        animation-fill-mode: forwards !important;
                     }
                     
                     /* Stop all animation classes and libraries */
@@ -25369,7 +25537,8 @@ class AccessibilityWidget {
                     .stop-animation *[data-visibility] {
                         animation: none !important;
                         transition: none !important;
-                        /* animation-fill-mode: forwards !important; - REMOVED: This was causing elements to snap to final positions and interfere with scrolling */
+                        /* CRITICAL: Force animations to complete to final state so fade-in elements become visible */
+                        animation-fill-mode: forwards !important;
                         opacity: 1 !important;
                         visibility: visible !important;
                         /* transform: none !important; - REMOVED: This was breaking website layout */
