@@ -54,27 +54,11 @@
             immediateStyle.id = 'accessibility-seizure-immediate-early';
             immediateStyle.textContent = `
                 /* APPLY GREYISH COLOR FILTER IMMEDIATELY - Reduce color intensity to prevent seizures */
-                body.seizure-safe,
-                html.seizure-safe {
+                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
+                body.seizure-safe *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]),
+                html.seizure-safe *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]) {
                     filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
-                }
-                
-                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
-                body.seizure-safe nav,
-                body.seizure-safe header,
-                body.seizure-safe .navbar,
-                body.seizure-safe [role="navigation"],
-                body.seizure-safe [class*="nav"],
-                body.seizure-safe [class*="header"],
-                body.seizure-safe [class*="navbar"],
-                body.seizure-safe [data-sticky],
-                body.seizure-safe [data-fixed],
-                body.seizure-safe [style*="position: sticky"],
-                body.seizure-safe [style*="position:fixed"],
-                body.seizure-safe [style*="position: fixed"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
                 }
                 
                 /* Exclude widget container and all its contents from color filter */
@@ -1419,7 +1403,7 @@ class AccessibilityWidget {
             this.isOpeningDropdown = false; // Flag to prevent immediate close
     
             // Set the KV API URL for your worker
-            this.kvApiUrl = 'https://accessibility-widget.web-8fb.workers.dev/';
+            this.kvApiUrl = 'https://app.accessbit.io';
             
 
             // CRITICAL: Check for seizure-safe mode immediately and apply it before any animations start
@@ -1551,7 +1535,7 @@ class AccessibilityWidget {
                     return true;
                 }
                 // OPTIMIZED: Minimal headers, efficient fetch
-                const base1 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
+                const base1 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
                 const response = await fetch(`${base1}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`, {
                     method: 'GET',
                     headers: {
@@ -1565,7 +1549,7 @@ class AccessibilityWidget {
                     
                     await new Promise(resolve => setTimeout(resolve, 1500)); // Reduced retry delay
                     
-                    const base2 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
+                    const base2 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
                     const retryResponse = await fetch(`${base2}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`, {
                         method: 'GET',
                         headers: {
@@ -1667,7 +1651,7 @@ class AccessibilityWidget {
                 }
                 
                 const visitorId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
-                const base3 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
+                const base3 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
                 const response = await fetch(`${base3}/api/accessibility/validate-domain`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -18461,39 +18445,10 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-contrast-fix';
             style.textContent = `
                 /* Simple High Contrast Mode - Only increase contrast, preserve everything else */
-                body.high-contrast {
+                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
+                body.high-contrast *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
                     filter: contrast(1.1) brightness(1.05) !important;
                     -webkit-filter: contrast(1.1) brightness(1.05) !important;
-                }
-                
-                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
-                body.high-contrast nav,
-                body.high-contrast header,
-                body.high-contrast .navbar,
-                body.high-contrast [role="navigation"],
-                body.high-contrast [class*="nav"],
-                body.high-contrast [class*="header"],
-                body.high-contrast [class*="navbar"],
-                body.high-contrast [data-sticky],
-                body.high-contrast [data-fixed],
-                body.high-contrast [style*="position: sticky"],
-                body.high-contrast [style*="position:fixed"],
-                body.high-contrast [style*="position: fixed"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
-                }
-                
-                /* Preserve accessibility widget from contrast filters */
-                body.high-contrast .accessibility-widget,
-                body.high-contrast .accessibility-panel,
-                body.high-contrast .accessibility-icon,
-                body.high-contrast #accessibility-widget,
-                body.high-contrast #accessibility-panel,
-                body.high-contrast #accessibility-icon,
-                body.high-contrast [data-ck-widget],
-                body.high-contrast [class*="accessibility"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
                 }
             `;
     
@@ -18830,39 +18785,10 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-saturation-css';
             style.textContent = `
                 /* Simple High Saturation Mode - Only increase saturation, preserve everything else */
-                body.high-saturation {
+                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
+                body.high-saturation *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
                     filter: saturate(1.2) !important;
                     -webkit-filter: saturate(1.2) !important;
-                }
-                
-                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
-                body.high-saturation nav,
-                body.high-saturation header,
-                body.high-saturation .navbar,
-                body.high-saturation [role="navigation"],
-                body.high-saturation [class*="nav"],
-                body.high-saturation [class*="header"],
-                body.high-saturation [class*="navbar"],
-                body.high-saturation [data-sticky],
-                body.high-saturation [data-fixed],
-                body.high-saturation [style*="position: sticky"],
-                body.high-saturation [style*="position:fixed"],
-                body.high-saturation [style*="position: fixed"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
-                }
-                
-                /* Preserve accessibility widget from saturation filters */
-                body.high-saturation .accessibility-widget,
-                body.high-saturation .accessibility-panel,
-                body.high-saturation .accessibility-icon,
-                body.high-saturation #accessibility-widget,
-                body.high-saturation #accessibility-panel,
-                body.high-saturation #accessibility-icon,
-                body.high-saturation [data-ck-widget],
-                body.high-saturation [class*="accessibility"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
                 }
             `;
             document.head.appendChild(style);
@@ -18885,39 +18811,10 @@ class AccessibilityWidget {
             style.id = 'accessibility-low-saturation-css';
             style.textContent = `
                 /* Low Saturation Mode - Simple filter overlay approach */
-                body.low-saturation {
+                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
+                body.low-saturation *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
                     filter: saturate(0.6) !important;
                     -webkit-filter: saturate(0.6) !important;
-                }
-                
-                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
-                body.low-saturation nav,
-                body.low-saturation header,
-                body.low-saturation .navbar,
-                body.low-saturation [role="navigation"],
-                body.low-saturation [class*="nav"],
-                body.low-saturation [class*="header"],
-                body.low-saturation [class*="navbar"],
-                body.low-saturation [data-sticky],
-                body.low-saturation [data-fixed],
-                body.low-saturation [style*="position: sticky"],
-                body.low-saturation [style*="position:fixed"],
-                body.low-saturation [style*="position: fixed"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
-                }
-                
-                /* Preserve accessibility widget from low saturation filters */
-                body.low-saturation .accessibility-widget,
-                body.low-saturation .accessibility-panel,
-                body.low-saturation .accessibility-icon,
-                body.low-saturation #accessibility-widget,
-                body.low-saturation #accessibility-panel,
-                body.low-saturation #accessibility-icon,
-                body.low-saturation [data-ck-widget],
-                body.low-saturation [class*="accessibility"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
                 }
             `;
             document.head.appendChild(style);
@@ -18950,39 +18847,10 @@ class AccessibilityWidget {
     
             style.textContent = `
                 /* Monochrome effect - Simple filter overlay approach */
-                body.monochrome {
+                /* Apply filter to all elements except nav/header to preserve sticky/fixed positioning */
+                body.monochrome *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
                     filter: grayscale(100%) !important;
                     -webkit-filter: grayscale(100%) !important;
-                }
-                
-                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
-                body.monochrome nav,
-                body.monochrome header,
-                body.monochrome .navbar,
-                body.monochrome [role="navigation"],
-                body.monochrome [class*="nav"],
-                body.monochrome [class*="header"],
-                body.monochrome [class*="navbar"],
-                body.monochrome [data-sticky],
-                body.monochrome [data-fixed],
-                body.monochrome [style*="position: sticky"],
-                body.monochrome [style*="position:fixed"],
-                body.monochrome [style*="position: fixed"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
-                }
-                
-                /* Preserve accessibility widget from monochrome filters */
-                body.monochrome .accessibility-widget,
-                body.monochrome .accessibility-panel,
-                body.monochrome .accessibility-icon,
-                body.monochrome #accessibility-widget,
-                body.monochrome #accessibility-panel,
-                body.monochrome #accessibility-icon,
-                body.monochrome [data-ck-widget],
-                body.monochrome [class*="accessibility"] {
-                    filter: none !important;
-                    -webkit-filter: none !important;
                 }
             `;
     
@@ -30758,7 +30626,7 @@ class AccessibilityWidget {
                     
                     // OPTIMIZATION: Remove cache buster to allow browser caching
                     // The worker already sets Cache-Control headers for 5 minutes
-                    const baseCfg = (this && this.kvApiUrl ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
+                    const baseCfg = (this && this.kvApiUrl ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
                     const apiUrl = `${baseCfg}/api/accessibility/config?siteId=${siteId}`;
                 
                 console.log('[FETCH] Making API request:', {
@@ -34034,7 +33902,7 @@ class AccessibilityWidget {
                     }
                 } catch {}
                 const visitorId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
-                const base = ((this && this.kvApiUrl) ? this.kvApiUrl : 'https://accessibility-widget.web-8fb.workers.dev').replace(/\/+$/,'');
+                const base = ((this && this.kvApiUrl) ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
                 let resp = await fetch(`${base}/api/accessibility/validate-domain`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
