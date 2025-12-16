@@ -565,14 +565,30 @@
                         }
                     } catch (_) { /* ignore */ }
                     
-                    // Helper to reveal typewriter text and freeze progress visuals
+                    // Helper to reveal typewriter text and freeze progress visuals (Designer-safe)
                     window.__applySeizureSafeDOMFreeze = function() {
                         try {
+                            // Check Designer mode first
+                            const isDesigner = (window.location.hostname.includes('webflow.com') && 
+                                (window.location.pathname.includes('/design/') || 
+                                 window.location.pathname.includes('/designer'))) ||
+                                document.querySelector('[data-webflow-design-mode]') ||
+                                (typeof window.webflow !== 'undefined' && 
+                                 typeof window.webflow.getSiteInfo === 'function' && 
+                                 window.location.hostname.includes('webflow.com'));
+                            if (isDesigner) return; // Exit early in Designer
+                            
                             // Reveal typewriter/typing effects by consolidating text
                             const typeSelectors = [
                                 '[class*="typewriter"]', '[class*="typing"]', '[data-typing]', '[data-typewriter]'
                             ];
-                            document.querySelectorAll(typeSelectors.join(',')).forEach(el => {
+                            // Use scoped query that excludes Designer elements
+                            const widget = window.AccessibilityWidgetInstance;
+                            const queryFn = widget && typeof widget.scopedQuerySelectorAll === 'function' 
+                                ? (sel) => widget.scopedQuerySelectorAll(sel)
+                                : (sel) => document.querySelectorAll(sel);
+                            
+                            queryFn(typeSelectors.join(',')).forEach(el => {
                                 try {
                                     // Skip if already processed to prevent duplication
                                     if (el.hasAttribute('data-seizure-processed')) return;
@@ -603,10 +619,19 @@
                             const progressSelectors = [
                                 'progress', '[role="progressbar"]', '[class*="progress"]', '[class*="indicator"]', '[class*="bar"]'
                             ];
-                            document.querySelectorAll(progressSelectors.join(',')).forEach(el => {
+                            queryFn(progressSelectors.join(',')).forEach(el => {
                                 try {
+                                    // Skip if already processed or in Designer
+                                    if (el.hasAttribute('data-webflow-design') || 
+                                        el.closest('[data-webflow-design-mode]')) {
+                                        return;
+                                    }
+                                    
+                                    // Mark as widget-managed
+                                    el.setAttribute('data-accessibility-widget-managed', 'true');
+                                    
                                     const cs = window.getComputedStyle(el);
-                                    // Lock width/transform/transition to current
+                                    // Lock width/transform/transition to current (prefer CSS class, fallback to inline)
                                     el.style.transition = 'none';
                                     el.style.animation = 'none';
                                     if (cs.width && cs.width !== 'auto') el.style.width = cs.width;
@@ -627,7 +652,7 @@
                                 '.carousel-control-next', '.carousel-control-prev', '.carousel-indicators li', '.carousel-indicators button',
                                 '[data-slide]', '[data-bs-slide]', '[data-glide-dir]'
                             ];
-                            document.querySelectorAll(sliderControlSelectors.join(',')).forEach(ctrl => {
+                            queryFn(sliderControlSelectors.join(',')).forEach(ctrl => {
                                 try {
                                     ctrl.style.pointerEvents = 'auto';
                                     ctrl.style.cursor = 'pointer';
@@ -640,7 +665,7 @@
                             // Pause autoplay for common slider libraries while keeping navigation enabled
                             try {
                                 // Swiper
-                                const swipers = document.querySelectorAll('.swiper, .swiper-container');
+                                const swipers = queryFn('.swiper, .swiper-container');
                                 swipers.forEach(el => {
                                     const inst = el.swiper || el.__swiper || (el._swiper || null);
                                     if (inst && inst.autoplay && typeof inst.autoplay.stop === 'function') {
@@ -659,7 +684,7 @@
                             } catch (_) {}
                             try {
                                 // Splide
-                                document.querySelectorAll('.splide').forEach(el => {
+                                queryFn('.splide').forEach(el => {
                                     const inst = el.splide || el._splide || null;
                                     if (inst && typeof inst.options === 'object') {
                                         try { inst.options = Object.assign({}, inst.options, { autoplay: false }); } catch (e) {}
@@ -1102,19 +1127,54 @@ function applyUniversalStopMotion(enabled) {
         } catch (_) {}
 
 
-        // GIF/APNG replacement (one-frame transparent pixel by default)
+        // GIF/APNG replacement (one-frame transparent pixel by default) - Designer-safe
         const STATIC_FALLBACK = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
-        if (enabled) {
-            document.querySelectorAll('img[src$=".gif"], img[src$=".apng"]').forEach(img => {
-                try {
-                    if (!img.dataset.originalSrc) img.dataset.originalSrc = img.src;
-                    img.src = STATIC_FALLBACK;
-                } catch (_) {}
-            });
-        } else {
-            document.querySelectorAll('img[data-original-src]').forEach(img => {
-                try { img.src = img.dataset.originalSrc; delete img.dataset.originalSrc; } catch (_) {}
-            });
+        // Check Designer mode first
+        const isDesigner = 
+            (window.location.hostname.includes('webflow.com') && 
+             (window.location.pathname.includes('/design/') || 
+              window.location.pathname.includes('/designer'))) ||
+            document.querySelector('[data-webflow-design-mode]') ||
+            (typeof window.webflow !== 'undefined' && 
+             typeof window.webflow.getSiteInfo === 'function' && 
+             window.location.hostname.includes('webflow.com'));
+        
+        if (!isDesigner) {
+            if (enabled) {
+                // Use scoped query if widget instance is available
+                const widget = window.AccessibilityWidgetInstance;
+                const queryFn = widget && typeof widget.scopedQuerySelectorAll === 'function' 
+                    ? (sel) => widget.scopedQuerySelectorAll(sel)
+                    : (sel) => {
+                        const all = document.querySelectorAll(sel);
+                        return Array.from(all).filter(el => 
+                            !el.closest('[data-webflow-design-mode]') && 
+                            !el.closest('[data-wf-design]')
+                        );
+                    };
+                
+                queryFn('img[src$=".gif"], img[src$=".apng"]').forEach(img => {
+                    try {
+                        // Skip Designer elements
+                        if (img.closest('[data-webflow-design-mode]') || img.hasAttribute('data-wf-design')) {
+                            return;
+                        }
+                        if (!img.dataset.originalSrc) img.dataset.originalSrc = img.src;
+                        img.src = STATIC_FALLBACK;
+                    } catch (_) {}
+                });
+            } else {
+                document.querySelectorAll('img[data-original-src]').forEach(img => {
+                    try { 
+                        // Skip Designer elements
+                        if (img.closest('[data-webflow-design-mode]') || img.hasAttribute('data-wf-design')) {
+                            return;
+                        }
+                        img.src = img.dataset.originalSrc; 
+                        delete img.dataset.originalSrc; 
+                    } catch (_) {}
+                });
+            }
         }
 
         // Observe for future Lottie/GIF inserts while active
@@ -1150,6 +1210,20 @@ function applyUniversalStopMotion(enabled) {
 
 // Vision Impaired helper: apply simple zoom and brightness
 function applyVisionImpaired(on) {
+    // CRITICAL: Don't manipulate Designer DOM
+    const isDesigner = 
+        (window.location.hostname.includes('webflow.com') && 
+         (window.location.pathname.includes('/design/') || 
+          window.location.pathname.includes('/designer'))) ||
+        document.querySelector('[data-webflow-design-mode]') ||
+        (typeof window.webflow !== 'undefined' && 
+         typeof window.webflow.getSiteInfo === 'function' && 
+         window.location.hostname.includes('webflow.com'));
+    
+    if (isDesigner) {
+        return;
+    }
+    
     try {
         // Toggle root classes
         document.documentElement.classList.toggle('vision-impaired', !!on);
@@ -1484,6 +1558,298 @@ class AccessibilityWidget {
                 return true;
             } catch (e) {
                 return false;
+            }
+        }
+        
+        /**
+         * Scoped querySelectorAll that excludes Designer elements and widget's own elements
+         * @param {string} selector - CSS selector
+         * @param {Element} root - Root element to search from (default: document)
+         * @returns {NodeList} Filtered list of elements
+         */
+        scopedQuerySelectorAll(selector, root = document) {
+            try {
+                if (this.isDesignerMode()) {
+                    return []; // Return empty in Designer mode
+                }
+                
+                const all = root.querySelectorAll(selector);
+                const filtered = Array.from(all).filter(el => {
+                    // Exclude Designer elements
+                    if (el.closest('[data-webflow-design-mode]') || 
+                        el.closest('[data-wf-design]') ||
+                        el.hasAttribute('data-wf-design')) {
+                        return false;
+                    }
+                    // Exclude widget's own elements (they're managed separately)
+                    if (el.closest('#accessibility-widget-container') ||
+                        el.closest('accessibility-widget') ||
+                        el.id === 'accessibility-widget-container') {
+                        return false;
+                    }
+                    return true;
+                });
+                return filtered;
+            } catch (e) {
+                return [];
+            }
+        }
+        
+        /**
+         * Scoped querySelector that excludes Designer elements
+         * @param {string} selector - CSS selector
+         * @param {Element} root - Root element to search from (default: document)
+         * @returns {Element|null} First matching element or null
+         */
+        scopedQuerySelector(selector, root = document) {
+            try {
+                if (this.isDesignerMode()) {
+                    return null;
+                }
+                const all = root.querySelectorAll(selector);
+                for (const el of all) {
+                    // Exclude Designer elements
+                    if (el.closest('[data-webflow-design-mode]') || 
+                        el.closest('[data-wf-design]') ||
+                        el.hasAttribute('data-wf-design')) {
+                        continue;
+                    }
+                    // Exclude widget's own elements
+                    if (el.closest('#accessibility-widget-container') ||
+                        el.closest('accessibility-widget') ||
+                        el.id === 'accessibility-widget-container') {
+                        continue;
+                    }
+                    return el;
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        /**
+         * Custom HTML sanitization function (no third-party dependencies)
+         * Escapes HTML entities and allows only safe HTML tags/attributes
+         * @param {string} html - HTML string to sanitize
+         * @param {boolean} allowHTML - If false, only escape (default: true for safe tags)
+         * @returns {string} Sanitized HTML string
+         */
+        sanitizeHTML(html, allowHTML = true) {
+            if (!html || typeof html !== 'string') {
+                return '';
+            }
+            
+            // If not allowing HTML, just escape everything
+            if (!allowHTML) {
+                return html
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#x27;')
+                    .replace(/\//g, '&#x2F;');
+            }
+            
+            // Allowed safe HTML tags (widget UI only)
+            const allowedTags = ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
+                                'button', 'input', 'select', 'option', 'label', 'i', 'strong', 
+                                'em', 'br', 'ul', 'ol', 'li', 'a'];
+            const allowedAttributes = ['class', 'id', 'style', 'type', 'value', 'name', 
+                                     'for', 'href', 'tabindex', 'role', 'aria-label', 
+                                     'aria-expanded', 'data-color', 'data-value'];
+            
+            // Create a temporary container
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            
+            // Recursively sanitize all nodes
+            const sanitizeNode = (node) => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    // Escape text content
+                    return node.textContent
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                }
+                
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const tagName = node.tagName.toLowerCase();
+                    
+                    // Remove disallowed tags
+                    if (!allowedTags.includes(tagName)) {
+                        return node.textContent || '';
+                    }
+                    
+                    // Sanitize attributes
+                    const attrs = Array.from(node.attributes);
+                    attrs.forEach(attr => {
+                        if (!allowedAttributes.includes(attr.name.toLowerCase())) {
+                            node.removeAttribute(attr.name);
+                        } else if (attr.name.toLowerCase() === 'href' || attr.name.toLowerCase() === 'src') {
+                            // Validate URLs - only allow http, https, or data URIs
+                            const url = attr.value;
+                            if (!/^(https?:\/\/|data:|#|\/)/i.test(url) && !url.startsWith('javascript:')) {
+                                node.removeAttribute(attr.name);
+                            }
+                        } else if (attr.name.toLowerCase() === 'style') {
+                            // Basic style sanitization - remove dangerous properties
+                            const style = attr.value.replace(/javascript:/gi, '')
+                                                    .replace(/expression\(/gi, '')
+                                                    .replace(/on\w+\s*=/gi, '');
+                            node.setAttribute('style', style);
+                        }
+                    });
+                    
+                    // Recursively sanitize children
+                    const children = Array.from(node.childNodes);
+                    children.forEach(child => {
+                        const sanitized = sanitizeNode(child);
+                        if (typeof sanitized === 'string') {
+                            const textNode = document.createTextNode(sanitized);
+                            node.replaceChild(textNode, child);
+                        }
+                    });
+                }
+                
+                return node;
+            };
+            
+            // Sanitize all nodes in temp container
+            const children = Array.from(temp.childNodes);
+            children.forEach(child => sanitizeNode(child));
+            
+            return temp.innerHTML;
+        }
+        
+        /**
+         * Escape HTML entities in user content (for text-only content)
+         * @param {string} text - Text to escape
+         * @returns {string} Escaped text
+         */
+        escapeHTML(text) {
+            if (!text || typeof text !== 'string') {
+                return '';
+            }
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/\//g, '&#x2F;');
+        }
+        
+        /**
+         * Validate and sanitize CSS class name
+         * @param {string} className - Class name to validate
+         * @returns {string} Sanitized class name or empty string
+         */
+        validateClassName(className) {
+            if (!className || typeof className !== 'string') {
+                return '';
+            }
+            // Only allow alphanumeric, dash, underscore, and spaces
+            return className.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim();
+        }
+        
+        /**
+         * Safely add/remove classes to body/documentElement with Designer check
+         * Prefer this over direct classList manipulation
+         * @param {string} className - Class name to add/remove
+         * @param {boolean} add - True to add, false to remove
+         * @param {boolean} useDocumentElement - Use documentElement instead of body
+         * @returns {boolean} True if operation succeeded
+         */
+        safeBodyClassToggle(className, add = true, useDocumentElement = false) {
+            try {
+                if (this.isDesignerMode()) {
+                    return false;
+                }
+                const target = useDocumentElement ? document.documentElement : document.body;
+                if (add) {
+                    target.classList.add(className);
+                } else {
+                    target.classList.remove(className);
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        /**
+         * Apply styles via CSS class instead of inline styles (Designer-compliant)
+         * @param {Element} element - Element to style
+         * @param {string} className - CSS class name to add
+         * @param {Object} styles - Optional inline styles (fallback if class not available)
+         * @returns {boolean} True if applied
+         */
+        applyStyleViaClass(element, className, styles = null) {
+            try {
+                if (this.isDesignerMode() || !element) {
+                    return false;
+                }
+                
+                // Mark as widget-manipulated for tracking
+                element.setAttribute('data-accessibility-widget-managed', 'true');
+                
+                // Add CSS class (preferred method)
+                element.classList.add(className);
+                
+                // Fallback to inline styles only if class doesn't work
+                if (styles && typeof styles === 'object') {
+                    // Check if class was actually applied by testing computed style
+                    // If not, use inline styles as fallback
+                    Object.assign(element.style, styles);
+                }
+                
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        /**
+         * Create a scoped overlay container that won't interfere with Designer
+         * @param {string} id - Unique ID for the overlay
+         * @param {string} html - HTML content
+         * @returns {Element|null} Created overlay element or null
+         */
+        createScopedOverlay(id, html) {
+            try {
+                if (this.isDesignerMode()) {
+                    return null;
+                }
+                
+                // Check if overlay already exists
+                const existing = document.getElementById(id);
+                if (existing) {
+                    return existing;
+                }
+                
+                // Create container with widget scope
+                const container = document.createElement('div');
+                container.id = id;
+                container.setAttribute('data-accessibility-widget-overlay', 'true');
+                container.innerHTML = this.sanitizeHTML(html, true);
+                
+                // Try to append to widget container first, fallback to body
+                const widgetContainer = document.getElementById('accessibility-widget-container');
+                if (widgetContainer) {
+                    widgetContainer.appendChild(container);
+                } else {
+                    if (this.safeDOMOperation(() => {
+                        document.body.appendChild(container);
+                    }, `create overlay ${id}`)) {
+                        return container;
+                    }
+                    return null;
+                }
+                
+                return container;
+            } catch (e) {
+                return null;
             }
         }
         
@@ -1959,8 +2325,8 @@ class AccessibilityWidget {
                 // Check localStorage first for immediate application
                 const seizureSafeFromStorage = localStorage.getItem('accessibility-widget-seizure-safe');
                 if (seizureSafeFromStorage === 'true') {
-                    
-                    document.body.classList.add('seizure-safe');
+                    // Use safe class toggle (Designer-compliant)
+                    this.safeBodyClassToggle('seizure-safe', true);
                     this.applyImmediateSeizureCSS();
                     this.forceCompleteTextAnimations();
                 }
@@ -2117,6 +2483,11 @@ class AccessibilityWidget {
     
     
         async init() {
+            // CRITICAL: Don't run widget in Webflow Designer environment
+            if (this.isDesignerMode()) {
+                return;
+            }
+            
             // Check if payment failed - if so, don't initialize
             if (this.paymentFailed) {
                 
@@ -2148,8 +2519,8 @@ class AccessibilityWidget {
             // If seizure-safe was previously enabled, apply it ASAP so it persists on refresh
             if (this.settings && this.settings['seizure-safe']) {
                 try {
-                    // Add class immediately to enable CSS guards before any library re-inits
-                    document.body.classList.add('seizure-safe');
+                    // Add class immediately to enable CSS guards before any library re-inits (Designer-safe)
+                    this.safeBodyClassToggle('seizure-safe', true);
                     // Apply immediate minimal CSS to halt motion until full styles are added
                     this.applyImmediateSeizureCSS();
                     // Force complete any text animations immediately
@@ -2166,8 +2537,9 @@ class AccessibilityWidget {
             await this.loadSettingsFromKV();
             // If KV indicates seizure-safe, ensure it is enabled immediately
             if (this.settings && this.settings['seizure-safe']) {
+                // Use safe class toggle (Designer-compliant)
                 if (!document.body.classList.contains('seizure-safe')) {
-                    document.body.classList.add('seizure-safe');
+                    this.safeBodyClassToggle('seizure-safe', true);
                 }
                 // Force complete any text animations immediately
                 this.forceCompleteTextAnimations();
@@ -3764,10 +4136,14 @@ class AccessibilityWidget {
             
     
             // Add to page
-    
-            document.body.appendChild(highlight);
-    
-            document.body.appendChild(label);
+            // CRITICAL: Use safeDOMOperation to prevent Designer DOM manipulation
+            if (!this.safeDOMOperation(() => {
+                document.body.appendChild(highlight);
+                document.body.appendChild(label);
+            }, 'createHighlight - append highlight elements')) {
+                // Failed to append - Designer mode detected, clean up created elements
+                return;
+            }
     
             
     
@@ -3838,6 +4214,10 @@ class AccessibilityWidget {
     
     
         addFontAwesome() {
+            // CRITICAL: Don't manipulate Designer DOM
+            if (this.isDesignerMode()) {
+                return;
+            }
     
             if (!document.querySelector('link[href*="font-awesome"]')) {
     
@@ -5306,8 +5686,13 @@ class AccessibilityWidget {
             `;
     
             // Append to documentElement instead of body to avoid transform issues
-    
-            document.documentElement.appendChild(widgetContainer);
+            // CRITICAL: Use safeDOMOperation to prevent Designer DOM manipulation
+            if (!this.safeDOMOperation(() => {
+                document.documentElement.appendChild(widgetContainer);
+            }, 'createWidget - append widget container')) {
+                // Failed to append - Designer mode detected
+                return;
+            }
     
     
     
@@ -5400,7 +5785,7 @@ class AccessibilityWidget {
     
             panel.setAttribute('aria-describedby', 'panel-description');
     
-            panel.innerHTML = this.getPanelHTML();
+            panel.innerHTML = this.sanitizeHTML(this.getPanelHTML(), true);
     
             panel.style.pointerEvents = 'auto';
     
@@ -5468,7 +5853,7 @@ class AccessibilityWidget {
     
             languageDropdown.style.display = 'none';
     
-            languageDropdown.innerHTML = this.getLanguageDropdownContent();
+            languageDropdown.innerHTML = this.sanitizeHTML(this.getLanguageDropdownContent(), true);
     
             // Append dropdown INSIDE the panel, not to shadowRoot
             panel.appendChild(languageDropdown);
@@ -13453,6 +13838,10 @@ class AccessibilityWidget {
     
     
         enhanceScreenReaderSupport() {
+            // CRITICAL: Don't manipulate Designer DOM
+            if (this.isDesignerMode()) {
+                return;
+            }
     
             // Add skip link if it doesn't exist
     
@@ -16205,7 +16594,7 @@ class AccessibilityWidget {
     
                 // Create dropdown content
     
-                dropdownContainer.innerHTML = `
+                dropdownContainer.innerHTML = this.sanitizeHTML(`
     
                     <div class="useful-links-content">
     
@@ -16229,7 +16618,7 @@ class AccessibilityWidget {
     
                     </div>
     
-                `;
+                `, true);
     
                 
     
@@ -20100,7 +20489,7 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                colorPicker.innerHTML = `
+                colorPicker.innerHTML = this.sanitizeHTML(`
     
                     <div class="color-picker-content">
     
@@ -20130,7 +20519,7 @@ class AccessibilityWidget {
     
                     </div>
     
-                `;
+                `, true);
     
                 
     
@@ -20351,7 +20740,7 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                colorPicker.innerHTML = `
+                colorPicker.innerHTML = this.sanitizeHTML(`
     
                     <div class="color-picker-content">
     
@@ -20381,7 +20770,7 @@ class AccessibilityWidget {
     
                     </div>
     
-                `;
+                `, true);
     
                 
     
@@ -20569,7 +20958,7 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                colorPicker.innerHTML = `
+                colorPicker.innerHTML = this.sanitizeHTML(`
     
                     <div class="color-picker-content">
     
@@ -20595,11 +20984,11 @@ class AccessibilityWidget {
     
                         </div>
     
-                        <button class="cancel-btn" onclick="accessibilityWidget.hideBackgroundColorPicker()">Cancel</button>
+                        <button class="cancel-btn">Cancel</button>
     
                     </div>
     
-                `;
+                `, true);
     
                 
     
@@ -22508,18 +22897,13 @@ class AccessibilityWidget {
     
             
     
-            // Insert the HTML directly into the body (with Designer check)
-            if (!this.safeDOMOperation(() => {
-                document.body.insertAdjacentHTML('beforeend', overlayHTML);
-            }, 'insertAdjacentHTML for read-mode overlay')) {
-                return; // Exit if in Designer mode
+            // Insert the HTML using scoped overlay method (Designer-compliant)
+            const overlay = this.createScopedOverlay('read-mode-overlay', overlayHTML);
+            if (!overlay) {
+                return; // Exit if in Designer mode or creation failed
             }
-    
             
-    
-            // Verify the overlay was created
-    
-            const overlay = document.getElementById('read-mode-overlay');
+            // Overlay already created by createScopedOverlay
     
             if (overlay) {
     
@@ -26327,8 +26711,8 @@ class AccessibilityWidget {
                 
     
                 // Insert the color picker after the profile item
-    
-                textColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
+                // CRITICAL: Sanitize HTML to prevent XSS injection
+                textColorsModule.insertAdjacentHTML('afterend', this.sanitizeHTML(colorPickerHTML, true));
     
                 
     
@@ -26538,7 +26922,7 @@ class AccessibilityWidget {
     
                 // Insert the color picker after the profile item
     
-                titleColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
+                titleColorsModule.insertAdjacentHTML('afterend', this.sanitizeHTML(colorPickerHTML, true));
     
                 
     
@@ -26750,7 +27134,7 @@ class AccessibilityWidget {
     
                 // Insert the color picker after the profile item
     
-                bgColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
+                bgColorsModule.insertAdjacentHTML('afterend', this.sanitizeHTML(colorPickerHTML, true));
     
                 
     
@@ -27104,7 +27488,7 @@ class AccessibilityWidget {
             this.removeSeizureSafeStyles();
             
             // 4. Remove seizure-safe class from body and html
-            document.body.classList.remove('seizure-safe');
+            this.safeBodyClassToggle('seizure-safe', false);
             document.documentElement.classList.remove('seizure-safe');
             
             // 5. Force browser reflow to ensure CSS changes take effect
@@ -27215,6 +27599,11 @@ class AccessibilityWidget {
         
         // Vision Impaired helper: apply simple zoom and brightness
         applyVisionImpaired(on) {
+            // CRITICAL: Don't manipulate Designer DOM
+            if (this.isDesignerMode()) {
+                return;
+            }
+            
             try {
                 // Toggle root classes
                 document.documentElement.classList.toggle('vision-impaired', !!on);
@@ -29949,7 +30338,7 @@ class AccessibilityWidget {
     
             alignmentContainer.className = 'alignment-controls';
     
-            alignmentContainer.innerHTML = `
+            alignmentContainer.innerHTML = this.sanitizeHTML(`
     
                 <div class="control-group">
     
@@ -29985,7 +30374,7 @@ class AccessibilityWidget {
     
                 </div>
     
-            `;
+            `, true);
     
     
     
@@ -30885,116 +31274,58 @@ class AccessibilityWidget {
                     kvApiUrl: this.kvApiUrl
                 });
                 
-                // Retry logic for 429 rate limit errors with exponential backoff
-                const maxRetries = 3;
-                let lastError = null;
+                // Use isolatedFetch for API isolation (handles retries, timeouts, rate limiting automatically)
+                const response = await this.isolatedFetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    keepalive: false
+                }, 10000, 3); // 10s timeout, 3 retries
                 
-                for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                if (response && response.ok) {
+                    console.log('[FETCH] API response received:', {
+                        ok: response.ok,
+                        status: response.status,
+                        statusText: response.statusText
+                    });
+                    
+                    // Parse response data
+                    let data = null;
                     try {
-                        // OPTIMIZED: Minimal headers, no unnecessary data
-                        const response = await fetch(apiUrl, {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json'
-                            },
-                            // Use keep-alive for faster subsequent requests
-                            keepalive: false
-                        });
-                        
-                        console.log('[FETCH] API response received:', {
-                            ok: response.ok,
-                            status: response.status,
-                            statusText: response.statusText,
-                            attempt: attempt + 1,
-                            headers: Object.fromEntries(response.headers.entries())
-                        });
-                        
-                        // If 429 rate limit, retry with exponential backoff
-                        if (response.status === 429 && attempt < maxRetries) {
-                            const retryAfter = response.headers.get('Retry-After');
-                            const delay = retryAfter ? parseInt(retryAfter) * 1000 : Math.min(1000 * Math.pow(2, attempt), 10000);
-                            
-                            console.warn('[CUSTOMIZATION FETCH] Rate limited (429), retrying after delay:', {
-                                attempt: attempt + 1,
-                                maxRetries: maxRetries + 1,
-                                delayMs: delay,
-                                retryAfter: retryAfter
-                            });
-                            
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            continue; // Retry the request
-                        }
-                        
-                        if (!response.ok) {
-                            // Log error for debugging
-                            const errorText = await response.text().catch(() => 'Unable to read error response');
-                            console.error('[CUSTOMIZATION FETCH] API error:', {
-                                status: response.status,
-                                statusText: response.statusText,
-                                url: apiUrl,
-                                attempt: attempt + 1,
-                                errorBody: errorText
-                            });
-                            
-                            // If it's not a 429 or we've exhausted retries, return null
-                            if (response.status !== 429 || attempt >= maxRetries) {
-                                return null;
-                            }
-                            
-                            lastError = { status: response.status, errorBody: errorText };
-                            continue; // Retry if 429 and we have retries left
-                        }
-                        
-                        // Success - parse and return data
-                        const data = await response.json();
-                        console.log('[FETCH] API response data:', {
-                            hasData: !!data,
-                            hasCustomization: !!(data && data.customization),
-                            keys: data ? Object.keys(data) : [],
-                            customizationKeys: data && data.customization ? Object.keys(data.customization) : [],
-                            attempt: attempt + 1
-                        });
-
-                        // Cache the successful response
-                        if (data && siteId) {
-                            try {
-                                sessionStorage.setItem(`customization_cache_${siteId}`, JSON.stringify({
-                                    data: data,
-                                    timestamp: Date.now()
-                                }));
-                            } catch (e) {
-                                // Ignore storage errors (quota exceeded, etc.)
-                            }
-                        }
-
-                        return data;
-                        
-                    } catch (fetchError) {
-                        // Network error - only retry if we have attempts left
-                        if (attempt < maxRetries) {
-                            const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
-                            console.warn('[CUSTOMIZATION FETCH] Network error, retrying:', {
-                                attempt: attempt + 1,
-                                delayMs: delay,
-                                error: fetchError.message
-                            });
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            lastError = fetchError;
-                            continue;
-                        } else {
-                            throw fetchError;
+                        data = await response.json();
+                    } catch (parseError) {
+                        console.error('[CUSTOMIZATION FETCH] Failed to parse JSON response:', parseError);
+                        return null;
+                    }
+                    
+                    // Cache the successful response
+                    if (data && siteId) {
+                        try {
+                            sessionStorage.setItem(`customization_cache_${siteId}`, JSON.stringify({
+                                data: data,
+                                timestamp: Date.now()
+                            }));
+                        } catch (e) {
+                            // Ignore storage errors (quota exceeded, etc.)
                         }
                     }
+
+                    return data;
+                } else {
+                    // Response was null or not ok - isolatedFetch already handled retries
+                    if (response) {
+                        const errorText = await response.text().catch(() => 'Unable to read error response');
+                        console.error('[CUSTOMIZATION FETCH] API error:', {
+                            status: response.status,
+                            statusText: response.statusText,
+                            url: apiUrl,
+                            errorBody: errorText
+                        });
+                    }
+                    return null;
                 }
-                
-                // All retries exhausted
-                console.error('[CUSTOMIZATION FETCH] All retries exhausted:', {
-                    maxRetries: maxRetries + 1,
-                    lastError: lastError
-                });
-                return null;
-                
-                } catch (error) {
+            } catch (error) {
                     // Log error for debugging
                     console.error('[CUSTOMIZATION FETCH] Fetch failed:', {
                         message: error.message,
@@ -31676,7 +32007,7 @@ class AccessibilityWidget {
             // Update action buttons
             const resetBtn = this.shadowRoot?.querySelector('#reset-settings');
             if (resetBtn) {
-                resetBtn.innerHTML = `<i class="fas fa-redo"></i> ${content.resetSettings}`;
+                resetBtn.innerHTML = `<i class="fas fa-redo"></i> ${this.escapeHTML(content.resetSettings)}`;
 
             } else {
                
@@ -31684,7 +32015,7 @@ class AccessibilityWidget {
             
             const statementBtn = this.shadowRoot?.querySelector('#statement');
             if (statementBtn) {
-                statementBtn.innerHTML = `<i class="fas fa-file-alt"></i> ${content.statement}`;
+                statementBtn.innerHTML = `<i class="fas fa-file-alt"></i> ${this.escapeHTML(content.statement)}`;
 
             } else {
 
@@ -31692,7 +32023,7 @@ class AccessibilityWidget {
             
             const hideBtn = this.shadowRoot?.querySelector('#hide-interface');
             if (hideBtn) {
-                hideBtn.innerHTML = `<i class="fas fa-eye-slash"></i> ${content.hideInterface}`;
+                hideBtn.innerHTML = `<i class="fas fa-eye-slash"></i> ${this.escapeHTML(content.hideInterface)}`;
               
             } else {
 
@@ -31780,7 +32111,7 @@ class AccessibilityWidget {
             // Update keyboard navigation note
             const keyboardNavNote = this.shadowRoot?.querySelector('#keyboard-nav')?.closest('.profile-item')?.querySelector('.profile-description p:last-child');
             if (keyboardNavNote && content.keyboardNavNote) {
-                keyboardNavNote.innerHTML = `<strong></strong> ${content.keyboardNavNote.replace('Note: ', '')}`;
+                keyboardNavNote.innerHTML = `<strong></strong> ${this.escapeHTML(content.keyboardNavNote.replace('Note: ', ''))}`;
 
             }
             
@@ -31794,7 +32125,7 @@ class AccessibilityWidget {
             // Update screen reader note
             const screenReaderNote = this.shadowRoot?.querySelector('#screen-reader')?.closest('.profile-item')?.querySelector('.profile-description p:last-child');
             if (screenReaderNote && content.screenReaderNote) {
-                screenReaderNote.innerHTML = `<strong></strong> ${content.screenReaderNote.replace('Note: ', '')}`;
+                screenReaderNote.innerHTML = `<strong></strong> ${this.escapeHTML(content.screenReaderNote.replace('Note: ', ''))}`;
               
             }
             
@@ -33459,7 +33790,8 @@ class AccessibilityWidget {
                 const iconClass = iconMap[icon] || 'fas fa-universal-access';
                 
                 // Clear existing content and add the new icon
-                iconElement.innerHTML = `<i class="${iconClass}"></i>`;
+                const sanitizedIconClass = this.validateClassName(iconClass);
+                iconElement.innerHTML = `<i class="${sanitizedIconClass}"></i>`;
                 
                 // Ensure proper styling
                 iconElement.style.display = 'flex';
@@ -34045,8 +34377,20 @@ class AccessibilityWidget {
     // Wait for DOM to be ready
     
     function initWidget() {
-    
+        // CRITICAL: Don't run widget in Webflow Designer environment
+        const isDesigner = 
+            (window.location.hostname.includes('webflow.com') && 
+             (window.location.pathname.includes('/design/') || 
+              window.location.pathname.includes('/designer'))) ||
+            document.querySelector('[data-webflow-design-mode]') ||
+            (typeof window.webflow !== 'undefined' && 
+             typeof window.webflow.getSiteInfo === 'function' && 
+             window.location.hostname.includes('webflow.com'));
         
+        if (isDesigner) {
+            // Exit early - widget should not run in Designer
+            return;
+        }
     
         accessibilityWidget = new AccessibilityWidget();
     
