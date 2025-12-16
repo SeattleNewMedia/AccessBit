@@ -5542,7 +5542,13 @@ class AccessibilityWidget {
     
             panel.setAttribute('aria-describedby', 'panel-description');
     
-            panel.innerHTML = this.getPanelHTML();
+            // Use DOMParser to safely parse HTML instead of innerHTML to prevent XSS
+            const panelParser = new DOMParser();
+            const panelDoc = panelParser.parseFromString(this.getPanelHTML(), 'text/html');
+            // Move all body children to panel
+            while (panelDoc.body.firstChild) {
+                panel.appendChild(panelDoc.body.firstChild);
+            }
     
             panel.style.pointerEvents = 'auto';
     
@@ -5610,7 +5616,13 @@ class AccessibilityWidget {
     
             languageDropdown.style.display = 'none';
     
-            languageDropdown.innerHTML = this.getLanguageDropdownContent();
+            // Use DOMParser to safely parse HTML instead of innerHTML to prevent XSS
+            const dropdownParser = new DOMParser();
+            const dropdownDoc = dropdownParser.parseFromString(this.getLanguageDropdownContent(), 'text/html');
+            // Move all body children to languageDropdown
+            while (dropdownDoc.body.firstChild) {
+                languageDropdown.appendChild(dropdownDoc.body.firstChild);
+            }
     
             // Append dropdown INSIDE the panel, not to shadowRoot
             panel.appendChild(languageDropdown);
@@ -16345,33 +16357,32 @@ class AccessibilityWidget {
     
                 
     
-                // Create dropdown content
-    
-                dropdownContainer.innerHTML = `
-    
-                    <div class="useful-links-content">
-    
-                        <select id="useful-links-select">
-    
-                            <option value="">Select an option</option>
-    
-                            <option value="home">Home</option>
-    
-                            <option value="header">Header</option>
-    
-                            <option value="footer">Footer</option>
-    
-                            <option value="main-content">Main content</option>
-    
-                            <option value="about-us">About us</option>
-    
-                            <option value="portfolio">Portfolio</option>
-    
-                        </select>
-    
-                    </div>
-    
-                `;
+                // Create dropdown content - Use DOM methods to prevent XSS
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'useful-links-content';
+                
+                const select = document.createElement('select');
+                select.id = 'useful-links-select';
+                
+                const options = [
+                    { value: '', text: 'Select an option' },
+                    { value: 'home', text: 'Home' },
+                    { value: 'header', text: 'Header' },
+                    { value: 'footer', text: 'Footer' },
+                    { value: 'main-content', text: 'Main content' },
+                    { value: 'about-us', text: 'About us' },
+                    { value: 'portfolio', text: 'Portfolio' }
+                ];
+                
+                options.forEach(({ value, text }) => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = text;
+                    select.appendChild(option);
+                });
+                
+                contentDiv.appendChild(select);
+                dropdownContainer.appendChild(contentDiv);
     
                 
     
@@ -16395,9 +16406,9 @@ class AccessibilityWidget {
     
                 // Add event listener to select
                 
-                const select = dropdownContainer.querySelector('#useful-links-select');
+                const usefulLinksSelect = dropdownContainer.querySelector('#useful-links-select');
                 
-                select.addEventListener('change', (e) => {
+                usefulLinksSelect.addEventListener('change', (e) => {
                 
                     const value = e.target.value;
                 
@@ -20347,37 +20358,47 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                colorPicker.innerHTML = `
-    
-                    <div class="color-picker-content">
-    
-                        <h4>Adjust Text Colors</h4>
-    
-                        <div class="color-options">
-    
-                            <div class="color-option" data-color="#3b82f6" style="background-color: #3b82f6;"></div>
-    
-                            <div class="color-option selected" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
-    
-                            <div class="color-option" data-color="#ef4444" style="background-color: #ef4444;"></div>
-    
-                            <div class="color-option" data-color="#f97316" style="background-color: #f97316;"></div>
-    
-                            <div class="color-option" data-color="#14b8a6" style="background-color: #14b8a6;"></div>
-    
-                            <div class="color-option" data-color="#84cc16" style="background-color: #84cc16;"></div>
-    
-                            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; border: 1px solid #ccc;"></div>
-    
-                            <div class="color-option" data-color="#000000" style="background-color: #000000;"></div>
-    
-                        </div>
-    
-                        <button class="cancel-btn">Cancel</button>
-    
-                    </div>
-    
-                `;
+                // Use DOM methods to prevent XSS
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'color-picker-content';
+                
+                const title = document.createElement('h4');
+                title.textContent = 'Adjust Text Colors';
+                contentDiv.appendChild(title);
+                
+                const colorOptions = document.createElement('div');
+                colorOptions.className = 'color-options';
+                
+                const colors = [
+                    { color: '#3b82f6', selected: false },
+                    { color: '#8b5cf6', selected: true },
+                    { color: '#ef4444', selected: false },
+                    { color: '#f97316', selected: false },
+                    { color: '#14b8a6', selected: false },
+                    { color: '#84cc16', selected: false },
+                    { color: '#ffffff', selected: false, border: true },
+                    { color: '#000000', selected: false }
+                ];
+                
+                colors.forEach(({ color, selected, border }) => {
+                    const option = document.createElement('div');
+                    option.className = 'color-option' + (selected ? ' selected' : '');
+                    option.setAttribute('data-color', color);
+                    option.style.backgroundColor = color;
+                    if (border) {
+                        option.style.border = '1px solid #ccc';
+                    }
+                    colorOptions.appendChild(option);
+                });
+                
+                contentDiv.appendChild(colorOptions);
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'cancel-btn';
+                cancelBtn.textContent = 'Cancel';
+                contentDiv.appendChild(cancelBtn);
+                
+                colorPicker.appendChild(contentDiv);
     
                 
     
@@ -20393,9 +20414,9 @@ class AccessibilityWidget {
     
                 // Add event listeners to color options
     
-                const colorOptions = colorPicker.querySelectorAll('.color-option');
+                const colorOptionElements = colorPicker.querySelectorAll('.color-option');
     
-                colorOptions.forEach(option => {
+                colorOptionElements.forEach(option => {
     
                     option.addEventListener('click', (e) => {
     
@@ -20419,11 +20440,11 @@ class AccessibilityWidget {
     
                 // Add event listener to cancel button
     
-                const cancelBtn = colorPicker.querySelector('.cancel-btn');
+                const cancelButton = colorPicker.querySelector('.cancel-btn');
     
-                if (cancelBtn) {
+                if (cancelButton) {
     
-                    cancelBtn.addEventListener('click', () => {
+                    cancelButton.addEventListener('click', () => {
     
                         this.resetTextColors();
     
@@ -20598,37 +20619,47 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                colorPicker.innerHTML = `
-    
-                    <div class="color-picker-content">
-    
-                        <h4>Adjust Title Colors</h4>
-    
-                        <div class="color-options">
-    
-                            <div class="color-option" data-color="#3b82f6" style="background-color: #3b82f6;"></div>
-    
-                            <div class="color-option" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
-    
-                            <div class="color-option" data-color="#ef4444" style="background-color: #ef4444;"></div>
-    
-                            <div class="color-option selected" data-color="#f97316" style="background-color: #f97316;"></div>
-    
-                            <div class="color-option" data-color="#14b8a6" style="background-color: #14b8a6;"></div>
-    
-                            <div class="color-option" data-color="#84cc16" style="background-color: #84cc16;"></div>
-    
-                            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; border: 1px solid #ccc;"></div>
-    
-                            <div class="color-option" data-color="#000000" style="background-color: #000000;"></div>
-    
-                        </div>
-    
-                        <button class="cancel-btn">Cancel</button>
-    
-                    </div>
-    
-                `;
+                // Use DOM methods to prevent XSS
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'color-picker-content';
+                
+                const title = document.createElement('h4');
+                title.textContent = 'Adjust Title Colors';
+                contentDiv.appendChild(title);
+                
+                const colorOptions = document.createElement('div');
+                colorOptions.className = 'color-options';
+                
+                const colors = [
+                    { color: '#3b82f6', selected: false },
+                    { color: '#8b5cf6', selected: false },
+                    { color: '#ef4444', selected: false },
+                    { color: '#f97316', selected: true },
+                    { color: '#14b8a6', selected: false },
+                    { color: '#84cc16', selected: false },
+                    { color: '#ffffff', selected: false, border: true },
+                    { color: '#000000', selected: false }
+                ];
+                
+                colors.forEach(({ color, selected, border }) => {
+                    const option = document.createElement('div');
+                    option.className = 'color-option' + (selected ? ' selected' : '');
+                    option.setAttribute('data-color', color);
+                    option.style.backgroundColor = color;
+                    if (border) {
+                        option.style.border = '1px solid #ccc';
+                    }
+                    colorOptions.appendChild(option);
+                });
+                
+                contentDiv.appendChild(colorOptions);
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'cancel-btn';
+                cancelBtn.textContent = 'Cancel';
+                contentDiv.appendChild(cancelBtn);
+                
+                colorPicker.appendChild(contentDiv);
     
                 
     
@@ -20644,9 +20675,9 @@ class AccessibilityWidget {
     
                 // Add event listeners to color options
     
-                const colorOptions = colorPicker.querySelectorAll('.color-option');
+                const colorOptionElements = colorPicker.querySelectorAll('.color-option');
     
-                colorOptions.forEach(option => {
+                colorOptionElements.forEach(option => {
     
                     option.addEventListener('click', (e) => {
     
@@ -20670,11 +20701,11 @@ class AccessibilityWidget {
     
                 // Add event listener to cancel button
     
-                const cancelBtn = colorPicker.querySelector('.cancel-btn');
+                const cancelButton = colorPicker.querySelector('.cancel-btn');
     
-                if (cancelBtn) {
+                if (cancelButton) {
     
-                    cancelBtn.addEventListener('click', () => {
+                    cancelButton.addEventListener('click', () => {
     
                         this.resetTitleColors();
     
@@ -20816,37 +20847,51 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                colorPicker.innerHTML = `
-    
-                    <div class="color-picker-content">
-    
-                        <h4>Adjust Background Colors</h4>
-    
-                        <div class="color-options">
-    
-                            <div class="color-option" data-color="#3b82f6" style="background-color: #3b82f6;"></div>
-    
-                            <div class="color-option" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
-    
-                            <div class="color-option" data-color="#ef4444" style="background-color: #ef4444;"></div>
-    
-                            <div class="color-option selected" data-color="#f97316" style="background-color: #f97316;"></div>
-    
-                            <div class="color-option" data-color="#14b8a6" style="background-color: #14b8a6;"></div>
-    
-                            <div class="color-option" data-color="#84cc16" style="background-color: #84cc16;"></div>
-    
-                            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; border: 1px solid #ccc;"></div>
-    
-                            <div class="color-option" data-color="#000000" style="background-color: #000000;"></div>
-    
-                        </div>
-    
-                        <button class="cancel-btn" onclick="accessibilityWidget.hideBackgroundColorPicker()">Cancel</button>
-    
-                    </div>
-    
-                `;
+                // Use DOM methods to prevent XSS
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'color-picker-content';
+                
+                const title = document.createElement('h4');
+                title.textContent = 'Adjust Background Colors';
+                contentDiv.appendChild(title);
+                
+                const colorOptions = document.createElement('div');
+                colorOptions.className = 'color-options';
+                
+                const colors = [
+                    { color: '#3b82f6', selected: false },
+                    { color: '#8b5cf6', selected: false },
+                    { color: '#ef4444', selected: false },
+                    { color: '#f97316', selected: true },
+                    { color: '#14b8a6', selected: false },
+                    { color: '#84cc16', selected: false },
+                    { color: '#ffffff', selected: false, border: true },
+                    { color: '#000000', selected: false }
+                ];
+                
+                colors.forEach(({ color, selected, border }) => {
+                    const option = document.createElement('div');
+                    option.className = 'color-option' + (selected ? ' selected' : '');
+                    option.setAttribute('data-color', color);
+                    option.style.backgroundColor = color;
+                    if (border) {
+                        option.style.border = '1px solid #ccc';
+                    }
+                    colorOptions.appendChild(option);
+                });
+                
+                contentDiv.appendChild(colorOptions);
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'cancel-btn';
+                cancelBtn.textContent = 'Cancel';
+                // Use addEventListener instead of onclick attribute
+                if (this.hideBackgroundColorPicker) {
+                    cancelBtn.addEventListener('click', () => this.hideBackgroundColorPicker());
+                }
+                contentDiv.appendChild(cancelBtn);
+                
+                colorPicker.appendChild(contentDiv);
     
                 
     
@@ -20862,9 +20907,9 @@ class AccessibilityWidget {
     
                 // Add event listeners to color options
     
-                const colorOptions = colorPicker.querySelectorAll('.color-option');
+                const colorOptionElements = colorPicker.querySelectorAll('.color-option');
     
-                colorOptions.forEach(option => {
+                colorOptionElements.forEach(option => {
     
                     option.addEventListener('click', (e) => {
     
@@ -20888,11 +20933,11 @@ class AccessibilityWidget {
     
                 // Add event listener to cancel button
     
-                const cancelBtn = colorPicker.querySelector('.cancel-btn');
+                const cancelButton = colorPicker.querySelector('.cancel-btn');
     
-                if (cancelBtn) {
+                if (cancelButton) {
     
-                    cancelBtn.addEventListener('click', () => {
+                    cancelButton.addEventListener('click', () => {
     
                         this.resetBackgroundColors();
     
@@ -22732,23 +22777,40 @@ class AccessibilityWidget {
             document.documentElement.classList.add('read-mode');
             document.body.classList.add('read-mode');
             
-            // Create overlay with extracted content
-            // Use string concatenation instead of template literal interpolation to avoid syntax errors
-            const overlayHTML = '<div id="read-mode-overlay" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: #e8f4f8 !important; z-index: 99997 !important; font-family: Arial, sans-serif !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important;"><div style="padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;">' + finalContent + '</div></div>';
-    
+            // Create overlay with extracted content - Use DOM methods to prevent XSS
+            const overlay = document.createElement('div');
+            overlay.id = 'read-mode-overlay';
+            overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: #e8f4f8 !important; z-index: 99997 !important; font-family: Arial, sans-serif !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important;';
             
+            const contentWrapper = document.createElement('div');
+            contentWrapper.style.cssText = 'padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;';
+            
+            // Safely insert content - use DOMParser instead of innerHTML to prevent XSS
+            if (typeof finalContent === 'string' && finalContent.trim().startsWith('<')) {
+                // Content appears to be HTML - use DOMParser to safely parse it
+                const parser = new DOMParser();
+                const parsedDoc = parser.parseFromString(finalContent, 'text/html');
+                // Move all body children to contentWrapper
+                while (parsedDoc.body.firstChild) {
+                    contentWrapper.appendChild(parsedDoc.body.firstChild);
+                }
+            } else {
+                // Plain text content
+                contentWrapper.textContent = finalContent || 'No content could be extracted from this page.';
+            }
+            
+            overlay.appendChild(contentWrapper);
     
-            // Insert the HTML directly into the body
-    
-            document.body.insertAdjacentHTML('beforeend', overlayHTML);
+            // Insert the overlay into the body using DOM methods
+            document.body.appendChild(overlay);
     
             
     
             // Verify the overlay was created
     
-            const overlay = document.getElementById('read-mode-overlay');
+            const readModeOverlay = document.getElementById('read-mode-overlay');
     
-            if (overlay) {
+            if (readModeOverlay) {
     
     
             } else {
@@ -26575,9 +26637,48 @@ class AccessibilityWidget {
     
                 
     
-                // Insert the color picker after the profile item
-    
-                textColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
+                // Insert the color picker after the profile item - Use DOM methods to prevent XSS
+                const colorPickerContainer = document.createElement('div');
+                colorPickerContainer.className = 'color-picker-controls';
+                colorPickerContainer.style.cssText = 'margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;';
+                
+                const colorPickerTitle = document.createElement('h4');
+                colorPickerTitle.textContent = 'Adjust Text Colors';
+                colorPickerTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 14px; font-weight: bold;';
+                colorPickerContainer.appendChild(colorPickerTitle);
+                
+                const colorSwatchesContainer = document.createElement('div');
+                colorSwatchesContainer.style.cssText = 'display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;';
+                
+                const colors = [
+                    { color: '#0066cc', title: 'Blue' },
+                    { color: '#6633cc', title: 'Purple' },
+                    { color: '#cc0000', title: 'Red' },
+                    { color: '#ff6600', title: 'Orange' },
+                    { color: '#00cccc', title: 'Teal' },
+                    { color: '#669900', title: 'Green' },
+                    { color: '#ffffff', title: 'White' },
+                    { color: '#000000', title: 'Black' }
+                ];
+                
+                colors.forEach(({ color, title }) => {
+                    const swatch = document.createElement('button');
+                    swatch.className = 'color-swatch';
+                    swatch.setAttribute('data-color', color);
+                    swatch.setAttribute('title', title);
+                    swatch.style.cssText = 'width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd; background: ' + color + '; cursor: pointer; transition: transform 0.2s;';
+                    colorSwatchesContainer.appendChild(swatch);
+                });
+                
+                colorPickerContainer.appendChild(colorSwatchesContainer);
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.id = 'cancel-text-color';
+                cancelBtn.textContent = 'Cancel';
+                cancelBtn.style.cssText = 'background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;';
+                colorPickerContainer.appendChild(cancelBtn);
+                
+                textColorsModule.parentNode.insertBefore(colorPickerContainer, textColorsModule.nextSibling);
     
                 
     
@@ -26617,11 +26718,11 @@ class AccessibilityWidget {
     
                 // Add event listener for cancel button
     
-                const cancelBtn = this.shadowRoot.getElementById('cancel-text-color');
+                const textColorCancelBtn = this.shadowRoot.getElementById('cancel-text-color');
     
-                if (cancelBtn) {
+                if (textColorCancelBtn) {
     
-                    cancelBtn.addEventListener('click', () => {
+                    textColorCancelBtn.addEventListener('click', () => {
     
                         this.hideTextColorPicker();
     
@@ -26785,9 +26886,48 @@ class AccessibilityWidget {
     
                 
     
-                // Insert the color picker after the profile item
-    
-                titleColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
+                // Insert the color picker after the profile item - Use DOM methods to prevent XSS
+                const colorPickerContainer = document.createElement('div');
+                colorPickerContainer.className = 'title-color-picker-controls';
+                colorPickerContainer.style.cssText = 'margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;';
+                
+                const colorPickerTitle = document.createElement('h4');
+                colorPickerTitle.textContent = 'Adjust Title Colors';
+                colorPickerTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 14px; font-weight: bold;';
+                colorPickerContainer.appendChild(colorPickerTitle);
+                
+                const colorSwatchesContainer = document.createElement('div');
+                colorSwatchesContainer.style.cssText = 'display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;';
+                
+                const colors = [
+                    { color: '#0066cc', title: 'Blue' },
+                    { color: '#6633cc', title: 'Purple' },
+                    { color: '#cc0000', title: 'Red' },
+                    { color: '#ff6600', title: 'Orange' },
+                    { color: '#00cccc', title: 'Teal' },
+                    { color: '#669900', title: 'Green' },
+                    { color: '#ffffff', title: 'White' },
+                    { color: '#000000', title: 'Black' }
+                ];
+                
+                colors.forEach(({ color, title }) => {
+                    const swatch = document.createElement('button');
+                    swatch.className = 'title-color-swatch';
+                    swatch.setAttribute('data-color', color);
+                    swatch.setAttribute('title', title);
+                    swatch.style.cssText = 'width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd; background: ' + color + '; cursor: pointer; transition: transform 0.2s;';
+                    colorSwatchesContainer.appendChild(swatch);
+                });
+                
+                colorPickerContainer.appendChild(colorSwatchesContainer);
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.id = 'cancel-title-color';
+                cancelBtn.textContent = 'Cancel';
+                cancelBtn.style.cssText = 'background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;';
+                colorPickerContainer.appendChild(cancelBtn);
+                
+                titleColorsModule.parentNode.insertBefore(colorPickerContainer, titleColorsModule.nextSibling);
     
                 
     
@@ -26827,11 +26967,11 @@ class AccessibilityWidget {
     
                 // Add event listener for cancel button
     
-                const cancelBtn = this.shadowRoot.getElementById('cancel-title-color');
+                const titleColorCancelBtn = this.shadowRoot.getElementById('cancel-title-color');
     
-                if (cancelBtn) {
+                if (titleColorCancelBtn) {
     
-                    cancelBtn.addEventListener('click', () => {
+                    titleColorCancelBtn.addEventListener('click', () => {
     
                         this.hideTitleColorPicker();
     
@@ -26997,9 +27137,48 @@ class AccessibilityWidget {
     
                 
     
-                // Insert the color picker after the profile item
-    
-                bgColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
+                // Insert the color picker after the profile item - Use DOM methods to prevent XSS
+                const colorPickerContainer = document.createElement('div');
+                colorPickerContainer.className = 'bg-color-picker-controls';
+                colorPickerContainer.style.cssText = 'margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;';
+                
+                const colorPickerTitle = document.createElement('h4');
+                colorPickerTitle.textContent = 'Adjust Background Colors';
+                colorPickerTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 14px; font-weight: bold;';
+                colorPickerContainer.appendChild(colorPickerTitle);
+                
+                const colorSwatchesContainer = document.createElement('div');
+                colorSwatchesContainer.style.cssText = 'display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;';
+                
+                const colors = [
+                    { color: '#0066cc', title: 'Blue' },
+                    { color: '#6633cc', title: 'Purple' },
+                    { color: '#cc0000', title: 'Red' },
+                    { color: '#ff6600', title: 'Orange' },
+                    { color: '#00cccc', title: 'Teal' },
+                    { color: '#669900', title: 'Green' },
+                    { color: '#ffffff', title: 'White' },
+                    { color: '#000000', title: 'Black' }
+                ];
+                
+                colors.forEach(({ color, title }) => {
+                    const swatch = document.createElement('button');
+                    swatch.className = 'bg-color-swatch';
+                    swatch.setAttribute('data-color', color);
+                    swatch.setAttribute('title', title);
+                    swatch.style.cssText = 'width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd; background: ' + color + '; cursor: pointer; transition: transform 0.2s;';
+                    colorSwatchesContainer.appendChild(swatch);
+                });
+                
+                colorPickerContainer.appendChild(colorSwatchesContainer);
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.id = 'cancel-bg-color';
+                cancelBtn.textContent = 'Cancel';
+                cancelBtn.style.cssText = 'background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;';
+                colorPickerContainer.appendChild(cancelBtn);
+                
+                bgColorsModule.parentNode.insertBefore(colorPickerContainer, bgColorsModule.nextSibling);
     
                 
     
@@ -27039,11 +27218,11 @@ class AccessibilityWidget {
     
                 // Add event listener for cancel button
     
-                const cancelBtn = this.shadowRoot.getElementById('cancel-bg-color');
+                const bgColorCancelBtn = this.shadowRoot.getElementById('cancel-bg-color');
     
-                if (cancelBtn) {
+                if (bgColorCancelBtn) {
     
-                    cancelBtn.addEventListener('click', () => {
+                    bgColorCancelBtn.addEventListener('click', () => {
     
                         this.hideBackgroundColorPicker();
     
@@ -28648,8 +28827,7 @@ class AccessibilityWidget {
                     
                     // If we collected text, consolidate it
                     if (fullText.trim()) {
-                        // Store original HTML structure if needed, but replace with clean text
-                        const originalHTML = container.innerHTML;
+                        // Replace with clean text - Use textContent instead of innerHTML for safety
                         container.textContent = fullText.trim();
                         
                         // Hide all child elements to prevent layering
@@ -30198,43 +30376,42 @@ class AccessibilityWidget {
     
             alignmentContainer.className = 'alignment-controls';
     
-            alignmentContainer.innerHTML = `
-    
-                <div class="control-group">
-    
-                    <h4>Text Alignment</h4>
-    
-                    <div class="alignment-buttons">
-    
-                        <button id="align-left" class="alignment-btn" title="Align Left">
-    
-                            <span style="text-align: left;">⬅</span>
-    
-                        </button>
-    
-                        <button id="align-center" class="alignment-btn" title="Align Center">
-    
-                            <span style="text-align: center;">↔</span>
-    
-                        </button>
-    
-                        <button id="align-right" class="alignment-btn" title="Align Right">
-    
-                            <span style="text-align: right;">➡</span>
-    
-                        </button>
-    
-                        <button id="reset-alignment" class="alignment-btn" title="Reset Alignment">
-    
-                            <span>↺</span>
-    
-                        </button>
-    
-                    </div>
-    
-                </div>
-    
-            `;
+            // Use DOM methods to prevent XSS
+            const controlGroup = document.createElement('div');
+            controlGroup.className = 'control-group';
+            
+            const title = document.createElement('h4');
+            title.textContent = 'Text Alignment';
+            controlGroup.appendChild(title);
+            
+            const alignmentButtons = document.createElement('div');
+            alignmentButtons.className = 'alignment-buttons';
+            
+            const alignButtons = [
+                { id: 'align-left', title: 'Align Left', icon: '⬅', align: 'left' },
+                { id: 'align-center', title: 'Align Center', icon: '↔', align: 'center' },
+                { id: 'align-right', title: 'Align Right', icon: '➡', align: 'right' },
+                { id: 'reset-alignment', title: 'Reset Alignment', icon: '↺', align: null }
+            ];
+            
+            alignButtons.forEach(({ id, title: btnTitle, icon, align }) => {
+                const btn = document.createElement('button');
+                btn.id = id;
+                btn.className = 'alignment-btn';
+                btn.setAttribute('title', btnTitle);
+                
+                const span = document.createElement('span');
+                span.textContent = icon;
+                if (align) {
+                    span.style.textAlign = align;
+                }
+                btn.appendChild(span);
+                
+                alignmentButtons.appendChild(btn);
+            });
+            
+            controlGroup.appendChild(alignmentButtons);
+            alignmentContainer.appendChild(controlGroup);
     
     
     
@@ -31922,10 +32099,15 @@ class AccessibilityWidget {
 
             }
             
-            // Update action buttons
+            // Update action buttons - Use DOM methods to prevent XSS
             const resetBtn = this.shadowRoot?.querySelector('#reset-settings');
             if (resetBtn) {
-                resetBtn.innerHTML = `<i class="fas fa-redo"></i> ${content.resetSettings}`;
+                resetBtn.textContent = ''; // Clear existing content
+                const resetIcon = document.createElement('i');
+                resetIcon.className = 'fas fa-redo';
+                resetIcon.setAttribute('aria-hidden', 'true');
+                resetBtn.appendChild(resetIcon);
+                resetBtn.appendChild(document.createTextNode(' ' + (content.resetSettings || '')));
 
             } else {
                
@@ -31933,7 +32115,12 @@ class AccessibilityWidget {
             
             const statementBtn = this.shadowRoot?.querySelector('#statement');
             if (statementBtn) {
-                statementBtn.innerHTML = `<i class="fas fa-file-alt"></i> ${content.statement}`;
+                statementBtn.textContent = ''; // Clear existing content
+                const statementIcon = document.createElement('i');
+                statementIcon.className = 'fas fa-file-alt';
+                statementIcon.setAttribute('aria-hidden', 'true');
+                statementBtn.appendChild(statementIcon);
+                statementBtn.appendChild(document.createTextNode(' ' + (content.statement || '')));
 
             } else {
 
@@ -31941,7 +32128,12 @@ class AccessibilityWidget {
             
             const hideBtn = this.shadowRoot?.querySelector('#hide-interface');
             if (hideBtn) {
-                hideBtn.innerHTML = `<i class="fas fa-eye-slash"></i> ${content.hideInterface}`;
+                hideBtn.textContent = ''; // Clear existing content
+                const hideIcon = document.createElement('i');
+                hideIcon.className = 'fas fa-eye-slash';
+                hideIcon.setAttribute('aria-hidden', 'true');
+                hideBtn.appendChild(hideIcon);
+                hideBtn.appendChild(document.createTextNode(' ' + (content.hideInterface || '')));
               
             } else {
 
@@ -32026,10 +32218,13 @@ class AccessibilityWidget {
 
             }
             
-            // Update keyboard navigation note
+            // Update keyboard navigation note - Use DOM methods to prevent XSS
             const keyboardNavNote = this.shadowRoot?.querySelector('#keyboard-nav')?.closest('.profile-item')?.querySelector('.profile-description p:last-child');
             if (keyboardNavNote && content.keyboardNavNote) {
-                keyboardNavNote.innerHTML = `<strong></strong> ${content.keyboardNavNote.replace('Note: ', '')}`;
+                keyboardNavNote.textContent = ''; // Clear existing content
+                const strongEl = document.createElement('strong');
+                keyboardNavNote.appendChild(strongEl);
+                keyboardNavNote.appendChild(document.createTextNode(' ' + (content.keyboardNavNote.replace('Note: ', '') || '')));
 
             }
             
@@ -32040,10 +32235,13 @@ class AccessibilityWidget {
 
             }
             
-            // Update screen reader note
+            // Update screen reader note - Use DOM methods to prevent XSS
             const screenReaderNote = this.shadowRoot?.querySelector('#screen-reader')?.closest('.profile-item')?.querySelector('.profile-description p:last-child');
             if (screenReaderNote && content.screenReaderNote) {
-                screenReaderNote.innerHTML = `<strong></strong> ${content.screenReaderNote.replace('Note: ', '')}`;
+                screenReaderNote.textContent = ''; // Clear existing content
+                const strongEl = document.createElement('strong');
+                screenReaderNote.appendChild(strongEl);
+                screenReaderNote.appendChild(document.createTextNode(' ' + (content.screenReaderNote.replace('Note: ', '') || '')));
               
             }
             
@@ -33707,8 +33905,12 @@ class AccessibilityWidget {
                 
                 const iconClass = iconMap[icon] || 'fas fa-universal-access';
                 
-                // Clear existing content and add the new icon
-                iconElement.innerHTML = `<i class="${iconClass}"></i>`;
+                // Clear existing content and add the new icon - Use DOM methods to prevent XSS
+                iconElement.textContent = '';
+                const iconI = document.createElement('i');
+                iconI.className = iconClass;
+                iconI.setAttribute('aria-hidden', 'true');
+                iconElement.appendChild(iconI);
                 
                 // Ensure proper styling
                 iconElement.style.display = 'flex';
