@@ -17,29 +17,7 @@
         }
         
         // Skip accessibility widget if in reader mode or if page is being processed for reader mode
-        const isReaderMode = document.documentElement.classList.contains('reader-mode') || 
-            (document.body && document.body.classList.contains('reader-mode')) ||
-            window.location.search.includes('reader-mode') ||
-            document.querySelector('[data-reader-mode]') ||
-            document.querySelector('.reader-mode') ||
-            document.querySelector('#reader-mode') ||
-            window.location.hash.includes('reader') ||
-            document.title.toLowerCase().includes('reader') ||
-            // Check for common reader mode indicators
-            document.querySelector('meta[name="reader-mode"]') ||
-            document.querySelector('meta[name="reading-mode"]') ||
-            // Check if page is being processed by a reader
-            window.navigator.userAgent.includes('Reader') ||
-            window.navigator.userAgent.includes('Readability') ||
-            // Check for reader mode URL parameters
-            window.location.search.includes('read') ||
-            window.location.search.includes('print') ||
-            // Check for reader mode classes that might be added by browsers
-            document.documentElement.getAttribute('data-reader-mode') ||
-            (document.body && document.body.getAttribute('data-reader-mode'));
-            
-        if (isReaderMode) {
-           
+        if (isReaderModeStandalone()) {
             return;
         }
         
@@ -569,14 +547,8 @@
                     window.__applySeizureSafeDOMFreeze = function() {
                         try {
                             // Check Designer mode first
-                            const isDesigner = (window.location.hostname.includes('webflow.com') && 
-                                (window.location.pathname.includes('/design/') || 
-                                 window.location.pathname.includes('/designer'))) ||
-                                document.querySelector('[data-webflow-design-mode]') ||
-                                (typeof window.webflow !== 'undefined' && 
-                                 typeof window.webflow.getSiteInfo === 'function' && 
-                                 window.location.hostname.includes('webflow.com'));
-                            if (isDesigner) return; // Exit early in Designer
+                            // Use standalone Designer mode check
+                            if (isDesignerModeStandalone()) return; // Exit early in Designer
                             
                             // Reveal typewriter/typing effects by consolidating text
                             const typeSelectors = [
@@ -1077,8 +1049,56 @@
     }
 })();
 
+// Standalone helper function to check Designer mode (for use outside class)
+function isDesignerModeStandalone() {
+    try {
+        return (
+            (window.location.hostname.includes('webflow.com') && 
+             (window.location.pathname.includes('/design/') || 
+              window.location.pathname.includes('/designer'))) ||
+            document.querySelector('[data-webflow-design-mode]') ||
+            (typeof window.webflow !== 'undefined' && 
+             typeof window.webflow.getSiteInfo === 'function' && 
+             window.location.hostname.includes('webflow.com'))
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
+// Standalone helper function to check Reader mode (for use outside class)
+function isReaderModeStandalone() {
+    try {
+        return (
+            document.documentElement.classList.contains('reader-mode') || 
+            (document.body && document.body.classList.contains('reader-mode')) ||
+            window.location.search.includes('reader-mode') ||
+            document.querySelector('[data-reader-mode]') ||
+            document.querySelector('.reader-mode') ||
+            document.querySelector('#reader-mode') ||
+            window.location.hash.includes('reader') ||
+            document.title.toLowerCase().includes('reader') ||
+            document.querySelector('meta[name="reader-mode"]') ||
+            document.querySelector('meta[name="reading-mode"]') ||
+            window.navigator.userAgent.includes('Reader') ||
+            window.navigator.userAgent.includes('Readability') ||
+            window.location.search.includes('read') ||
+            window.location.search.includes('print') ||
+            document.documentElement.getAttribute('data-reader-mode') ||
+            (document.body && document.body.getAttribute('data-reader-mode'))
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
 // Universal Stop Motion helper: CSS + Lottie + GSAP + GIF/APNG handling
 function applyUniversalStopMotion(enabled) {
+    // CRITICAL: Don't manipulate Designer DOM
+    if (isDesignerModeStandalone()) {
+        return;
+    }
+    
     try {
         // CSS injection to force-stop CSS animations/transitions and smooth scroll
         let css = document.getElementById('a11y-universal-motion-block');
@@ -1130,16 +1150,8 @@ function applyUniversalStopMotion(enabled) {
         // GIF/APNG replacement (one-frame transparent pixel by default) - Designer-safe
         const STATIC_FALLBACK = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
         // Check Designer mode first
-        const isDesigner = 
-            (window.location.hostname.includes('webflow.com') && 
-             (window.location.pathname.includes('/design/') || 
-              window.location.pathname.includes('/designer'))) ||
-            document.querySelector('[data-webflow-design-mode]') ||
-            (typeof window.webflow !== 'undefined' && 
-             typeof window.webflow.getSiteInfo === 'function' && 
-             window.location.hostname.includes('webflow.com'));
-        
-        if (!isDesigner) {
+        // Use standalone Designer mode check
+        if (!isDesignerModeStandalone()) {
             if (enabled) {
                 // Use scoped query if widget instance is available
                 const widget = window.AccessibilityWidgetInstance;
@@ -1211,16 +1223,7 @@ function applyUniversalStopMotion(enabled) {
 // Vision Impaired helper: apply simple zoom and brightness
 function applyVisionImpaired(on) {
     // CRITICAL: Don't manipulate Designer DOM
-    const isDesigner = 
-        (window.location.hostname.includes('webflow.com') && 
-         (window.location.pathname.includes('/design/') || 
-          window.location.pathname.includes('/designer'))) ||
-        document.querySelector('[data-webflow-design-mode]') ||
-        (typeof window.webflow !== 'undefined' && 
-         typeof window.webflow.getSiteInfo === 'function' && 
-         window.location.hostname.includes('webflow.com'));
-    
-    if (isDesigner) {
+    if (isDesignerModeStandalone()) {
         return;
     }
     
@@ -1751,6 +1754,65 @@ class AccessibilityWidget {
             }
             // Only allow alphanumeric, dash, underscore, and spaces
             return className.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim();
+        }
+        
+        /**
+         * Inject CSS style into document head (reusable helper)
+         * @param {string} id - Unique ID for the style element
+         * @param {string} css - CSS content to inject
+         * @param {string} target - Target element ('head' or 'body', default: 'head')
+         * @returns {Element|null} Created style element or null if failed/Designer mode
+         */
+        injectStyle(id, css, target = 'head') {
+            // CRITICAL: Don't manipulate Designer DOM
+            if (this.isDesignerMode()) {
+                return null;
+            }
+            
+            if (!id || !css) {
+                return null;
+            }
+            
+            // Check if style already exists
+            const existing = document.getElementById(id);
+            if (existing) {
+                return existing;
+            }
+            
+            try {
+                const style = document.createElement('style');
+                style.id = id;
+                style.textContent = css;
+                
+                const targetElement = target === 'body' ? document.body : document.head;
+                
+                if (this.safeDOMOperation(() => {
+                    targetElement.appendChild(style);
+                }, `inject style ${id}`)) {
+                    return style;
+                }
+                
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        /**
+         * Remove injected style by ID
+         * @param {string} id - ID of the style element to remove
+         */
+        removeStyle(id) {
+            if (!id) return;
+            
+            try {
+                const style = document.getElementById(id);
+                if (style) {
+                    style.remove();
+                }
+            } catch (e) {
+                // Ignore errors
+            }
         }
         
         /**
@@ -22879,9 +22941,7 @@ class AccessibilityWidget {
             
     
             // Prevent body/html from scrolling when read mode is active
-            const readModeStyle = document.createElement('style');
-            readModeStyle.id = 'read-mode-scroll-fix';
-            readModeStyle.textContent = `
+            this.injectStyle('read-mode-scroll-fix', `
                 html.read-mode,
                 body.read-mode {
                     overflow: hidden !important;
@@ -22889,8 +22949,7 @@ class AccessibilityWidget {
                     position: fixed !important;
                     width: 100% !important;
                 }
-            `;
-            document.head.appendChild(readModeStyle);
+            `);
             
             // Add read-mode class to body and html
             document.documentElement.classList.add('read-mode');
@@ -23467,10 +23526,7 @@ class AccessibilityWidget {
             document.body.classList.remove('read-mode');
             
             // Remove the CSS that prevents body/html scrolling
-            const readModeStyle = document.getElementById('read-mode-scroll-fix');
-            if (readModeStyle) {
-                readModeStyle.remove();
-            }
+            this.removeStyle('read-mode-scroll-fix');
     
             
     
@@ -34404,16 +34460,7 @@ class AccessibilityWidget {
     
     function initWidget() {
         // CRITICAL: Don't run widget in Webflow Designer environment
-        const isDesigner = 
-            (window.location.hostname.includes('webflow.com') && 
-             (window.location.pathname.includes('/design/') || 
-              window.location.pathname.includes('/designer'))) ||
-            document.querySelector('[data-webflow-design-mode]') ||
-            (typeof window.webflow !== 'undefined' && 
-             typeof window.webflow.getSiteInfo === 'function' && 
-             window.location.hostname.includes('webflow.com'));
-        
-        if (isDesigner) {
+        if (isDesignerModeStandalone()) {
             // Exit early - widget should not run in Designer
             return;
         }
@@ -34590,25 +34637,9 @@ class AccessibilityWidget {
         }
         
         // Final reader mode check - prevent any widget initialization in reader mode
-        // Consolidated reader mode check - using same comprehensive check as top of file
+        // Use standalone reader mode check function
         const checkReaderMode = () => {
-            const isReaderMode = document.documentElement.classList.contains('reader-mode') || 
-                (document.body && document.body.classList.contains('reader-mode')) ||
-                window.location.search.includes('reader-mode') ||
-                document.querySelector('[data-reader-mode]') ||
-                document.querySelector('.reader-mode') ||
-                document.querySelector('#reader-mode') ||
-                window.location.hash.includes('reader') ||
-                document.title.toLowerCase().includes('reader') ||
-                document.querySelector('meta[name="reader-mode"]') ||
-                document.querySelector('meta[name="reading-mode"]') ||
-                window.navigator.userAgent.includes('Reader') ||
-                window.navigator.userAgent.includes('Readability') ||
-                window.location.search.includes('read') ||
-                window.location.search.includes('print') ||
-                document.documentElement.getAttribute('data-reader-mode') ||
-                (document.body && document.body.getAttribute('data-reader-mode'));
-            return !isReaderMode;
+            return !isReaderModeStandalone();
         };
         
         // Override all widget functions if reader mode is detected
