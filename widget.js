@@ -6754,6 +6754,11 @@ class AccessibilityWidget {
                     color: #64748b;
     
                 }
+                
+                .profile-item small {
+                    font-size: 12px;
+                    font-weight: normal;
+                }
     
                 
     
@@ -8741,7 +8746,7 @@ class AccessibilityWidget {
     
                                 </div>
     
-                                <small style="color: #6366f1; font-style: italic;">Activates with Screen Reader</small>
+                                <small style="color: #6366f1; font-style: italic; font-size: 12px; font-weight: normal;">Activates with Screen Reader</small>
     
                             </div>
     
@@ -8779,7 +8784,7 @@ class AccessibilityWidget {
     
                                 </div>
     
-                                <small style="color: #6366f1; font-style: italic;">Activates with Keyboard Navigation</small>
+                                <small style="color: #6366f1; font-style: italic; font-size: 12px; font-weight: normal;">Activates with Keyboard Navigation</small>
     
                             </div>
     
@@ -22897,10 +22902,31 @@ class AccessibilityWidget {
     
             
     
-            // Insert the HTML using scoped overlay method (Designer-compliant)
-            const overlay = this.createScopedOverlay('read-mode-overlay', overlayHTML);
-            if (!overlay) {
-                return; // Exit if in Designer mode or creation failed
+            // Insert the HTML directly to body (read mode needs to cover entire page)
+            // CRITICAL: Read mode overlay must be on body, not widget container, to be interactive
+            if (this.isDesignerMode()) {
+                return; // Exit if in Designer mode
+            }
+            
+            // Remove existing overlay if any
+            const existingOverlay = document.getElementById('read-mode-overlay');
+            if (existingOverlay) {
+                existingOverlay.remove();
+            }
+            
+            // Create overlay directly on body for full page coverage
+            const overlay = document.createElement('div');
+            overlay.id = 'read-mode-overlay';
+            overlay.setAttribute('data-accessibility-widget-overlay', 'true');
+            overlay.innerHTML = this.sanitizeHTML(overlayHTML, true);
+            
+            // Append directly to body (not widget container) so it's interactive
+            if (this.safeDOMOperation(() => {
+                document.body.appendChild(overlay);
+            }, 'create read mode overlay')) {
+                // Overlay created successfully
+            } else {
+                return; // Failed to create overlay
             }
             
             // Overlay already created by createScopedOverlay
