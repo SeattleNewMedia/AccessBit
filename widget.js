@@ -9,13 +9,7 @@
             document.querySelector('[data-webflow-design-mode]') ||
             (typeof window.webflow !== 'undefined' && 
              typeof window.webflow.getSiteInfo === 'function' && 
-             window.location.hostname.includes('webflow.com')) ||
-            // Additional Designer detection patterns
-            (window.parent !== window && window.parent.location && window.parent.location.hostname.includes('webflow.com')) ||
-            document.querySelector('[data-wf-page]') && window.location.hostname.includes('webflow.com');
-        
-        // Store Designer state globally for conditional operations
-        window.__accessibilityWidgetIsDesigner = isDesigner;
+             window.location.hostname.includes('webflow.com'));
         
         if (isDesigner) {
             // Exit early - widget should not run in Designer
@@ -60,64 +54,25 @@
             immediateStyle.id = 'accessibility-seizure-immediate-early';
             immediateStyle.textContent = `
                 /* APPLY GREYISH COLOR FILTER IMMEDIATELY - Reduce color intensity to prevent seizures */
-                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
-                body.seizure-safe img,
-                body.seizure-safe video,
-                body.seizure-safe canvas,
-                body.seizure-safe svg,
-                body.seizure-safe picture,
-                body.seizure-safe iframe,
-                body.seizure-safe embed,
-                body.seizure-safe object,
-                html.seizure-safe img,
-                html.seizure-safe video,
-                html.seizure-safe canvas,
-                html.seizure-safe svg,
-                html.seizure-safe picture,
-                html.seizure-safe iframe,
-                html.seizure-safe embed,
-                html.seizure-safe object {
+                body.seizure-safe,
+                html.seizure-safe {
                     filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                 }
                 
-                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
-                body.seizure-safe nav[style*="position: fixed"],
-                body.seizure-safe nav[style*="position:fixed"],
-                body.seizure-safe nav[style*="position: sticky"],
-                body.seizure-safe nav[style*="position:sticky"],
-                body.seizure-safe header[style*="position: fixed"],
-                body.seizure-safe header[style*="position:fixed"],
-                body.seizure-safe header[style*="position: sticky"],
-                body.seizure-safe header[style*="position:sticky"],
-                body.seizure-safe [class*="nav"][style*="position: fixed"],
-                body.seizure-safe [class*="nav"][style*="position:fixed"],
-                body.seizure-safe [class*="nav"][style*="position: sticky"],
-                body.seizure-safe [class*="nav"][style*="position:sticky"],
-                body.seizure-safe [class*="header"][style*="position: fixed"],
-                body.seizure-safe [class*="header"][style*="position:fixed"],
-                body.seizure-safe [class*="header"][style*="position: sticky"],
-                body.seizure-safe [class*="header"][style*="position:sticky"],
+                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
+                body.seizure-safe nav,
+                body.seizure-safe header,
+                body.seizure-safe .navbar,
+                body.seizure-safe [role="navigation"],
+                body.seizure-safe [class*="nav"],
+                body.seizure-safe [class*="header"],
+                body.seizure-safe [class*="navbar"],
                 body.seizure-safe [data-sticky],
                 body.seizure-safe [data-fixed],
-                html.seizure-safe nav[style*="position: fixed"],
-                html.seizure-safe nav[style*="position:fixed"],
-                html.seizure-safe nav[style*="position: sticky"],
-                html.seizure-safe nav[style*="position:sticky"],
-                html.seizure-safe header[style*="position: fixed"],
-                html.seizure-safe header[style*="position:fixed"],
-                html.seizure-safe header[style*="position: sticky"],
-                html.seizure-safe header[style*="position:sticky"],
-                html.seizure-safe [class*="nav"][style*="position: fixed"],
-                html.seizure-safe [class*="nav"][style*="position:fixed"],
-                html.seizure-safe [class*="nav"][style*="position: sticky"],
-                html.seizure-safe [class*="nav"][style*="position:sticky"],
-                html.seizure-safe [class*="header"][style*="position: fixed"],
-                html.seizure-safe [class*="header"][style*="position:fixed"],
-                html.seizure-safe [class*="header"][style*="position: sticky"],
-                html.seizure-safe [class*="header"][style*="position:sticky"],
-                html.seizure-safe [data-sticky],
-                html.seizure-safe [data-fixed] {
+                body.seizure-safe [style*="position: sticky"],
+                body.seizure-safe [style*="position:fixed"],
+                body.seizure-safe [style*="position: fixed"] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -188,16 +143,7 @@
                     visibility: visible !important;
                 }
                 /* HOVER ANIMATIONS: Disable all hover-triggered animations */
-                /* Exclude dropdown menus and submenus from this rule to prevent them from becoming visible */
-                body.seizure-safe *:hover:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *:focus:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *:active:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *[class*="hover"]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *[class*="focus"]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *[class*="active"]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *[data-hover]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *[data-focus]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul),
-                body.seizure-safe *[data-active]:not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul) {
+                body.seizure-safe *:hover, body.seizure-safe *:focus, body.seizure-safe *:active, body.seizure-safe *[class*="hover"], body.seizure-safe *[class*="focus"], body.seizure-safe *[class*="active"], body.seizure-safe *[data-hover], body.seizure-safe *[data-focus], body.seizure-safe *[data-active] {
                     animation: none !important;
                     transition: none !important;
                     animation-fill-mode: forwards !important;
@@ -205,24 +151,11 @@
                     visibility: visible !important;
                 }
                 
-                /* CRITICAL: Keep intentionally hidden elements hidden (modals, tooltips, overlays, etc.) */
-                body.seizure-safe [hidden],
-                body.seizure-safe [aria-hidden="true"],
-                body.seizure-safe [class*="modal"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
-                body.seizure-safe [class*="tooltip"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
-                body.seizure-safe [class*="overlay"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
-                body.seizure-safe [class*="popup"]:not([class*="show"]):not([class*="open"]):not([class*="active"]),
-                body.seizure-safe [role="dialog"]:not([class*="show"]):not([class*="open"]):not([class*="active"]):not([aria-hidden="false"]),
-                body.seizure-safe [role="tooltip"]:not([class*="show"]):not([class*="open"]):not([class*="active"]):not([aria-hidden="false"]) {
-                    display: none !important;
-                    visibility: hidden !important;
-                    opacity: 0 !important;
-                }
-                
-                /* CRITICAL: Keep dropdown menus hidden when closed - override any visibility forcing */
-                /* Check for Webflow dropdowns and other common patterns */
-                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):not(.w-dropdown-list[style*="display: block"]):not(.w-dropdown-list[style*="display:flex"]),
-                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):not(.w-dropdown-list[style*="display: block"]):not(.w-dropdown-list[style*="display:flex"]):hover,
+                /* CRITICAL: Exclude dropdown menus from visibility forcing - they should remain hidden until explicitly opened */
+                /* This rule must come after the hover rule above to override it for dropdowns */
+                /* Handle both normal and hover states to prevent auto-opening */
+                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
+                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [id*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [id*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [class*="menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):not(nav):not(header),
@@ -233,11 +166,6 @@
                 body.seizure-safe [role="menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [role="menubar"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [role="menubar"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
-                /* Webflow specific dropdown patterns */
-                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]),
-                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]):hover,
-                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
-                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 /* Also handle common dropdown patterns like ul/ol inside nav items */
                 body.seizure-safe nav ul:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe nav ul:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
@@ -248,18 +176,11 @@
                 body.seizure-safe [class*="submenu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
                 body.seizure-safe [class*="submenu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
                 body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]),
-                body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover,
-                /* Hide Lottie animations and other animation elements inside closed dropdowns */
-                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"],
-                body.seizure-safe [class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"] *,
-                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]) [data-animation-type="lottie"],
-                body.seizure-safe .w-dropdown-list:not([style*="display: block"]):not([style*="display:flex"]):not([style*="opacity: 1"]) [data-animation-type="lottie"] *,
-                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"],
-                body.seizure-safe [class*="w-dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]) [data-animation-type="lottie"] * {
-                    /* Force closed dropdowns and their Lottie animations to remain hidden - override any visibility forcing */
-                    opacity: 0 !important;
-                    visibility: hidden !important;
-                    display: none !important;
+                body.seizure-safe [class*="sub-menu"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"]):hover {
+                    /* Allow dropdowns to maintain their original visibility state - override the hover rule */
+                    opacity: inherit !important;
+                    visibility: inherit !important;
+                    display: inherit !important;
                 }
                 /* LETTER-BY-LETTER ANIMATIONS: Force all text animations to final state */
                 /* Hide per-character/word spans ONLY after JS has consolidated text on the container.
@@ -523,18 +444,16 @@
                             animation: none !important;
                             transition: none !important;
                         }
-                        /* Restore layout-affecting properties to stylesheet values - exclude nav/header and dropdowns */
-                        /* CRITICAL: Exclude hidden elements (modals, tooltips, overlays, etc.) from opacity/visibility unset */
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul):not([class*="modal"]):not([class*="tooltip"]):not([class*="overlay"]):not([class*="popup"]):not([role="dialog"]):not([role="tooltip"]):not([aria-hidden="true"]):not([hidden]):not([style*="display: none"]):not([style*="visibility: hidden"]):not([style*="opacity: 0"]), 
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul):not([class*="modal"]):not([class*="tooltip"]):not([class*="overlay"]):not([class*="popup"]):not([role="dialog"]):not([role="tooltip"]):not([aria-hidden="true"]):not([hidden]):not([style*="display: none"]):not([style*="visibility: hidden"]):not([style*="opacity: 0"])::before, 
-                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="dropdown"]):not([id*="dropdown"]):not([class*="menu"]):not([id*="menu"]):not([role="menu"]):not([role="menubar"]):not([class*="submenu"]):not([class*="sub-menu"]):not(nav ul):not(header ul):not([class*="nav"] ul):not([class*="modal"]):not([class*="tooltip"]):not([class*="overlay"]):not([class*="popup"]):not([role="dialog"]):not([role="tooltip"]):not([aria-hidden="true"]):not([hidden]):not([style*="display: none"]):not([style*="visibility: hidden"]):not([style*="opacity: 0"])::after {
+                        /* Restore layout-affecting properties to stylesheet values - exclude nav/header */
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]), 
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"])::before, 
+                        body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"])::after {
                             transform: unset !important;
                             translate: unset !important;
                             scale: unset !important;
                             rotate: unset !important;
-                            /* CRITICAL: Do NOT unset opacity/visibility - this makes hidden elements visible */
-                            /* REMOVED: opacity: unset !important; */
-                            /* REMOVED: visibility: unset !important; */
+                            opacity: unset !important;
+                            visibility: unset !important;
                             /* CRITICAL: Do NOT unset position - this breaks sticky/fixed navigation */
                             /* REMOVED: position: unset !important; */
                             top: unset !important;
@@ -624,16 +543,13 @@
                     window.clearInterval = window.__origClearInterval;
                     window.clearTimeout = window.__origClearTimeout;
                     
-                    // Disable Web Animations API - Only when seizure-safe is active AND not in Designer
+                    // Disable Web Animations API - Only when seizure-safe is active
                     try {
-                        if (!window.__origElementAnimate && !window.__accessibilityWidgetIsDesigner) {
+                        if (!window.__origElementAnimate) {
                             window.__origElementAnimate = Element.prototype.animate;
                             Element.prototype.animate = function(...args) {
-                                // Double-check Designer state and only block if seizure-safe is active
-                                if (window.__accessibilityWidgetIsDesigner) {
-                                    return window.__origElementAnimate.apply(this, args);
-                                }
-                                const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
+                                // Only block if seizure-safe or stop-animation mode is active
+                                const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
                                 if (isActive) {
                                     // return a stub Animation
                                     return {
@@ -900,96 +816,6 @@
                     // Apply immediately and also on DOMContentLoaded as a second safety
                     window.__applySeizureSafeDOMFreeze();
                     
-                    // Hide closed Webflow dropdowns and their Lottie animations
-                    const hideClosedDropdowns = () => {
-                        try {
-                            // Find all Webflow dropdown lists
-                            const dropdownLists = document.querySelectorAll('.w-dropdown-list, [class*="dropdown-list"]');
-                            dropdownLists.forEach(dropdown => {
-                                try {
-                                    // Check if dropdown is actually open
-                                    const isOpen = dropdown.style.display === 'block' || 
-                                                  dropdown.style.display === 'flex' ||
-                                                  dropdown.classList.contains('w--open') ||
-                                                  dropdown.getAttribute('aria-hidden') === 'false' ||
-                                                  (dropdown.closest('.w-dropdown') && dropdown.closest('.w-dropdown').classList.contains('w--open'));
-                                    
-                                    // If not open, force it to be hidden
-                                    if (!isOpen) {
-                                        dropdown.style.display = 'none';
-                                        dropdown.style.visibility = 'hidden';
-                                        dropdown.style.opacity = '0';
-                                        
-                                        // Also hide all Lottie animations inside the closed dropdown
-                                        const lottieElements = dropdown.querySelectorAll('[data-animation-type="lottie"], [data-src*=".json"], .lottie-animation');
-                                        lottieElements.forEach(lottie => {
-                                            lottie.style.display = 'none';
-                                            lottie.style.visibility = 'hidden';
-                                            lottie.style.opacity = '0';
-                                        });
-                                    }
-                                } catch (_) {}
-                            });
-                            
-                            // Also check for other dropdown patterns
-                            const otherDropdowns = document.querySelectorAll('[class*="dropdown"]:not([class*="open"]):not([class*="active"]):not([class*="show"]):not([aria-expanded="true"])');
-                            otherDropdowns.forEach(dropdown => {
-                                try {
-                                    // Check if it's a dropdown list (not the toggle button)
-                                    if (dropdown.classList.contains('dropdown-list') || 
-                                        dropdown.classList.contains('dropdown-menu') ||
-                                        dropdown.getAttribute('role') === 'menu' ||
-                                        dropdown.id && dropdown.id.includes('dropdown')) {
-                                        const computedStyle = window.getComputedStyle(dropdown);
-                                        // If it's not explicitly shown, hide it
-                                        if (computedStyle.display === 'none' || 
-                                            computedStyle.visibility === 'hidden' ||
-                                            computedStyle.opacity === '0') {
-                                            dropdown.style.display = 'none';
-                                            dropdown.style.visibility = 'hidden';
-                                            dropdown.style.opacity = '0';
-                                            
-                                            // Hide Lottie animations inside
-                                            const lottieElements = dropdown.querySelectorAll('[data-animation-type="lottie"], [data-src*=".json"], .lottie-animation');
-                                            lottieElements.forEach(lottie => {
-                                                lottie.style.display = 'none';
-                                                lottie.style.visibility = 'hidden';
-                                                lottie.style.opacity = '0';
-                                            });
-                                        }
-                                    }
-                                } catch (_) {}
-                            });
-                        } catch (_) {}
-                    };
-                    
-                    // Run immediately and set up observer to keep checking
-                    hideClosedDropdowns();
-                    
-                    // Watch for changes to dropdown states
-                    // CRITICAL: Skip if in Designer to avoid conflicts
-                    try {
-                        if (window.__accessibilityWidgetIsDesigner) return;
-                        
-                        const dropdownObserver = new MutationObserver(() => {
-                            // Double-check Designer state
-                            if (window.__accessibilityWidgetIsDesigner) return;
-                            if (document.body && document.body.classList.contains('seizure-safe')) {
-                                hideClosedDropdowns();
-                            }
-                        });
-                        
-                        // Scope observer to body instead of entire document for better performance
-                        const observeTarget = document.body || document.documentElement;
-                        dropdownObserver.observe(observeTarget, {
-                            subtree: true,
-                            childList: true,
-                            attributes: true,
-                            attributeFilter: ['style', 'class', 'aria-expanded', 'aria-hidden']
-                        });
-                        window.__seizureDropdownObserver = dropdownObserver;
-                    } catch (_) {}
-                    
                     // Install aggressive animation blocker to neutralize JS-driven animations
                     try {
                         if (!window.__animationBlockerInstalled) {
@@ -1010,23 +836,6 @@
                             const neutralizeElement = (el) => {
                                 if (!el || isExempt(el)) return;
                                 try {
-                                    // Check if element is intentionally hidden - don't force it visible
-                                    const computedStyle = window.getComputedStyle(el);
-                                    const isHidden = computedStyle.display === 'none' || 
-                                                    computedStyle.visibility === 'hidden' ||
-                                                    computedStyle.opacity === '0' ||
-                                                    el.hasAttribute('hidden') ||
-                                                    el.getAttribute('aria-hidden') === 'true' ||
-                                                    el.closest('[hidden], [aria-hidden="true"], [class*="modal"]:not([class*="show"]), [class*="tooltip"]:not([class*="show"]), [class*="overlay"]:not([class*="show"]), [role="dialog"]:not([class*="show"]), [role="tooltip"]:not([class*="show"]), [class*="popup"]:not([class*="show"])');
-                                    
-                                    // If element is intentionally hidden, don't modify its opacity/visibility
-                                    if (isHidden) {
-                                        // Only neutralize animations, not visibility
-                                        el.style.animation = 'none';
-                                        el.style.transition = 'none';
-                                        return;
-                                    }
-                                    
                                     el.style.animation = 'none';
                                     el.style.transition = 'none';
                                     el.style.willChange = 'auto';
@@ -1039,23 +848,13 @@
                                     if (!(el.matches && el.matches(ICON_SELECTOR)) && !inRotationContext) {
                                         el.style.transform = 'none';
                                     }
-                                    // Only set opacity to 1 if element is not hidden
                                     el.style.opacity = '1';
                                 } catch (_) {}
                             };
                             
                             // Initial sweep - limit to first 5000 elements for safety
-                            // CRITICAL: Skip if in Designer to avoid conflicts
                             try {
-                                if (window.__accessibilityWidgetIsDesigner) return;
-                                
-                                // Use more specific selectors instead of '*' to reduce scope
-                                const targetSelectors = [
-                                    '[class*="animate"]', '[class*="fade"]', '[class*="slide"]',
-                                    '[data-animation]', '[data-transition]', '[style*="animation"]',
-                                    '[style*="transition"]'
-                                ];
-                                const all = document.querySelectorAll(targetSelectors.join(', '));
+                                const all = document.querySelectorAll('*');
                                 let count = 0;
                                 for (const el of all) {
                                     neutralizeElement(el);
@@ -1065,23 +864,13 @@
                             } catch (_) {}
                             
                             // Observe future changes to styles/classes and neutralize
-                            // CRITICAL: Skip if in Designer to avoid conflicts
                             try {
-                                if (window.__accessibilityWidgetIsDesigner) return;
-                                
                                 const styleObserver = new MutationObserver((mutations) => {
-                                    // Double-check Designer state
-                                    if (window.__accessibilityWidgetIsDesigner) return;
                                     if (!(document.body && document.body.classList.contains('seizure-safe'))) return;
-                                    
                                     for (const m of mutations) {
                                         const target = m.target;
                                         if (!(target instanceof Element)) continue;
                                         if (isExempt(target)) continue;
-                                        
-                                        // Skip if target is inside Designer-specific containers
-                                        if (target.closest('[data-webflow-design-mode], [data-wf-page]')) continue;
-                                        
                                         try {
                                             const inline = (target.getAttribute && target.getAttribute('style')) || '';
                                             if (/animation|transition|transform|opacity|filter/i.test(inline)) {
@@ -1095,10 +884,7 @@
                                         } catch (_) {}
                                     }
                                 });
-                                
-                                // Scope observer to body instead of entire document for better performance
-                                const observeTarget = document.body || document.documentElement;
-                                styleObserver.observe(observeTarget, {
+                                styleObserver.observe(document.documentElement, {
                                     subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class']
                                 });
                                 window.__seizureStyleObserver = styleObserver;
@@ -1147,33 +933,17 @@
                     } catch (_) {}
                     
                     // Install hard blockers at the API level for inline styles when seizure-safe is active
-                    // CRITICAL: Skip if in Designer to avoid conflicts
                     try {
-                        if (window.__accessibilityWidgetIsDesigner) return;
-                        
                         if (!window.__installStyleHardBlockers) {
                             window.__installStyleHardBlockers = function() {
-                                // Double-check Designer state
-                                if (window.__accessibilityWidgetIsDesigner) return;
-                                
-                                const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
+                                const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
                                 if (!isActive) return;
                                 try {
                                     if (!window.__origSetProperty) {
                                         window.__origSetProperty = CSSStyleDeclaration.prototype.setProperty;
                                         CSSStyleDeclaration.prototype.setProperty = function(name, value, priority) {
-                                            // Double-check Designer state
-                                            if (window.__accessibilityWidgetIsDesigner) {
-                                                return window.__origSetProperty.call(this, name, value, priority);
-                                            }
-                                            
-                                            // Skip if element is inside Designer-specific containers
-                                            if (this.ownerElement && this.ownerElement.closest('[data-webflow-design-mode], [data-wf-page]')) {
-                                                return window.__origSetProperty.call(this, name, value, priority);
-                                            }
-                                            
                                             // Only block if seizure-safe or stop-animation mode is active
-                                            const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
+                                            const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
                                             if (!isActive) {
                                                 return window.__origSetProperty.call(this, name, value, priority);
                                             }
@@ -1190,17 +960,7 @@
                                     if (!window.__origStyleAttrSetter) {
                                         window.__origStyleAttrSetter = Element.prototype.setAttribute;
                                         Element.prototype.setAttribute = function(attr, val) {
-                                            // Double-check Designer state
-                                            if (window.__accessibilityWidgetIsDesigner) {
-                                                return window.__origStyleAttrSetter.call(this, attr, val);
-                                            }
-                                            
-                                            // Skip if element is inside Designer-specific containers
-                                            if (this.closest && this.closest('[data-webflow-design-mode], [data-wf-page]')) {
-                                                return window.__origStyleAttrSetter.call(this, attr, val);
-                                            }
-                                            
-                                            const isActive = document.body && (document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation'));
+                                            const isActive = document.body.classList.contains('seizure-safe') || document.body.classList.contains('stop-animation');
                                             if (String(attr).toLowerCase() === 'style' && typeof val === 'string' && isActive) {
                                                 // Strip blacklisted properties from inline style strings
                                                 let cleaned = val
@@ -1687,6 +1447,104 @@ class AccessibilityWidget {
 
         }
         
+        // ===== SECURITY & ISOLATION HELPERS =====
+        
+        /**
+         * Check if we're in Webflow Designer mode
+         * @returns {boolean} True if in Designer, false otherwise
+         */
+        isDesignerMode() {
+            try {
+                return (
+                    (window.location.hostname.includes('webflow.com') && 
+                     (window.location.pathname.includes('/design/') || 
+                      window.location.pathname.includes('/designer'))) ||
+                    document.querySelector('[data-webflow-design-mode]') ||
+                    (typeof window.webflow !== 'undefined' && 
+                     typeof window.webflow.getSiteInfo === 'function' && 
+                     window.location.hostname.includes('webflow.com'))
+                );
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        /**
+         * Safely perform DOM operations with Designer check
+         * @param {Function} operation - Function that performs DOM manipulation
+         * @param {string} operationName - Name of operation for error logging
+         * @returns {boolean} True if operation was performed, false if blocked
+         */
+        safeDOMOperation(operation, operationName = 'DOM operation') {
+            try {
+                if (this.isDesignerMode()) {
+                    return false;
+                }
+                operation();
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        /**
+         * Isolated API fetch with timeout, error handling, and retry logic
+         * @param {string} url - API endpoint URL
+         * @param {Object} options - Fetch options
+         * @param {number} timeout - Timeout in milliseconds (default: 10000)
+         * @param {number} maxRetries - Maximum retry attempts (default: 2)
+         * @returns {Promise<Response|null>} Response or null on failure
+         */
+        async isolatedFetch(url, options = {}, timeout = 10000, maxRetries = 2) {
+            // Don't make API calls in Designer mode
+            if (this.isDesignerMode()) {
+                return null;
+            }
+            
+            let lastError = null;
+            
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    // Create abort controller for timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+                    
+                    // Merge abort signal with existing options
+                    const fetchOptions = {
+                        ...options,
+                        signal: controller.signal
+                    };
+                    
+                    const response = await fetch(url, fetchOptions);
+                    clearTimeout(timeoutId);
+                    
+                    // Handle rate limiting with exponential backoff
+                    if (response.status === 429 && attempt < maxRetries) {
+                        const retryAfter = response.headers.get('Retry-After');
+                        const delay = retryAfter ? parseInt(retryAfter) * 1000 : Math.pow(2, attempt) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    
+                    return response;
+                } catch (error) {
+                    lastError = error;
+                    
+                    // Don't retry on abort (timeout) or if it's the last attempt
+                    if (error.name === 'AbortError' || attempt === maxRetries) {
+                        break;
+                    }
+                    
+                    // Exponential backoff for retries
+                    const delay = Math.pow(2, attempt) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            
+            // Log error but don't throw - fail gracefully
+            return null;
+        }
+        
         // ===== PAYMENT VALIDATION METHODS =====
         
         // Initialize payment validation
@@ -1762,13 +1620,13 @@ class AccessibilityWidget {
                     trialEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
                 };
                 
-                const response = await fetch(`${this.kvApiUrl}/api/accessibility/create-trial`, {
+                const response = await this.isolatedFetch(`${this.kvApiUrl}/api/accessibility/create-trial`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(trialData)
                 });
                 
-                return response.ok;
+                return response && response.ok;
             } catch (error) {
                 
                 return false;
@@ -1790,23 +1648,23 @@ class AccessibilityWidget {
                 if (isStagingDomain) {
                     return true;
                 }
-                // OPTIMIZED: Minimal headers, efficient fetch
+                // OPTIMIZED: Minimal headers, efficient fetch with isolation
                 const base1 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
-                const response = await fetch(`${base1}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`, {
+                const response = await this.isolatedFetch(`${base1}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
                     },
                     keepalive: false
-                });
+                }, 10000, 2); // 10s timeout, 2 retries (isolatedFetch handles 429 automatically)
                 
-                // Handle rate limit errors with retry
-                if (response.status === 429) {
+                // Handle rate limit errors with retry (fallback if isolatedFetch didn't handle it)
+                if (response && response.status === 429) {
                     
                     await new Promise(resolve => setTimeout(resolve, 1500)); // Reduced retry delay
                     
                     const base2 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
-                    const retryResponse = await fetch(`${base2}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`, {
+                    const retryResponse = await this.isolatedFetch(`${base2}/api/stripe/customer-data-by-domain?domain=${encodeURIComponent(host)}&_t=${Date.now()}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json'
@@ -1908,13 +1766,13 @@ class AccessibilityWidget {
                 
                 const visitorId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
                 const base3 = (this && this.kvApiUrl ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
-                const response = await fetch(`${base3}/api/accessibility/validate-domain`, {
+                const response = await this.isolatedFetch(`${base3}/api/accessibility/validate-domain`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ domain, siteId, siteToken: siteTokenParam, visitorId })
                 });
                 
-                if (!response.ok) return false;
+                if (!response || !response.ok) return false;
                 
                 const { isValid } = await response.json();
                 return isValid;
@@ -5542,13 +5400,7 @@ class AccessibilityWidget {
     
             panel.setAttribute('aria-describedby', 'panel-description');
     
-            // Use DOMParser to safely parse HTML instead of innerHTML to prevent XSS
-            const panelParser = new DOMParser();
-            const panelDoc = panelParser.parseFromString(this.getPanelHTML(), 'text/html');
-            // Move all body children to panel
-            while (panelDoc.body.firstChild) {
-                panel.appendChild(panelDoc.body.firstChild);
-            }
+            panel.innerHTML = this.getPanelHTML();
     
             panel.style.pointerEvents = 'auto';
     
@@ -5616,13 +5468,7 @@ class AccessibilityWidget {
     
             languageDropdown.style.display = 'none';
     
-            // Use DOMParser to safely parse HTML instead of innerHTML to prevent XSS
-            const dropdownParser = new DOMParser();
-            const dropdownDoc = dropdownParser.parseFromString(this.getLanguageDropdownContent(), 'text/html');
-            // Move all body children to languageDropdown
-            while (dropdownDoc.body.firstChild) {
-                languageDropdown.appendChild(dropdownDoc.body.firstChild);
-            }
+            languageDropdown.innerHTML = this.getLanguageDropdownContent();
     
             // Append dropdown INSIDE the panel, not to shadowRoot
             panel.appendChild(languageDropdown);
@@ -8125,7 +7971,7 @@ class AccessibilityWidget {
     html body.big-black-cursor,
     body.big-black-cursor *,
     html body.big-black-cursor * {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy1ibGFjayIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjMiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjMDAwMDAwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1ibGFjaykiLz48L3N2Zz4=') 32 16, auto !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy1ibGFjayIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjMiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjMDAwMDAwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1ibGFjaykiLz48L3N2Zz4=') 20 10, auto !important;
     }
     
     /* Big Black Cursor - Hand Pointer for Links - Higher specificity to override default */
@@ -8145,7 +7991,7 @@ class AccessibilityWidget {
     body.big-black-cursor .btn,
     body.big-black-cursor [class*="button"],
     body.big-black-cursor [class*="link"] {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtYmxhY2siIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC4zIi8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLWJsYWNrKSIvPjwvc3ZnPg==') 32 20, pointer !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtYmxhY2siIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC4zIi8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiMwMDAwMDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLWJsYWNrKSIvPjwvc3ZnPg==') 24 10, pointer !important;
     }
     
     /* Big White Cursor - Arrow Cursor (default) */
@@ -8153,7 +7999,7 @@ class AccessibilityWidget {
     html body.big-white-cursor,
     body.big-white-cursor *,
     html body.big-white-cursor * {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy13aGl0ZSIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjUiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy13aGl0ZSkiLz48L3N2Zz4=') 32 16, auto !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxmaWx0ZXIgaWQ9InNoYWRvdy13aGl0ZSIgeD0iLTUwJSIgeT0iLTUwJSIgd2lkdGg9IjIwMCUiIGhlaWdodD0iMjAwJSI+PGZlRHJvcFNoYWRvdyBkeD0iMiIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMyIgZmxvb2RPcGFjaXR5PSIwLjUiLz48L2ZpbHRlcj48L2RlZnM+PHBhdGggZD0iTSAyMCAxMCBMIDIwIDgwIEwgNDAgNjAgTCA1MCA4NSBMIDU4IDgyIEwgNDggNTcgTCA3MCA1MCBaIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgZmlsdGVyPSJ1cmwoI3NoYWRvdy13aGl0ZSkiLz48L3N2Zz4=') 20 10, auto !important;
     }
     
     /* Big White Cursor - Hand Pointer for Links - Higher specificity to override default */
@@ -8173,7 +8019,7 @@ class AccessibilityWidget {
     body.big-white-cursor .btn,
     body.big-white-cursor [class*="button"],
     body.big-white-cursor [class*="link"] {
-        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtd2hpdGUiIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC41Ii8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLXdoaXRlKSIvPjwvc3ZnPg==') 32 20, pointer !important;
+        cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCA4MCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0ic2hhZG93LWhhbmQtd2hpdGUiIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPjxmZURyb3BTaGFkb3cgZHg9IjIiIGR5PSIyIiBzdGREZXZpYXRpb249IjMiIGZsb29kT3BhY2l0eT0iMC41Ii8+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0gMjggOCBRIDI2IDggMjUgOSBRIDI0IDEwIDI0IDEyIEwgMjQgNDIgQyAyMiA0MCAyMCAzOCAxOCAzNyBDIDE2IDM2IDEzIDM2IDExIDM3LjUgQyA5IDM5IDguNSA0MSA5LjUgNDMgQyAxMC41IDQ1LjUgMTMgNDguNSAxNCA0OS41IEMgMTUgNTEgMTcuNSA1NiAxOS41IDU3LjUgQyAyMSA1OC44IDIyIDYyIDIyLjUgNjUgTCAyMi41IDY4IEwgNTIgNjggTCA1MiA2MyBDIDUyLjUgNjEuOCA1My41IDYwIDU0LjUgNTkgQyA1Ni41IDU3IDU3IDUzIDU3IDUxLjUgTCA1NyAzNiBRIDU3IDM0LjUgNTUuNSAzMyBDIDU0LjUgMzIgNTIuNSAzMS41IDUwIDMxLjMgQyA0OS44IDMxIDQ5LjUgMzAuNSA0OSAzMC4yIEMgNDcuNSAyOS4yIDQ1IDI4LjggNDIuNSAyOC43IEMgNDIuMyAyOC41IDQyIDI4LjIgNDEuNSAyNy45IEMgNDAgMjcgMzggMjYuNiAzNiAyNi41IEwgMzYgMTIgUSAzNiAxMCAzNSA5IFEgMzQgOCAzMiA4IFEgMzAgOCAyOCA4IFoiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsdGVyPSJ1cmwoI3NoYWRvdy1oYW5kLXdoaXRlKSIvPjwvc3ZnPg==') 24 10, pointer !important;
     }
                 /* Hide Interface Modal Styles */
                 .hide-interface-modal {
@@ -16357,32 +16203,33 @@ class AccessibilityWidget {
     
                 
     
-                // Create dropdown content - Use DOM methods to prevent XSS
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'useful-links-content';
-                
-                const select = document.createElement('select');
-                select.id = 'useful-links-select';
-                
-                const options = [
-                    { value: '', text: 'Select an option' },
-                    { value: 'home', text: 'Home' },
-                    { value: 'header', text: 'Header' },
-                    { value: 'footer', text: 'Footer' },
-                    { value: 'main-content', text: 'Main content' },
-                    { value: 'about-us', text: 'About us' },
-                    { value: 'portfolio', text: 'Portfolio' }
-                ];
-                
-                options.forEach(({ value, text }) => {
-                    const option = document.createElement('option');
-                    option.value = value;
-                    option.textContent = text;
-                    select.appendChild(option);
-                });
-                
-                contentDiv.appendChild(select);
-                dropdownContainer.appendChild(contentDiv);
+                // Create dropdown content
+    
+                dropdownContainer.innerHTML = `
+    
+                    <div class="useful-links-content">
+    
+                        <select id="useful-links-select">
+    
+                            <option value="">Select an option</option>
+    
+                            <option value="home">Home</option>
+    
+                            <option value="header">Header</option>
+    
+                            <option value="footer">Footer</option>
+    
+                            <option value="main-content">Main content</option>
+    
+                            <option value="about-us">About us</option>
+    
+                            <option value="portfolio">Portfolio</option>
+    
+                        </select>
+    
+                    </div>
+    
+                `;
     
                 
     
@@ -16406,9 +16253,9 @@ class AccessibilityWidget {
     
                 // Add event listener to select
                 
-                const usefulLinksSelect = dropdownContainer.querySelector('#useful-links-select');
+                const select = dropdownContainer.querySelector('#useful-links-select');
                 
-                usefulLinksSelect.addEventListener('change', (e) => {
+                select.addEventListener('change', (e) => {
                 
                     const value = e.target.value;
                 
@@ -16525,62 +16372,16 @@ class AccessibilityWidget {
                     break;
     
                 case 'header':
-                    try {
-                        // Find header on current page - try multiple common selectors in order of priority
-                        const headerSelectors = [
-                            'header',
-                            '[role="banner"]',
-                            '.header',
-                            '#header',
-                            '[class*="site-header"]',
-                            '[class*="main-header"]',
-                            '[class*="page-header"]',
-                            '[class*="header"]:not([class*="subheader"]):not([class*="sub-header"])',
-                            '[id*="header"]:not([id*="subheader"]):not([id*="sub-header"])',
-                            'nav',
-                            '.navbar',
-                            '[class*="navbar"]',
-                            '[class*="nav-bar"]'
-                        ];
-                        
-                        let headerElement = null;
-                        for (const selector of headerSelectors) {
-                            try {
-                                const element = document.querySelector(selector);
-                                if (element) {
-                                    // For semantic headers, use them directly
-                                    if (selector === 'header' || selector === '[role="banner"]') {
-                                        headerElement = element;
-                                        break;
-                                    }
-                                    // For other selectors, use the first match
-                                    if (!headerElement) {
-                                        headerElement = element;
-                                    }
-                                }
-                            } catch (e) {
-                                console.error('Header selector error:', selector, e);
-                            }
-                        }
-                        
-                        if (headerElement) {
-                            // Get the actual position of the header (accounting for fixed/sticky headers)
-                            const rect = headerElement.getBoundingClientRect();
-                            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
-                            const headerTop = rect.top + scrollTop;
-                            
-                            // Scroll to header position
-                            window.scrollTo({ 
-                                top: Math.max(0, headerTop - 20), // Add small offset for better visibility
-                                behavior: 'smooth' 
-                            });
-                        } else {
-                            // If no header found, scroll to top
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }
-                    } catch (error) {
-                        console.error('Header navigation error:', error);
-                        // Fallback: scroll to top
+                    // Find header on current page - try multiple common selectors
+                    const headerElement = document.querySelector('header, .header, nav, .navbar, [class*="header"], [id*="header"], [role="banner"]');
+                    if (headerElement) {
+                        headerElement.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start',
+                            inline: 'nearest'
+                        });
+                    } else {
+                        // If no header found, scroll to top
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                     break;
@@ -16634,73 +16435,18 @@ class AccessibilityWidget {
                     break;
     
                 case 'portfolio':
-                    try {
-                        // First check if we're already on a portfolio page
-                        const currentPath = window.location.pathname.toLowerCase();
-                        if (currentPath.includes('portfolio')) {
-                            // Already on portfolio page, scroll to top of portfolio section
-                            const portfolioSection = document.querySelector('[id*="portfolio"], [class*="portfolio"]');
-                            if (portfolioSection) {
-                                portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            } else {
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }
-                            break;
-                        }
-                        
-                        // Try to find portfolio link in navigation (prioritize navigation over page sections)
-                        // Check multiple selectors to find portfolio links, including dropdown menus
-                        const portfolioLinkSelectors = [
-                            'a[href*="/portfolio"]',
-                            'a[href$="/portfolio"]',
-                            'a[href*="portfolio"]',
-                            'nav a[href*="portfolio"]',
-                            '.nav a[href*="portfolio"]',
-                            '[class*="nav"] a[href*="portfolio"]',
-                            '[class*="menu"] a[href*="portfolio"]',
-                            '[class*="header"] a[href*="portfolio"]',
-                            '[class*="dropdown"] a[href*="portfolio"]',
-                            '[class*="menu-item"] a[href*="portfolio"]',
-                            '.w-dropdown-list a[href*="portfolio"]',
-                            '[role="menu"] a[href*="portfolio"]',
-                            '[role="menubar"] a[href*="portfolio"]'
-                        ];
-                        
-                        let portfolioLink = null;
-                        for (const selector of portfolioLinkSelectors) {
-                            try {
-                                const link = document.querySelector(selector);
-                                if (link && link.href && (link.href.includes('portfolio') || link.href.includes('/portfolio'))) {
-                                    portfolioLink = link;
-                                    break;
-                                }
-                            } catch (e) {
-                                console.error('Portfolio link selector error:', selector, e);
-                            }
-                        }
-                        
+                    // First try to find portfolio section on current page
+                    const portfolioElement = this.findElementBySelector('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
+                    if (portfolioElement) {
+                        this.scrollToElement('[id*="portfolio"], [class*="portfolio"], h1:contains("Portfolio"), h2:contains("Portfolio")');
+                    } else {
+                        // Try to find portfolio link in navigation
+                        const portfolioLink = document.querySelector('a[href*="portfolio"], nav a[href*="portfolio"], .nav a[href*="portfolio"]');
                         if (portfolioLink && portfolioLink.href) {
                             window.location.href = portfolioLink.href;
                         } else {
-                            // If no navigation link found, try to find portfolio section on current page
-                            const portfolioElement = document.querySelector('[id*="portfolio"], [class*="portfolio"]');
-                            if (portfolioElement) {
-                                portfolioElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            } else {
-                                // Try to construct portfolio URL
-                                const baseUrl = window.location.origin;
-                                const portfolioUrl = baseUrl + '/portfolio';
-                                // Navigate to portfolio page
-                                window.location.href = portfolioUrl;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Portfolio navigation error:', error);
-                        // Fallback: try to navigate to /portfolio
-                        try {
-                            const baseUrl = window.location.origin;
-                            window.location.href = baseUrl + '/portfolio';
-                        } catch (_) {
+                            // Don't navigate to non-existent paths - just scroll to top or show message
+                            // This prevents 404 errors
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
                     }
@@ -18215,7 +17961,7 @@ class AccessibilityWidget {
                 };
        
                 
-                const response = await fetch(`${this.kvApiUrl}/api/accessibility/save-settings`, {
+                const response = await this.isolatedFetch(`${this.kvApiUrl}/api/accessibility/save-settings`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -18271,7 +18017,7 @@ class AccessibilityWidget {
                 }
 
                 
-                const response = await fetch(`${this.kvApiUrl}/api/accessibility/user-settings?siteId=${siteId}`, {
+                const response = await this.isolatedFetch(`${this.kvApiUrl}/api/accessibility/user-settings?siteId=${siteId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -18813,38 +18559,37 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-contrast-fix';
             style.textContent = `
                 /* Simple High Contrast Mode - Only increase contrast, preserve everything else */
-                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
-                body.high-contrast img,
-                body.high-contrast video,
-                body.high-contrast canvas,
-                body.high-contrast svg,
-                body.high-contrast picture,
-                body.high-contrast iframe,
-                body.high-contrast embed,
-                body.high-contrast object {
+                body.high-contrast {
                     filter: contrast(1.1) brightness(1.05) !important;
                     -webkit-filter: contrast(1.1) brightness(1.05) !important;
                 }
                 
-                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
-                body.high-contrast nav[style*="position: fixed"],
-                body.high-contrast nav[style*="position:fixed"],
-                body.high-contrast nav[style*="position: sticky"],
-                body.high-contrast nav[style*="position:sticky"],
-                body.high-contrast header[style*="position: fixed"],
-                body.high-contrast header[style*="position:fixed"],
-                body.high-contrast header[style*="position: sticky"],
-                body.high-contrast header[style*="position:sticky"],
-                body.high-contrast [class*="nav"][style*="position: fixed"],
-                body.high-contrast [class*="nav"][style*="position:fixed"],
-                body.high-contrast [class*="nav"][style*="position: sticky"],
-                body.high-contrast [class*="nav"][style*="position:sticky"],
-                body.high-contrast [class*="header"][style*="position: fixed"],
-                body.high-contrast [class*="header"][style*="position:fixed"],
-                body.high-contrast [class*="header"][style*="position: sticky"],
-                body.high-contrast [class*="header"][style*="position:sticky"],
+                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
+                body.high-contrast nav,
+                body.high-contrast header,
+                body.high-contrast .navbar,
+                body.high-contrast [role="navigation"],
+                body.high-contrast [class*="nav"],
+                body.high-contrast [class*="header"],
+                body.high-contrast [class*="navbar"],
                 body.high-contrast [data-sticky],
-                body.high-contrast [data-fixed] {
+                body.high-contrast [data-fixed],
+                body.high-contrast [style*="position: sticky"],
+                body.high-contrast [style*="position:fixed"],
+                body.high-contrast [style*="position: fixed"] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                }
+                
+                /* Preserve accessibility widget from contrast filters */
+                body.high-contrast .accessibility-widget,
+                body.high-contrast .accessibility-panel,
+                body.high-contrast .accessibility-icon,
+                body.high-contrast #accessibility-widget,
+                body.high-contrast #accessibility-panel,
+                body.high-contrast #accessibility-icon,
+                body.high-contrast [data-ck-widget],
+                body.high-contrast [class*="accessibility"] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -19183,38 +18928,37 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-saturation-css';
             style.textContent = `
                 /* Simple High Saturation Mode - Only increase saturation, preserve everything else */
-                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
-                body.high-saturation img,
-                body.high-saturation video,
-                body.high-saturation canvas,
-                body.high-saturation svg,
-                body.high-saturation picture,
-                body.high-saturation iframe,
-                body.high-saturation embed,
-                body.high-saturation object {
+                body.high-saturation {
                     filter: saturate(1.2) !important;
                     -webkit-filter: saturate(1.2) !important;
                 }
                 
-                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
-                body.high-saturation nav[style*="position: fixed"],
-                body.high-saturation nav[style*="position:fixed"],
-                body.high-saturation nav[style*="position: sticky"],
-                body.high-saturation nav[style*="position:sticky"],
-                body.high-saturation header[style*="position: fixed"],
-                body.high-saturation header[style*="position:fixed"],
-                body.high-saturation header[style*="position: sticky"],
-                body.high-saturation header[style*="position:sticky"],
-                body.high-saturation [class*="nav"][style*="position: fixed"],
-                body.high-saturation [class*="nav"][style*="position:fixed"],
-                body.high-saturation [class*="nav"][style*="position: sticky"],
-                body.high-saturation [class*="nav"][style*="position:sticky"],
-                body.high-saturation [class*="header"][style*="position: fixed"],
-                body.high-saturation [class*="header"][style*="position:fixed"],
-                body.high-saturation [class*="header"][style*="position: sticky"],
-                body.high-saturation [class*="header"][style*="position:sticky"],
+                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
+                body.high-saturation nav,
+                body.high-saturation header,
+                body.high-saturation .navbar,
+                body.high-saturation [role="navigation"],
+                body.high-saturation [class*="nav"],
+                body.high-saturation [class*="header"],
+                body.high-saturation [class*="navbar"],
                 body.high-saturation [data-sticky],
-                body.high-saturation [data-fixed] {
+                body.high-saturation [data-fixed],
+                body.high-saturation [style*="position: sticky"],
+                body.high-saturation [style*="position:fixed"],
+                body.high-saturation [style*="position: fixed"] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                }
+                
+                /* Preserve accessibility widget from saturation filters */
+                body.high-saturation .accessibility-widget,
+                body.high-saturation .accessibility-panel,
+                body.high-saturation .accessibility-icon,
+                body.high-saturation #accessibility-widget,
+                body.high-saturation #accessibility-panel,
+                body.high-saturation #accessibility-icon,
+                body.high-saturation [data-ck-widget],
+                body.high-saturation [class*="accessibility"] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -19239,38 +18983,37 @@ class AccessibilityWidget {
             style.id = 'accessibility-low-saturation-css';
             style.textContent = `
                 /* Low Saturation Mode - Simple filter overlay approach */
-                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
-                body.low-saturation img,
-                body.low-saturation video,
-                body.low-saturation canvas,
-                body.low-saturation svg,
-                body.low-saturation picture,
-                body.low-saturation iframe,
-                body.low-saturation embed,
-                body.low-saturation object {
+                body.low-saturation {
                     filter: saturate(0.6) !important;
                     -webkit-filter: saturate(0.6) !important;
                 }
                 
-                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
-                body.low-saturation nav[style*="position: fixed"],
-                body.low-saturation nav[style*="position:fixed"],
-                body.low-saturation nav[style*="position: sticky"],
-                body.low-saturation nav[style*="position:sticky"],
-                body.low-saturation header[style*="position: fixed"],
-                body.low-saturation header[style*="position:fixed"],
-                body.low-saturation header[style*="position: sticky"],
-                body.low-saturation header[style*="position:sticky"],
-                body.low-saturation [class*="nav"][style*="position: fixed"],
-                body.low-saturation [class*="nav"][style*="position:fixed"],
-                body.low-saturation [class*="nav"][style*="position: sticky"],
-                body.low-saturation [class*="nav"][style*="position:sticky"],
-                body.low-saturation [class*="header"][style*="position: fixed"],
-                body.low-saturation [class*="header"][style*="position:fixed"],
-                body.low-saturation [class*="header"][style*="position: sticky"],
-                body.low-saturation [class*="header"][style*="position:sticky"],
+                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
+                body.low-saturation nav,
+                body.low-saturation header,
+                body.low-saturation .navbar,
+                body.low-saturation [role="navigation"],
+                body.low-saturation [class*="nav"],
+                body.low-saturation [class*="header"],
+                body.low-saturation [class*="navbar"],
                 body.low-saturation [data-sticky],
-                body.low-saturation [data-fixed] {
+                body.low-saturation [data-fixed],
+                body.low-saturation [style*="position: sticky"],
+                body.low-saturation [style*="position:fixed"],
+                body.low-saturation [style*="position: fixed"] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                }
+                
+                /* Preserve accessibility widget from low saturation filters */
+                body.low-saturation .accessibility-widget,
+                body.low-saturation .accessibility-panel,
+                body.low-saturation .accessibility-icon,
+                body.low-saturation #accessibility-widget,
+                body.low-saturation #accessibility-panel,
+                body.low-saturation #accessibility-icon,
+                body.low-saturation [data-ck-widget],
+                body.low-saturation [class*="accessibility"] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -19305,38 +19048,37 @@ class AccessibilityWidget {
     
             style.textContent = `
                 /* Monochrome effect - Simple filter overlay approach */
-                /* Apply filter only to content elements, not layout containers, to preserve sticky/fixed positioning */
-                body.monochrome img,
-                body.monochrome video,
-                body.monochrome canvas,
-                body.monochrome svg,
-                body.monochrome picture,
-                body.monochrome iframe,
-                body.monochrome embed,
-                body.monochrome object {
+                body.monochrome {
                     filter: grayscale(100%) !important;
                     -webkit-filter: grayscale(100%) !important;
                 }
                 
-                /* CRITICAL: Exclude navigation elements with fixed/sticky positioning from filter */
-                body.monochrome nav[style*="position: fixed"],
-                body.monochrome nav[style*="position:fixed"],
-                body.monochrome nav[style*="position: sticky"],
-                body.monochrome nav[style*="position:sticky"],
-                body.monochrome header[style*="position: fixed"],
-                body.monochrome header[style*="position:fixed"],
-                body.monochrome header[style*="position: sticky"],
-                body.monochrome header[style*="position:sticky"],
-                body.monochrome [class*="nav"][style*="position: fixed"],
-                body.monochrome [class*="nav"][style*="position:fixed"],
-                body.monochrome [class*="nav"][style*="position: sticky"],
-                body.monochrome [class*="nav"][style*="position:sticky"],
-                body.monochrome [class*="header"][style*="position: fixed"],
-                body.monochrome [class*="header"][style*="position:fixed"],
-                body.monochrome [class*="header"][style*="position: sticky"],
-                body.monochrome [class*="header"][style*="position:sticky"],
+                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
+                body.monochrome nav,
+                body.monochrome header,
+                body.monochrome .navbar,
+                body.monochrome [role="navigation"],
+                body.monochrome [class*="nav"],
+                body.monochrome [class*="header"],
+                body.monochrome [class*="navbar"],
                 body.monochrome [data-sticky],
-                body.monochrome [data-fixed] {
+                body.monochrome [data-fixed],
+                body.monochrome [style*="position: sticky"],
+                body.monochrome [style*="position:fixed"],
+                body.monochrome [style*="position: fixed"] {
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                }
+                
+                /* Preserve accessibility widget from monochrome filters */
+                body.monochrome .accessibility-widget,
+                body.monochrome .accessibility-panel,
+                body.monochrome .accessibility-icon,
+                body.monochrome #accessibility-widget,
+                body.monochrome #accessibility-panel,
+                body.monochrome #accessibility-icon,
+                body.monochrome [data-ck-widget],
+                body.monochrome [class*="accessibility"] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -20358,47 +20100,37 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                // Use DOM methods to prevent XSS
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'color-picker-content';
-                
-                const title = document.createElement('h4');
-                title.textContent = 'Adjust Text Colors';
-                contentDiv.appendChild(title);
-                
-                const colorOptions = document.createElement('div');
-                colorOptions.className = 'color-options';
-                
-                const colors = [
-                    { color: '#3b82f6', selected: false },
-                    { color: '#8b5cf6', selected: true },
-                    { color: '#ef4444', selected: false },
-                    { color: '#f97316', selected: false },
-                    { color: '#14b8a6', selected: false },
-                    { color: '#84cc16', selected: false },
-                    { color: '#ffffff', selected: false, border: true },
-                    { color: '#000000', selected: false }
-                ];
-                
-                colors.forEach(({ color, selected, border }) => {
-                    const option = document.createElement('div');
-                    option.className = 'color-option' + (selected ? ' selected' : '');
-                    option.setAttribute('data-color', color);
-                    option.style.backgroundColor = color;
-                    if (border) {
-                        option.style.border = '1px solid #ccc';
-                    }
-                    colorOptions.appendChild(option);
-                });
-                
-                contentDiv.appendChild(colorOptions);
-                
-                const cancelBtn = document.createElement('button');
-                cancelBtn.className = 'cancel-btn';
-                cancelBtn.textContent = 'Cancel';
-                contentDiv.appendChild(cancelBtn);
-                
-                colorPicker.appendChild(contentDiv);
+                colorPicker.innerHTML = `
+    
+                    <div class="color-picker-content">
+    
+                        <h4>Adjust Text Colors</h4>
+    
+                        <div class="color-options">
+    
+                            <div class="color-option" data-color="#3b82f6" style="background-color: #3b82f6;"></div>
+    
+                            <div class="color-option selected" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+    
+                            <div class="color-option" data-color="#ef4444" style="background-color: #ef4444;"></div>
+    
+                            <div class="color-option" data-color="#f97316" style="background-color: #f97316;"></div>
+    
+                            <div class="color-option" data-color="#14b8a6" style="background-color: #14b8a6;"></div>
+    
+                            <div class="color-option" data-color="#84cc16" style="background-color: #84cc16;"></div>
+    
+                            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; border: 1px solid #ccc;"></div>
+    
+                            <div class="color-option" data-color="#000000" style="background-color: #000000;"></div>
+    
+                        </div>
+    
+                        <button class="cancel-btn">Cancel</button>
+    
+                    </div>
+    
+                `;
     
                 
     
@@ -20414,9 +20146,9 @@ class AccessibilityWidget {
     
                 // Add event listeners to color options
     
-                const colorOptionElements = colorPicker.querySelectorAll('.color-option');
+                const colorOptions = colorPicker.querySelectorAll('.color-option');
     
-                colorOptionElements.forEach(option => {
+                colorOptions.forEach(option => {
     
                     option.addEventListener('click', (e) => {
     
@@ -20440,11 +20172,11 @@ class AccessibilityWidget {
     
                 // Add event listener to cancel button
     
-                const cancelButton = colorPicker.querySelector('.cancel-btn');
+                const cancelBtn = colorPicker.querySelector('.cancel-btn');
     
-                if (cancelButton) {
+                if (cancelBtn) {
     
-                    cancelButton.addEventListener('click', () => {
+                    cancelBtn.addEventListener('click', () => {
     
                         this.resetTextColors();
     
@@ -20619,47 +20351,37 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                // Use DOM methods to prevent XSS
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'color-picker-content';
-                
-                const title = document.createElement('h4');
-                title.textContent = 'Adjust Title Colors';
-                contentDiv.appendChild(title);
-                
-                const colorOptions = document.createElement('div');
-                colorOptions.className = 'color-options';
-                
-                const colors = [
-                    { color: '#3b82f6', selected: false },
-                    { color: '#8b5cf6', selected: false },
-                    { color: '#ef4444', selected: false },
-                    { color: '#f97316', selected: true },
-                    { color: '#14b8a6', selected: false },
-                    { color: '#84cc16', selected: false },
-                    { color: '#ffffff', selected: false, border: true },
-                    { color: '#000000', selected: false }
-                ];
-                
-                colors.forEach(({ color, selected, border }) => {
-                    const option = document.createElement('div');
-                    option.className = 'color-option' + (selected ? ' selected' : '');
-                    option.setAttribute('data-color', color);
-                    option.style.backgroundColor = color;
-                    if (border) {
-                        option.style.border = '1px solid #ccc';
-                    }
-                    colorOptions.appendChild(option);
-                });
-                
-                contentDiv.appendChild(colorOptions);
-                
-                const cancelBtn = document.createElement('button');
-                cancelBtn.className = 'cancel-btn';
-                cancelBtn.textContent = 'Cancel';
-                contentDiv.appendChild(cancelBtn);
-                
-                colorPicker.appendChild(contentDiv);
+                colorPicker.innerHTML = `
+    
+                    <div class="color-picker-content">
+    
+                        <h4>Adjust Title Colors</h4>
+    
+                        <div class="color-options">
+    
+                            <div class="color-option" data-color="#3b82f6" style="background-color: #3b82f6;"></div>
+    
+                            <div class="color-option" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+    
+                            <div class="color-option" data-color="#ef4444" style="background-color: #ef4444;"></div>
+    
+                            <div class="color-option selected" data-color="#f97316" style="background-color: #f97316;"></div>
+    
+                            <div class="color-option" data-color="#14b8a6" style="background-color: #14b8a6;"></div>
+    
+                            <div class="color-option" data-color="#84cc16" style="background-color: #84cc16;"></div>
+    
+                            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; border: 1px solid #ccc;"></div>
+    
+                            <div class="color-option" data-color="#000000" style="background-color: #000000;"></div>
+    
+                        </div>
+    
+                        <button class="cancel-btn">Cancel</button>
+    
+                    </div>
+    
+                `;
     
                 
     
@@ -20675,9 +20397,9 @@ class AccessibilityWidget {
     
                 // Add event listeners to color options
     
-                const colorOptionElements = colorPicker.querySelectorAll('.color-option');
+                const colorOptions = colorPicker.querySelectorAll('.color-option');
     
-                colorOptionElements.forEach(option => {
+                colorOptions.forEach(option => {
     
                     option.addEventListener('click', (e) => {
     
@@ -20701,11 +20423,11 @@ class AccessibilityWidget {
     
                 // Add event listener to cancel button
     
-                const cancelButton = colorPicker.querySelector('.cancel-btn');
+                const cancelBtn = colorPicker.querySelector('.cancel-btn');
     
-                if (cancelButton) {
+                if (cancelBtn) {
     
-                    cancelButton.addEventListener('click', () => {
+                    cancelBtn.addEventListener('click', () => {
     
                         this.resetTitleColors();
     
@@ -20847,51 +20569,37 @@ class AccessibilityWidget {
     
                 colorPicker.className = 'color-picker-inline';
     
-                // Use DOM methods to prevent XSS
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'color-picker-content';
-                
-                const title = document.createElement('h4');
-                title.textContent = 'Adjust Background Colors';
-                contentDiv.appendChild(title);
-                
-                const colorOptions = document.createElement('div');
-                colorOptions.className = 'color-options';
-                
-                const colors = [
-                    { color: '#3b82f6', selected: false },
-                    { color: '#8b5cf6', selected: false },
-                    { color: '#ef4444', selected: false },
-                    { color: '#f97316', selected: true },
-                    { color: '#14b8a6', selected: false },
-                    { color: '#84cc16', selected: false },
-                    { color: '#ffffff', selected: false, border: true },
-                    { color: '#000000', selected: false }
-                ];
-                
-                colors.forEach(({ color, selected, border }) => {
-                    const option = document.createElement('div');
-                    option.className = 'color-option' + (selected ? ' selected' : '');
-                    option.setAttribute('data-color', color);
-                    option.style.backgroundColor = color;
-                    if (border) {
-                        option.style.border = '1px solid #ccc';
-                    }
-                    colorOptions.appendChild(option);
-                });
-                
-                contentDiv.appendChild(colorOptions);
-                
-                const cancelBtn = document.createElement('button');
-                cancelBtn.className = 'cancel-btn';
-                cancelBtn.textContent = 'Cancel';
-                // Use addEventListener instead of onclick attribute
-                if (this.hideBackgroundColorPicker) {
-                    cancelBtn.addEventListener('click', () => this.hideBackgroundColorPicker());
-                }
-                contentDiv.appendChild(cancelBtn);
-                
-                colorPicker.appendChild(contentDiv);
+                colorPicker.innerHTML = `
+    
+                    <div class="color-picker-content">
+    
+                        <h4>Adjust Background Colors</h4>
+    
+                        <div class="color-options">
+    
+                            <div class="color-option" data-color="#3b82f6" style="background-color: #3b82f6;"></div>
+    
+                            <div class="color-option" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+    
+                            <div class="color-option" data-color="#ef4444" style="background-color: #ef4444;"></div>
+    
+                            <div class="color-option selected" data-color="#f97316" style="background-color: #f97316;"></div>
+    
+                            <div class="color-option" data-color="#14b8a6" style="background-color: #14b8a6;"></div>
+    
+                            <div class="color-option" data-color="#84cc16" style="background-color: #84cc16;"></div>
+    
+                            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff; border: 1px solid #ccc;"></div>
+    
+                            <div class="color-option" data-color="#000000" style="background-color: #000000;"></div>
+    
+                        </div>
+    
+                        <button class="cancel-btn" onclick="accessibilityWidget.hideBackgroundColorPicker()">Cancel</button>
+    
+                    </div>
+    
+                `;
     
                 
     
@@ -20907,9 +20615,9 @@ class AccessibilityWidget {
     
                 // Add event listeners to color options
     
-                const colorOptionElements = colorPicker.querySelectorAll('.color-option');
+                const colorOptions = colorPicker.querySelectorAll('.color-option');
     
-                colorOptionElements.forEach(option => {
+                colorOptions.forEach(option => {
     
                     option.addEventListener('click', (e) => {
     
@@ -20933,11 +20641,11 @@ class AccessibilityWidget {
     
                 // Add event listener to cancel button
     
-                const cancelButton = colorPicker.querySelector('.cancel-btn');
+                const cancelBtn = colorPicker.querySelector('.cancel-btn');
     
-                if (cancelButton) {
+                if (cancelBtn) {
     
-                    cancelButton.addEventListener('click', () => {
+                    cancelBtn.addEventListener('click', () => {
     
                         this.resetBackgroundColors();
     
@@ -21285,18 +20993,35 @@ class AccessibilityWidget {
             
             // Override Web Audio API methods
             if (typeof AudioContext !== 'undefined') {
-                // Override createBufferSource
+                // Override createBufferSource - Only when mute-sound is active
                 if (!this.originalMethods.createBufferSource) {
                     this.originalMethods.createBufferSource = AudioContext.prototype.createBufferSource;
+                    const originalCreateBufferSource = this.originalMethods.createBufferSource;
                     AudioContext.prototype.createBufferSource = function() {
-                        // Return a dummy object that doesn't produce sound
-                        return {
-                            connect: () => {},
-                            start: () => {},
-                            stop: () => {},
-                            disconnect: () => {},
-                            pause: () => {}
-                        };
+                        // Only block if mute-sound mode is active
+                        let isMuteSoundActive = false;
+                        try {
+                            const settingsStr = localStorage.getItem('accessibility-settings');
+                            if (settingsStr) {
+                                const settings = JSON.parse(settingsStr);
+                                isMuteSoundActive = settings['mute-sound'] === true;
+                            }
+                        } catch (e) {
+                            // If parsing fails, continue with normal behavior
+                        }
+                        
+                        if (isMuteSoundActive) {
+                            // Return a dummy object that doesn't produce sound
+                            return {
+                                connect: () => {},
+                                start: () => {},
+                                stop: () => {},
+                                disconnect: () => {},
+                                pause: () => {}
+                            };
+                        }
+                        // Otherwise, use original (normal behavior)
+                        return originalCreateBufferSource.apply(this, arguments);
                     };
                 }
                 
@@ -22777,40 +22502,26 @@ class AccessibilityWidget {
             document.documentElement.classList.add('read-mode');
             document.body.classList.add('read-mode');
             
-            // Create overlay with extracted content - Use DOM methods to prevent XSS
-            const overlay = document.createElement('div');
-            overlay.id = 'read-mode-overlay';
-            overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: #e8f4f8 !important; z-index: 99997 !important; font-family: Arial, sans-serif !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important;';
-            
-            const contentWrapper = document.createElement('div');
-            contentWrapper.style.cssText = 'padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;';
-            
-            // Safely insert content - use DOMParser instead of innerHTML to prevent XSS
-            if (typeof finalContent === 'string' && finalContent.trim().startsWith('<')) {
-                // Content appears to be HTML - use DOMParser to safely parse it
-                const parser = new DOMParser();
-                const parsedDoc = parser.parseFromString(finalContent, 'text/html');
-                // Move all body children to contentWrapper
-                while (parsedDoc.body.firstChild) {
-                    contentWrapper.appendChild(parsedDoc.body.firstChild);
-                }
-            } else {
-                // Plain text content
-                contentWrapper.textContent = finalContent || 'No content could be extracted from this page.';
-            }
-            
-            overlay.appendChild(contentWrapper);
+            // Create overlay with extracted content
+            // Use string concatenation instead of template literal interpolation to avoid syntax errors
+            const overlayHTML = '<div id="read-mode-overlay" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: #e8f4f8 !important; z-index: 99997 !important; font-family: Arial, sans-serif !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important;"><div style="padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;">' + finalContent + '</div></div>';
     
-            // Insert the overlay into the body using DOM methods
-            document.body.appendChild(overlay);
+            
+    
+            // Insert the HTML directly into the body (with Designer check)
+            if (!this.safeDOMOperation(() => {
+                document.body.insertAdjacentHTML('beforeend', overlayHTML);
+            }, 'insertAdjacentHTML for read-mode overlay')) {
+                return; // Exit if in Designer mode
+            }
     
             
     
             // Verify the overlay was created
     
-            const readModeOverlay = document.getElementById('read-mode-overlay');
+            const overlay = document.getElementById('read-mode-overlay');
     
-            if (readModeOverlay) {
+            if (overlay) {
     
     
             } else {
@@ -24670,30 +24381,9 @@ class AccessibilityWidget {
                         animation-delay: 0s !important;
                         transition-duration: 0s !important;
                         transition-delay: 0s !important;
-                        /* CRITICAL: Force animations to complete to final state so fade-in elements become visible */
-                        animation-fill-mode: forwards !important;
                         
                         /* Stop blinking and flashing text */
                         text-decoration: none !important;
-                    }
-                    
-                    /* Ensure animated elements that start hidden become visible when animations stop */
-                    html.stop-animation *[class*="fade"],
-                    html.stop-animation *[class*="animate"],
-                    html.stop-animation *[class*="slide"],
-                    html.stop-animation *[class*="reveal"],
-                    body.stop-animation *[class*="fade"],
-                    body.stop-animation *[class*="animate"],
-                    body.stop-animation *[class*="slide"],
-                    body.stop-animation *[class*="reveal"],
-                    .stop-animation *[class*="fade"],
-                    .stop-animation *[class*="animate"],
-                    .stop-animation *[class*="slide"],
-                    .stop-animation *[class*="reveal"] {
-                        /* Force elements to be visible - they may start with opacity:0 for fade-in animations */
-                        opacity: 1 !important;
-                        visibility: visible !important;
-                        animation-fill-mode: forwards !important;
                     }
                     
                     /* Stop all animation classes and libraries */
@@ -25664,8 +25354,7 @@ class AccessibilityWidget {
                     .stop-animation *[data-visibility] {
                         animation: none !important;
                         transition: none !important;
-                        /* CRITICAL: Force animations to complete to final state so fade-in elements become visible */
-                        animation-fill-mode: forwards !important;
+                        /* animation-fill-mode: forwards !important; - REMOVED: This was causing elements to snap to final positions and interfere with scrolling */
                         opacity: 1 !important;
                         visibility: visible !important;
                         /* transform: none !important; - REMOVED: This was breaking website layout */
@@ -26637,48 +26326,9 @@ class AccessibilityWidget {
     
                 
     
-                // Insert the color picker after the profile item - Use DOM methods to prevent XSS
-                const colorPickerContainer = document.createElement('div');
-                colorPickerContainer.className = 'color-picker-controls';
-                colorPickerContainer.style.cssText = 'margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;';
-                
-                const colorPickerTitle = document.createElement('h4');
-                colorPickerTitle.textContent = 'Adjust Text Colors';
-                colorPickerTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 14px; font-weight: bold;';
-                colorPickerContainer.appendChild(colorPickerTitle);
-                
-                const colorSwatchesContainer = document.createElement('div');
-                colorSwatchesContainer.style.cssText = 'display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;';
-                
-                const colors = [
-                    { color: '#0066cc', title: 'Blue' },
-                    { color: '#6633cc', title: 'Purple' },
-                    { color: '#cc0000', title: 'Red' },
-                    { color: '#ff6600', title: 'Orange' },
-                    { color: '#00cccc', title: 'Teal' },
-                    { color: '#669900', title: 'Green' },
-                    { color: '#ffffff', title: 'White' },
-                    { color: '#000000', title: 'Black' }
-                ];
-                
-                colors.forEach(({ color, title }) => {
-                    const swatch = document.createElement('button');
-                    swatch.className = 'color-swatch';
-                    swatch.setAttribute('data-color', color);
-                    swatch.setAttribute('title', title);
-                    swatch.style.cssText = 'width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd; background: ' + color + '; cursor: pointer; transition: transform 0.2s;';
-                    colorSwatchesContainer.appendChild(swatch);
-                });
-                
-                colorPickerContainer.appendChild(colorSwatchesContainer);
-                
-                const cancelBtn = document.createElement('button');
-                cancelBtn.id = 'cancel-text-color';
-                cancelBtn.textContent = 'Cancel';
-                cancelBtn.style.cssText = 'background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;';
-                colorPickerContainer.appendChild(cancelBtn);
-                
-                textColorsModule.parentNode.insertBefore(colorPickerContainer, textColorsModule.nextSibling);
+                // Insert the color picker after the profile item
+    
+                textColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
     
                 
     
@@ -26718,11 +26368,11 @@ class AccessibilityWidget {
     
                 // Add event listener for cancel button
     
-                const textColorCancelBtn = this.shadowRoot.getElementById('cancel-text-color');
+                const cancelBtn = this.shadowRoot.getElementById('cancel-text-color');
     
-                if (textColorCancelBtn) {
+                if (cancelBtn) {
     
-                    textColorCancelBtn.addEventListener('click', () => {
+                    cancelBtn.addEventListener('click', () => {
     
                         this.hideTextColorPicker();
     
@@ -26886,48 +26536,9 @@ class AccessibilityWidget {
     
                 
     
-                // Insert the color picker after the profile item - Use DOM methods to prevent XSS
-                const colorPickerContainer = document.createElement('div');
-                colorPickerContainer.className = 'title-color-picker-controls';
-                colorPickerContainer.style.cssText = 'margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;';
-                
-                const colorPickerTitle = document.createElement('h4');
-                colorPickerTitle.textContent = 'Adjust Title Colors';
-                colorPickerTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 14px; font-weight: bold;';
-                colorPickerContainer.appendChild(colorPickerTitle);
-                
-                const colorSwatchesContainer = document.createElement('div');
-                colorSwatchesContainer.style.cssText = 'display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;';
-                
-                const colors = [
-                    { color: '#0066cc', title: 'Blue' },
-                    { color: '#6633cc', title: 'Purple' },
-                    { color: '#cc0000', title: 'Red' },
-                    { color: '#ff6600', title: 'Orange' },
-                    { color: '#00cccc', title: 'Teal' },
-                    { color: '#669900', title: 'Green' },
-                    { color: '#ffffff', title: 'White' },
-                    { color: '#000000', title: 'Black' }
-                ];
-                
-                colors.forEach(({ color, title }) => {
-                    const swatch = document.createElement('button');
-                    swatch.className = 'title-color-swatch';
-                    swatch.setAttribute('data-color', color);
-                    swatch.setAttribute('title', title);
-                    swatch.style.cssText = 'width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd; background: ' + color + '; cursor: pointer; transition: transform 0.2s;';
-                    colorSwatchesContainer.appendChild(swatch);
-                });
-                
-                colorPickerContainer.appendChild(colorSwatchesContainer);
-                
-                const cancelBtn = document.createElement('button');
-                cancelBtn.id = 'cancel-title-color';
-                cancelBtn.textContent = 'Cancel';
-                cancelBtn.style.cssText = 'background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;';
-                colorPickerContainer.appendChild(cancelBtn);
-                
-                titleColorsModule.parentNode.insertBefore(colorPickerContainer, titleColorsModule.nextSibling);
+                // Insert the color picker after the profile item
+    
+                titleColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
     
                 
     
@@ -26967,11 +26578,11 @@ class AccessibilityWidget {
     
                 // Add event listener for cancel button
     
-                const titleColorCancelBtn = this.shadowRoot.getElementById('cancel-title-color');
+                const cancelBtn = this.shadowRoot.getElementById('cancel-title-color');
     
-                if (titleColorCancelBtn) {
+                if (cancelBtn) {
     
-                    titleColorCancelBtn.addEventListener('click', () => {
+                    cancelBtn.addEventListener('click', () => {
     
                         this.hideTitleColorPicker();
     
@@ -27137,48 +26748,9 @@ class AccessibilityWidget {
     
                 
     
-                // Insert the color picker after the profile item - Use DOM methods to prevent XSS
-                const colorPickerContainer = document.createElement('div');
-                colorPickerContainer.className = 'bg-color-picker-controls';
-                colorPickerContainer.style.cssText = 'margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;';
-                
-                const colorPickerTitle = document.createElement('h4');
-                colorPickerTitle.textContent = 'Adjust Background Colors';
-                colorPickerTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 14px; font-weight: bold;';
-                colorPickerContainer.appendChild(colorPickerTitle);
-                
-                const colorSwatchesContainer = document.createElement('div');
-                colorSwatchesContainer.style.cssText = 'display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;';
-                
-                const colors = [
-                    { color: '#0066cc', title: 'Blue' },
-                    { color: '#6633cc', title: 'Purple' },
-                    { color: '#cc0000', title: 'Red' },
-                    { color: '#ff6600', title: 'Orange' },
-                    { color: '#00cccc', title: 'Teal' },
-                    { color: '#669900', title: 'Green' },
-                    { color: '#ffffff', title: 'White' },
-                    { color: '#000000', title: 'Black' }
-                ];
-                
-                colors.forEach(({ color, title }) => {
-                    const swatch = document.createElement('button');
-                    swatch.className = 'bg-color-swatch';
-                    swatch.setAttribute('data-color', color);
-                    swatch.setAttribute('title', title);
-                    swatch.style.cssText = 'width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd; background: ' + color + '; cursor: pointer; transition: transform 0.2s;';
-                    colorSwatchesContainer.appendChild(swatch);
-                });
-                
-                colorPickerContainer.appendChild(colorSwatchesContainer);
-                
-                const cancelBtn = document.createElement('button');
-                cancelBtn.id = 'cancel-bg-color';
-                cancelBtn.textContent = 'Cancel';
-                cancelBtn.style.cssText = 'background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;';
-                colorPickerContainer.appendChild(cancelBtn);
-                
-                bgColorsModule.parentNode.insertBefore(colorPickerContainer, bgColorsModule.nextSibling);
+                // Insert the color picker after the profile item
+    
+                bgColorsModule.insertAdjacentHTML('afterend', colorPickerHTML);
     
                 
     
@@ -27218,11 +26790,11 @@ class AccessibilityWidget {
     
                 // Add event listener for cancel button
     
-                const bgColorCancelBtn = this.shadowRoot.getElementById('cancel-bg-color');
+                const cancelBtn = this.shadowRoot.getElementById('cancel-bg-color');
     
-                if (bgColorCancelBtn) {
+                if (cancelBtn) {
     
-                    bgColorCancelBtn.addEventListener('click', () => {
+                    cancelBtn.addEventListener('click', () => {
     
                         this.hideBackgroundColorPicker();
     
@@ -28827,7 +28399,8 @@ class AccessibilityWidget {
                     
                     // If we collected text, consolidate it
                     if (fullText.trim()) {
-                        // Replace with clean text - Use textContent instead of innerHTML for safety
+                        // Store original HTML structure if needed, but replace with clean text
+                        const originalHTML = container.innerHTML;
                         container.textContent = fullText.trim();
                         
                         // Hide all child elements to prevent layering
@@ -30376,42 +29949,43 @@ class AccessibilityWidget {
     
             alignmentContainer.className = 'alignment-controls';
     
-            // Use DOM methods to prevent XSS
-            const controlGroup = document.createElement('div');
-            controlGroup.className = 'control-group';
-            
-            const title = document.createElement('h4');
-            title.textContent = 'Text Alignment';
-            controlGroup.appendChild(title);
-            
-            const alignmentButtons = document.createElement('div');
-            alignmentButtons.className = 'alignment-buttons';
-            
-            const alignButtons = [
-                { id: 'align-left', title: 'Align Left', icon: '⬅', align: 'left' },
-                { id: 'align-center', title: 'Align Center', icon: '↔', align: 'center' },
-                { id: 'align-right', title: 'Align Right', icon: '➡', align: 'right' },
-                { id: 'reset-alignment', title: 'Reset Alignment', icon: '↺', align: null }
-            ];
-            
-            alignButtons.forEach(({ id, title: btnTitle, icon, align }) => {
-                const btn = document.createElement('button');
-                btn.id = id;
-                btn.className = 'alignment-btn';
-                btn.setAttribute('title', btnTitle);
-                
-                const span = document.createElement('span');
-                span.textContent = icon;
-                if (align) {
-                    span.style.textAlign = align;
-                }
-                btn.appendChild(span);
-                
-                alignmentButtons.appendChild(btn);
-            });
-            
-            controlGroup.appendChild(alignmentButtons);
-            alignmentContainer.appendChild(controlGroup);
+            alignmentContainer.innerHTML = `
+    
+                <div class="control-group">
+    
+                    <h4>Text Alignment</h4>
+    
+                    <div class="alignment-buttons">
+    
+                        <button id="align-left" class="alignment-btn" title="Align Left">
+    
+                            <span style="text-align: left;">⬅</span>
+    
+                        </button>
+    
+                        <button id="align-center" class="alignment-btn" title="Align Center">
+    
+                            <span style="text-align: center;">↔</span>
+    
+                        </button>
+    
+                        <button id="align-right" class="alignment-btn" title="Align Right">
+    
+                            <span style="text-align: right;">➡</span>
+    
+                        </button>
+    
+                        <button id="reset-alignment" class="alignment-btn" title="Reset Alignment">
+    
+                            <span>↺</span>
+    
+                        </button>
+    
+                    </div>
+    
+                </div>
+    
+            `;
     
     
     
@@ -32099,15 +31673,10 @@ class AccessibilityWidget {
 
             }
             
-            // Update action buttons - Use DOM methods to prevent XSS
+            // Update action buttons
             const resetBtn = this.shadowRoot?.querySelector('#reset-settings');
             if (resetBtn) {
-                resetBtn.textContent = ''; // Clear existing content
-                const resetIcon = document.createElement('i');
-                resetIcon.className = 'fas fa-redo';
-                resetIcon.setAttribute('aria-hidden', 'true');
-                resetBtn.appendChild(resetIcon);
-                resetBtn.appendChild(document.createTextNode(' ' + (content.resetSettings || '')));
+                resetBtn.innerHTML = `<i class="fas fa-redo"></i> ${content.resetSettings}`;
 
             } else {
                
@@ -32115,12 +31684,7 @@ class AccessibilityWidget {
             
             const statementBtn = this.shadowRoot?.querySelector('#statement');
             if (statementBtn) {
-                statementBtn.textContent = ''; // Clear existing content
-                const statementIcon = document.createElement('i');
-                statementIcon.className = 'fas fa-file-alt';
-                statementIcon.setAttribute('aria-hidden', 'true');
-                statementBtn.appendChild(statementIcon);
-                statementBtn.appendChild(document.createTextNode(' ' + (content.statement || '')));
+                statementBtn.innerHTML = `<i class="fas fa-file-alt"></i> ${content.statement}`;
 
             } else {
 
@@ -32128,12 +31692,7 @@ class AccessibilityWidget {
             
             const hideBtn = this.shadowRoot?.querySelector('#hide-interface');
             if (hideBtn) {
-                hideBtn.textContent = ''; // Clear existing content
-                const hideIcon = document.createElement('i');
-                hideIcon.className = 'fas fa-eye-slash';
-                hideIcon.setAttribute('aria-hidden', 'true');
-                hideBtn.appendChild(hideIcon);
-                hideBtn.appendChild(document.createTextNode(' ' + (content.hideInterface || '')));
+                hideBtn.innerHTML = `<i class="fas fa-eye-slash"></i> ${content.hideInterface}`;
               
             } else {
 
@@ -32218,13 +31777,10 @@ class AccessibilityWidget {
 
             }
             
-            // Update keyboard navigation note - Use DOM methods to prevent XSS
+            // Update keyboard navigation note
             const keyboardNavNote = this.shadowRoot?.querySelector('#keyboard-nav')?.closest('.profile-item')?.querySelector('.profile-description p:last-child');
             if (keyboardNavNote && content.keyboardNavNote) {
-                keyboardNavNote.textContent = ''; // Clear existing content
-                const strongEl = document.createElement('strong');
-                keyboardNavNote.appendChild(strongEl);
-                keyboardNavNote.appendChild(document.createTextNode(' ' + (content.keyboardNavNote.replace('Note: ', '') || '')));
+                keyboardNavNote.innerHTML = `<strong></strong> ${content.keyboardNavNote.replace('Note: ', '')}`;
 
             }
             
@@ -32235,13 +31791,10 @@ class AccessibilityWidget {
 
             }
             
-            // Update screen reader note - Use DOM methods to prevent XSS
+            // Update screen reader note
             const screenReaderNote = this.shadowRoot?.querySelector('#screen-reader')?.closest('.profile-item')?.querySelector('.profile-description p:last-child');
             if (screenReaderNote && content.screenReaderNote) {
-                screenReaderNote.textContent = ''; // Clear existing content
-                const strongEl = document.createElement('strong');
-                screenReaderNote.appendChild(strongEl);
-                screenReaderNote.appendChild(document.createTextNode(' ' + (content.screenReaderNote.replace('Note: ', '') || '')));
+                screenReaderNote.innerHTML = `<strong></strong> ${content.screenReaderNote.replace('Note: ', '')}`;
               
             }
             
@@ -33905,12 +33458,8 @@ class AccessibilityWidget {
                 
                 const iconClass = iconMap[icon] || 'fas fa-universal-access';
                 
-                // Clear existing content and add the new icon - Use DOM methods to prevent XSS
-                iconElement.textContent = '';
-                const iconI = document.createElement('i');
-                iconI.className = iconClass;
-                iconI.setAttribute('aria-hidden', 'true');
-                iconElement.appendChild(iconI);
+                // Clear existing content and add the new icon
+                iconElement.innerHTML = `<i class="${iconClass}"></i>`;
                 
                 // Ensure proper styling
                 iconElement.style.display = 'flex';
@@ -34604,25 +34153,27 @@ class AccessibilityWidget {
                 } catch {}
                 const visitorId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
                 const base = ((this && this.kvApiUrl) ? this.kvApiUrl : 'https://app.accessbit.io').replace(/\/+$/,'');
-                let resp = await fetch(`${base}/api/accessibility/validate-domain`, {
+                let resp = await this.isolatedFetch(`${base}/api/accessibility/validate-domain`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ domain: currentDomain, siteId: siteIdParam, siteToken: siteTokenParam, visitorId })
                 });
-                if (!resp.ok) {
+                if (!resp || !resp.ok) {
                     try {
-                        const err = await resp.json();
-                        if (resp.status === 401 && err && err.error) {
-                            await new Promise(r => setTimeout(r, 500));
-                            resp = await fetch(`${base}/api/accessibility/validate-domain`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ domain: currentDomain, siteId: siteIdParam, siteToken: siteTokenParam, visitorId })
-                            });
+                        if (resp) {
+                            const err = await resp.json();
+                            if (resp.status === 401 && err && err.error) {
+                                await new Promise(r => setTimeout(r, 500));
+                                resp = await this.isolatedFetch(`${base}/api/accessibility/validate-domain`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ domain: currentDomain, siteId: siteIdParam, siteToken: siteTokenParam, visitorId })
+                                });
+                            }
                         }
                     } catch {}
                 }
-                if (!resp.ok) {
+                if (!resp || !resp.ok) {
                     return { hasAccess: false };
                 }
                 const v = await resp.json();
