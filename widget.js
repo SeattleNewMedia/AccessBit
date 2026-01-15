@@ -830,6 +830,9 @@
                     seizureState.seizureConsolidateSplitText = seizureConsolidateSplitText;
                     seizureState.applyWAAPIStopMotion = applyWAAPIStopMotion;
                     
+                    // Make seizureState globally accessible
+                    window.seizureState = seizureState;
+                    
                     applySeizureSafeDOMFreeze();
                     
                     try {
@@ -1019,7 +1022,8 @@
             }
         }
         
-        // Install reduced-motion @media default and an in-product Seizure Safe toggle (non-designer only)
+        // Install reduced-motion @media default for system preference (non-designer only)
+        // Note: Reduced motion toggle is now handled in the widget menu, not as a separate button
         try {
             if (!isDesignerModeStandalone()) {
                 // Default to system preference using @media (prefers-reduced-motion: reduce)
@@ -1046,85 +1050,7 @@
                     document.head.appendChild(rm);
                 }
 
-                // Create accessible floating toggle for Reduced Motion (always visible)
-                if (!document.getElementById('a11y-reduced-motion-toggle')) {
-                    const rbtn = document.createElement('button');
-                    rbtn.id = 'a11y-reduced-motion-toggle';
-                    rbtn.setAttribute('role','switch');
-                    const reducedFromStorage = localStorage.getItem('accessibility-widget-reduced-motion');
-                    rbtn.setAttribute('aria-checked', reducedFromStorage === 'true' ? 'true' : 'false');
-                    rbtn.setAttribute('aria-label','Toggle Reduced Motion (respect prefers-reduced-motion and halt nonessential motion)');
-                    rbtn.title = 'Reduced Motion: respect system preference or force reduced motion';
-                    rbtn.style.position = 'fixed';
-                    rbtn.style.left = '12px';
-                    rbtn.style.bottom = '12px';
-                    rbtn.style.zIndex = '2147483647';
-                    rbtn.style.background = '#222';
-                    rbtn.style.color = '#fff';
-                    rbtn.style.border = '1px solid rgba(255,255,255,0.08)';
-                    rbtn.style.padding = '6px 8px';
-                    rbtn.style.borderRadius = '6px';
-                    rbtn.style.fontSize = '11px';
-                    rbtn.style.cursor = 'pointer';
-                    rbtn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-                    rbtn.textContent = 'Reduced Motion';
-
-                    const reducedHandler = function() {
-                        const currently = document.body.classList.contains('reduced-motion');
-                        const next = !currently;
-                        if (next) {
-                            localStorage.setItem('accessibility-widget-reduced-motion','true');
-                            document.body.classList.add('reduced-motion');
-                            document.documentElement.classList.add('reduced-motion');
-                            // Apply kill switch CSS for reduced motion
-                            try {
-                                if (!document.getElementById('accessibility-reduced-motion-kill')) {
-                                    const kill = document.createElement('style');
-                                    kill.id = 'accessibility-reduced-motion-kill';
-                                    kill.textContent = `
-/* Reduced Motion kill switch - force no animations/transitions */
-.reduced-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]) {
-  animation: none !important;
-  transition: none !important;
-  scroll-behavior: auto !important;
-}
-/* Remove common flash triggers */
-.reduced-motion *[class*="blink"], .reduced-motion *[class*="shimmer"], .reduced-motion *[class*="pulse"] {
-  animation: none !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-`;
-                                    document.head.appendChild(kill);
-                                }
-                            } catch (_) {}
-                            try { seizureState.installStyleSanitizer && seizureState.installStyleSanitizer(); } catch (_) {}
-                            try { seizureState.applyWAAPIStopMotion && seizureState.applyWAAPIStopMotion(true); } catch (_) {}
-                            rbtn.setAttribute('aria-checked','true');
-                        } else {
-                            localStorage.setItem('accessibility-widget-reduced-motion','false');
-                            document.body.classList.remove('reduced-motion');
-                            document.documentElement.classList.remove('reduced-motion');
-                            try { document.getElementById('accessibility-reduced-motion-kill') && document.getElementById('accessibility-reduced-motion-kill').remove(); } catch (_) {}
-                            try { seizureState.stopStyleSanitizer && seizureState.stopStyleSanitizer(); } catch (_) {}
-                            try { seizureState.applyWAAPIStopMotion && seizureState.applyWAAPIStopMotion(false); } catch (_) {}
-                            rbtn.setAttribute('aria-checked','false');
-                        }
-                    };
-                    rbtn.addEventListener('click', reducedHandler, true);
-                    rbtn.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reducedHandler(); } }, true);
-                    
-                    const appendToggle = () => {
-                        try {
-                            if (document.body) {
-                                document.body.appendChild(rbtn);
-                            } else {
-                                setTimeout(appendToggle, 100);
-                            }
-                        } catch (_) {}
-                    };
-                    appendToggle();
-                }
+                // Note: Reduced motion toggle is now handled in the widget menu, not as a separate button
 
                 // Create accessible floating toggle for strict Seizure Safe mode
                 if (!document.getElementById('a11y-seizure-toggle')) {
@@ -1338,7 +1264,11 @@ function isReaderModeStandalone() {
                         } catch(_) {}
                     };
                     
-                    seizureState.applyWAAPIStopMotion = applyWAAPIStopMotion;
+                    // seizureState.applyWAAPIStopMotion already assigned at line 831 inside IIFE
+                    // Make sure it's accessible globally
+                    if (window.seizureState) {
+                        window.seizureState.applyWAAPIStopMotion = applyWAAPIStopMotion;
+                    }
 
 function applyUniversalStopMotion(enabled) {
     // CRITICAL: Don't manipulate Designer DOM
@@ -9140,6 +9070,7 @@ class AccessibilityWidget {
                 { id: 'reading-guide', title: 'Reading Guide', description: 'Movable highlight bar', descriptionId: 'reading-guide-desc', ariaLabel: 'Reading Guide - Movable highlight bar', ariaDescribedBy: 'reading-guide-desc', switchFirst: false },
                 { id: 'useful-links', title: 'Useful Links', description: 'Accessibility resources and links', descriptionId: 'useful-links-desc', ariaLabel: 'Useful Links - Accessibility resources and links', ariaDescribedBy: 'useful-links-desc', switchFirst: false },
                 { id: 'stop-animation', title: 'Stop Animation', description: 'Pauses all CSS animations', ariaLabel: 'Stop Animation - Pauses all CSS animations' },
+                { id: 'reduced-motion', title: 'Reduced Motion', description: 'Respects system preference and reduces motion', ariaLabel: 'Reduced Motion - Respects prefers-reduced-motion and reduces animations' },
                 { id: 'reading-mask', title: 'Reading Mask', description: 'Semi-transparent overlay', ariaLabel: 'Reading Mask - Focus on specific text area', switchFirst: false },
                 { id: 'highlight-hover', title: 'Highlight Hover', description: 'Visual feedback on hover', ariaLabel: 'Highlight Hover - Highlight elements on mouse hover', switchFirst: false },
                 { id: 'highlight-focus', title: 'Highlight Focus', description: 'Prominent focus indicators', ariaLabel: 'Highlight Focus - Highlight focused elements', switchFirst: false },
@@ -12966,6 +12897,13 @@ class AccessibilityWidget {
     
                         break;
     
+                    case 'reduced-motion':
+    
+                        if (title) title.textContent = translations.reducedMotion || 'Reduced Motion';
+    
+                        if (desc) desc.textContent = translations.reducedMotionDesc || 'Respects system preference and reduces motion';
+    
+                        break;
     
                     case 'useful-links':
     
@@ -14167,6 +14105,12 @@ class AccessibilityWidget {
     
                         break;
     
+                    case 'reduced-motion':
+    
+                        this.enableReducedMotion();
+    
+                        break;
+    
                     case 'vision-impaired':
     
                         this.enableVisionImpaired();
@@ -14341,6 +14285,12 @@ class AccessibilityWidget {
                     case 'stop-animation':
     
                         this.disableStopAnimation();
+    
+                        break;
+    
+                    case 'reduced-motion':
+    
+                        this.disableReducedMotion();
     
                         break;
     
@@ -21947,8 +21897,6 @@ class AccessibilityWidget {
             // Also try to mute any existing audio contexts
             this.muteAllAudioContexts();
             
-            
-            
             // Start aggressive monitoring
             this.startAggressiveMediaMonitoring();
             
@@ -22002,10 +21950,6 @@ class AccessibilityWidget {
             });
         }
         
-    
-    
-    
-    
         disableMuteSound() {
       
     
@@ -22020,8 +21964,6 @@ class AccessibilityWidget {
             
             // Restore all media elements
             this.restoreAllMediaDirectly();
-            
-            
             
             // Restore iframe players
             this.restoreIframePlayers();
@@ -22067,7 +22009,6 @@ class AccessibilityWidget {
             });
         }
         
-       
         // Add event listeners to catch new media elements
         addMediaEventListeners() {
             // Listen for new audio/video elements being added to the DOM
@@ -22687,7 +22628,8 @@ class AccessibilityWidget {
             // 5. Suspend all Web Audio API contexts
             this.muteAllAudioContexts();
             
-           
+            // 6. Override common audio/video methods globally
+            this.overrideGlobalAudioMethods();
             
         }
         
@@ -25566,6 +25508,66 @@ class AccessibilityWidget {
             
             // 8. Force re-enable CSS animations by triggering a style recalculation
             // This ensures animations resume after !important rules are removed
+            
+            this.settings['stop-animation'] = false;
+            this.saveSettings();
+        }
+        
+        enableReducedMotion() {
+            document.body.classList.add('reduced-motion');
+            document.documentElement.classList.add('reduced-motion');
+            this.settings['reduced-motion'] = true;
+            this.saveSettings();
+            
+            // Apply kill switch CSS for reduced motion
+            if (!document.getElementById('accessibility-reduced-motion-kill')) {
+                const kill = document.createElement('style');
+                kill.id = 'accessibility-reduced-motion-kill';
+                kill.textContent = `
+/* Reduced Motion kill switch - force no animations/transitions */
+.reduced-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]) {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+/* Remove common flash triggers */
+.reduced-motion *[class*="blink"], .reduced-motion *[class*="shimmer"], .reduced-motion *[class*="pulse"] {
+  animation: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+`;
+                document.head.appendChild(kill);
+            }
+            
+            // Apply WAAPI stop motion if available
+            try {
+                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
+                    window.seizureState.applyWAAPIStopMotion(true);
+                }
+            } catch (_) {}
+        }
+        
+        disableReducedMotion() {
+            // Remove reduced-motion class
+            document.body.classList.remove('reduced-motion');
+            document.documentElement.classList.remove('reduced-motion');
+            
+            // Remove kill switch CSS
+            const killStyle = document.getElementById('accessibility-reduced-motion-kill');
+            if (killStyle) {
+                killStyle.remove();
+            }
+            
+            // Restore WAAPI animations if available
+            try {
+                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
+                    window.seizureState.applyWAAPIStopMotion(false);
+                }
+            } catch (_) {}
+            
+            this.settings['reduced-motion'] = false;
+            this.saveSettings();
             requestAnimationFrame(() => {
                 // Re-initialize animation libraries that might have been paused
                 if (typeof AOS !== 'undefined' && AOS.refresh) {
