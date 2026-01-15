@@ -1264,7 +1264,12 @@ function isReaderModeStandalone() {
         return false;
     }
 }
-
+const seizureState = {
+    savedAnimations: new Map(),
+    waapiListenersInstalled: false,
+    onAnimationStart: null,
+    onTransitionRun: null
+};
 // Universal Stop Motion helper: CSS + Lottie + GSAP + GIF/APNG handling
 
                     const applyWAAPIStopMotion = function(enabled) {
