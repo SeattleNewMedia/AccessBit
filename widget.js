@@ -10797,6 +10797,10 @@ class AccessibilityWidget {
     
                     bigWhiteCursorDesc: "Increases cursor size",
     
+                    reduceMotion: "Reduce Motion",
+    
+                    reduceMotionDesc: "Disable animations and transitions",
+    
                     resetSettings: "Reset Settings",
     
                     statement: "Statement",
@@ -10898,6 +10902,8 @@ class AccessibilityWidget {
                     usefulLinksDesc: "Recursos y enlaces de accesibilidad",
                     stopAnimation: "Detener Animación",
                     stopAnimationDesc: "Pausa todas las animaciones CSS",
+                    reduceMotion: "Reducir Movimiento",
+                    reduceMotionDesc: "Desactivar animaciones y transiciones",
                     readingMask: "Máscara de Lectura",
                     readingMaskDesc: "Superposición semi-transparente",
         highlightHover: "Resaltar al Pasar",
@@ -11065,6 +11071,10 @@ class AccessibilityWidget {
                     stopAnimation: "Animation stoppen",
     
                     stopAnimationDesc: "Pausiert alle CSS-Animationen",
+    
+                    reduceMotion: "Bewegung reduzieren",
+    
+                    reduceMotionDesc: "Animationen und Übergänge deaktivieren",
     
                     readingMask: "Lesemaske",
     
@@ -11286,6 +11296,8 @@ class AccessibilityWidget {
                     usefulLinksDesc: "Recursos e links de acessibilidade",
                     stopAnimation: "Parar Animação",
                     stopAnimationDesc: "Pausa todas as animações CSS",
+                    reduceMotion: "Reduzir Movimento",
+                    reduceMotionDesc: "Desativar animações e transições",
                     readingMask: "Máscara de Leitura",
                     readingMaskDesc: "Sobreposição semi-transparente",
         highlightHover: "Destacar ao Passar",
@@ -11387,6 +11399,8 @@ class AccessibilityWidget {
                     usefulLinksDesc: "Risorse e link di accessibilità",
         stopAnimation: "Fermare Animazione",
                     stopAnimationDesc: "Mette in pausa tutte le animazioni CSS",
+                    reduceMotion: "Ridurre Movimento",
+                    reduceMotionDesc: "Disattiva animazioni e transizioni",
                     readingMask: "Maschera di Lettura",
                     readingMaskDesc: "Sovrapposizione semi-trasparente",
         highlightHover: "Evidenziare al Passaggio",
@@ -11488,6 +11502,8 @@ class AccessibilityWidget {
         usefulLinksDesc: "משאבים וקישורי נגישות",
         stopAnimation: "עצירת אנימציה",
         stopAnimationDesc: "משה את כל אנימציות ה-CSS",
+        reduceMotion: "הפחתת תנועה",
+        reduceMotionDesc: "השבת אנימציות ומעברים",
         readingMask: "מסכת קריאה",
         readingMaskDesc: "שכבת כיסוי שקופה למחצה",
         highlightHover: "הדגשת מעבר עכבר",
@@ -11656,6 +11672,10 @@ class AccessibilityWidget {
     
                     stopAnimationDesc: "משה את כל אנימציות CSS",
     
+                    reduceMotion: "הפחתת תנועה",
+    
+                    reduceMotionDesc: "השבת אנימציות ומעברים",
+    
                     readingMask: "מסכת קריאה",
     
                     readingMaskDesc: "שכבת כיסוי שקופה למחצה",
@@ -11777,6 +11797,8 @@ class AccessibilityWidget {
                     usefulLinksDesc: "Ресурсы и ссылки доступности",
                     stopAnimation: "Остановить анимацию",
                     stopAnimationDesc: "Приостанавливает все CSS анимации",
+                    reduceMotion: "Уменьшить движение",
+                    reduceMotionDesc: "Отключить анимации и переходы",
                     readingMask: "Маска для чтения",
                     readingMaskDesc: "Полупрозрачное наложение",
         highlightHover: "Выделение при наведении",
@@ -11877,6 +11899,8 @@ class AccessibilityWidget {
         usefulLinksDesc: "無障礙資源和連結",
         stopAnimation: "停止動畫",
         stopAnimationDesc: "暫停所有CSS動畫",
+        reduceMotion: "減少動畫",
+        reduceMotionDesc: "停用動畫和過渡效果",
         readingMask: "閱讀遮罩",
         readingMaskDesc: "半透明覆蓋層",
         highlightHover: "懸停突出",
@@ -12044,6 +12068,10 @@ class AccessibilityWidget {
     
                     stopAnimationDesc: "يوقف جميع رسوم CSS المتحركة",
     
+                    reduceMotion: "تقليل الحركة",
+    
+                    reduceMotionDesc: "تعطيل الرسوم المتحركة والانتقالات",
+    
                     readingMask: "قناع القراءة",
     
                     readingMaskDesc: "تراكب شبه شفاف",
@@ -12163,6 +12191,8 @@ class AccessibilityWidget {
         usefulLinksDesc: "مصادر وروابط إمكانية الوصول",
         stopAnimation: "إيقاف الرسوم المتحركة",
         stopAnimationDesc: "يوقف كل رسوم CSS المتحركة",
+        reduceMotion: "تقليل الحركة",
+        reduceMotionDesc: "تعطيل الرسوم المتحركة والانتقالات",
         readingMask: "قناع القراءة",
         readingMaskDesc: "طبقة شفافة جزئياً",
         highlightHover: "تمييز عند التمرير",
@@ -13110,6 +13140,14 @@ class AccessibilityWidget {
                         if (title) title.textContent = translations.usefulLinks || 'Useful Links';
     
                         if (desc) desc.textContent = translations.usefulLinksDesc || 'Accessibility resources and links';
+    
+                        break;
+    
+                    case 'reduce-motion':
+    
+                        if (title) title.textContent = translations.reduceMotion || 'Reduce Motion';
+    
+                        if (desc) desc.textContent = translations.reduceMotionDesc || 'Disable animations and transitions';
     
                         break;
     
@@ -17437,21 +17475,16 @@ class AccessibilityWidget {
                 
                 const select = dropdownContainer.querySelector('#useful-links-select');
                 
-                selectElement.addEventListener('change', (e) => {
-                
-                    const value = e.target.value;
-                
-                    if (value) {
-                
-                        this.navigateToSection(value);
-                
-                        // Keep the selected value visible instead of resetting
-                
-                        // This shows the user what they selected
-                
-                    }
-                
-                });
+                if (select) {
+                    select.addEventListener('change', (e) => {
+                        const value = e.target.value;
+                        if (value) {
+                            this.navigateToSection(value);
+                            // Keep the selected value visible instead of resetting
+                            // This shows the user what they selected
+                        }
+                    });
+                }
     
                 
     
@@ -17600,7 +17633,22 @@ class AccessibilityWidget {
     
                 case 'about-us':
                     // First try to find about link in navigation (prioritize navigation over page sections)
-                    const aboutLink = document.querySelector('a[href*="about"], nav a[href*="about"], .nav a[href*="about"], [class*="nav"] a[href*="about"], [class*="menu"] a[href*="about"], [class*="header"] a[href*="about"]');
+                    // Search more broadly for about links - check all links on the page, not just nav
+                    let aboutLink = document.querySelector('a[href*="about"], nav a[href*="about"], .nav a[href*="about"], [class*="nav"] a[href*="about"], [class*="menu"] a[href*="about"], [class*="header"] a[href*="about"], footer a[href*="about"], .footer a[href*="about"]');
+                    
+                    // If not found in nav, try to find any link with "about" in href or text
+                    if (!aboutLink) {
+                        const allLinks = document.querySelectorAll('a');
+                        for (const link of allLinks) {
+                            const href = (link.getAttribute('href') || '').toLowerCase();
+                            const text = (link.textContent || '').toLowerCase();
+                            if (href.includes('about') || (text.includes('about') && (href.startsWith('/') || href.startsWith('http') || !href.includes('#')))) {
+                                aboutLink = link;
+                                break;
+                            }
+                        }
+                    }
+                    
                     if (aboutLink && aboutLink.href) {
                         window.location.href = aboutLink.href;
                     } else {
@@ -17609,8 +17657,8 @@ class AccessibilityWidget {
                         if (aboutElement) {
                             this.scrollToElement('[id*="about"], [class*="about"], h1:contains("About"), h2:contains("About")');
                         } else {
-                            // Don't navigate to non-existent paths - just scroll to top
-                            // This prevents 404 errors
+                            // If no link or section found, scroll to top
+                            // We don't navigate to guessed paths to avoid 404 errors
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
                     }
@@ -32441,6 +32489,7 @@ class AccessibilityWidget {
             this.updateProfileItem('reading-guide', content.readingGuide, content.readingGuideDesc);
             this.updateProfileItem('useful-links', content.usefulLinks, content.usefulLinksDesc);
             this.updateProfileItem('stop-animation', content.stopAnimation, content.stopAnimationDesc);
+            this.updateProfileItem('reduce-motion', content.reduceMotion, content.reduceMotionDesc);
             this.updateProfileItem('reading-mask', content.readingMask, content.readingMaskDesc);
             this.updateProfileItem('highlight-hover', content.highlightHover, content.highlightHoverDesc);
             this.updateProfileItem('highlight-focus', content.highlightFocus, content.highlightFocusDesc);
