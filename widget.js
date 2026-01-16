@@ -3035,10 +3035,7 @@ class AccessibilityWidget {
                     console.warn('[INIT] No customization data to apply');
                 }
                 
-                // Show icon AFTER customizations are applied
-                // This ensures icon appears with correct customization (color, position, etc.)
-                // But respect hideTriggerButton setting - don't show if it's set to 'Yes'
-                // IMPORTANT: Icon only shows if customization data exists (as per user requirement)
+              
                 const icon = this.shadowRoot?.getElementById('accessibility-icon');
                 console.log('[INIT] Checking icon visibility conditions:', {
                     hasIcon: !!icon,
@@ -25573,23 +25570,12 @@ class AccessibilityWidget {
             }
         }
         
-        // 2. JS Loop Blocking: Override requestAnimationFrame to freeze high-performance animations
-        // REMOVED: Duplicate overrideRequestAnimationFrame() - using more comprehensive version at line 24467
         
-        // 3. API Controls: Execute .stop() or .pause() methods on known animation libraries
-        // REMOVED: Duplicate stopAnimationLibraries() - using more comprehensive version at line 24703
-        // REMOVED: Duplicate replaceAnimatedMedia() - using more comprehensive version at line 24832
-        
-        // 5. Stop DOM manipulation animations (setTimeout/setInterval loops)
-        // SECURITY FIX: Removed setTimeout/setInterval overrides - global prototype overwrites are prohibited
-        // Animation blocking is now handled via CSS classes only
         stopDOMAnimationLoops() {
-            // Function simplified - no global overrides, only CSS-based animation stopping
-            // This function now only serves as a placeholder for compatibility
-            // All animation blocking is handled via CSS classes applied to the document
+            
         }
         
-        // 6. Stop autoplay videos and embedded media
+        
         stopAutoplayMedia() {
             // Pause all currently playing videos
             document.querySelectorAll('video').forEach(video => {
@@ -25874,11 +25860,7 @@ class AccessibilityWidget {
         
         }
         
-        // Restore requestAnimationFrame
-        // REMOVED: Duplicate restoreRequestAnimationFrame() - using more comprehensive version at line 24737
-        
-        // SECURITY FIX: Removed setTimeout/setInterval overwrites per Webflow Security requirements
-        // Animation loops are now stopped via CSS and WAAPI controls only
+       
         restoreDOMAnimationLoops() {
             // No restoration needed - we never overwrite setTimeout/setInterval
             // Animation stopping is handled via CSS classes and WAAPI controls
@@ -26846,14 +26828,8 @@ class AccessibilityWidget {
     
         }
     
-        // SECURITY FIX: Removed overrideRequestAnimationFrame() - global prototype overwrites are prohibited
-        // Animation blocking is now handled via CSS classes only
-        overrideRequestAnimationFrame() {
-            // Function removed per Webflow Marketplace security requirements
-            // Global browser API modifications are not allowed
-            // This function now only serves as a placeholder for compatibility
-            // All animation blocking is handled via CSS classes applied to the document
-        }
+        
+       
         
         // API Controls: Execute .stop() or .pause() methods on known animation libraries
         stopAnimationLibraries() {
@@ -27172,16 +27148,7 @@ class AccessibilityWidget {
             }
         }
         
-        // SECURITY FIX: Removed requestAnimationFrame restoration - we no longer overwrite it
-        restoreRequestAnimationFrame() {
-            // No restoration needed - we never overwrite requestAnimationFrame
-            // Animation stopping is handled via CSS classes and WAAPI controls only
-            try {
-                if (seizureState && seizureState.applyWAAPIStopMotion) {
-                    seizureState.applyWAAPIStopMotion(false);
-                }
-            } catch (_) {}
-        }
+    
         
         // Restore animation libraries when seizure-safe is disabled
         restoreAnimationLibraries() {
