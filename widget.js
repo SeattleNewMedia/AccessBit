@@ -19847,12 +19847,14 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-contrast-fix';
             style.textContent = `
                 /* Simple High Contrast Mode - Only increase contrast, preserve everything else */
-                body.high-contrast {
+                /* CRITICAL: Apply filter to elements directly, NOT to body, to avoid breaking sticky positioning */
+                /* By applying to elements instead of body, we avoid creating a stacking context that breaks sticky nav */
+                body.high-contrast *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not([style*="position: sticky"]):not([style*="position:fixed"]):not([style*="position: fixed"]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
                     filter: contrast(1.1) brightness(1.05) !important;
                     -webkit-filter: contrast(1.1) brightness(1.05) !important;
                 }
                 
-                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
+                /* CRITICAL: Explicitly ensure navigation elements have no filter to preserve sticky/fixed positioning */
                 body.high-contrast nav,
                 body.high-contrast header,
                 body.high-contrast .navbar,
@@ -20216,12 +20218,14 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-saturation-css';
             style.textContent = `
                 /* Simple High Saturation Mode - Only increase saturation, preserve everything else */
-                body.high-saturation {
+                /* CRITICAL: Apply filter to elements directly, NOT to body, to avoid breaking sticky positioning */
+                /* By applying to elements instead of body, we avoid creating a stacking context that breaks sticky nav */
+                body.high-saturation *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not([style*="position: sticky"]):not([style*="position:fixed"]):not([style*="position: fixed"]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
                     filter: saturate(1.2) !important;
                     -webkit-filter: saturate(1.2) !important;
                 }
                 
-                /* CRITICAL: Exclude navigation elements from filter to preserve sticky/fixed positioning */
+                /* CRITICAL: Explicitly ensure navigation elements have no filter to preserve sticky/fixed positioning */
                 body.high-saturation nav,
                 body.high-saturation header,
                 body.high-saturation .navbar,
