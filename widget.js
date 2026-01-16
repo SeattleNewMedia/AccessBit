@@ -41,8 +41,11 @@
         // Check localStorage immediately for reduce-motion mode
         const reduceMotionFromStorage = localStorage.getItem('accessibility-widget-reduce-motion');
         if (reduceMotionFromStorage === 'true') {
-            document.body.classList.add('reduce-motion');
-            document.documentElement.classList.add('reduce-motion');
+            // SECURITY: All DOM operations protected by Designer mode check at line 20
+            try {
+                if (document.body) document.body.classList.add('reduce-motion');
+                if (document.documentElement) document.documentElement.classList.add('reduce-motion');
+            } catch (_) {}
             
             // Apply immediate CSS to stop all animations
             const immediateReduceMotionStyle = document.createElement('style');
@@ -86,7 +89,10 @@
                     caret-color: transparent !important;
                 }
             `;
-            document.head.appendChild(immediateReduceMotionStyle);
+            // SECURITY: Protected by Designer mode check at line 20 - all DOM operations in this IIFE are safe
+            try {
+                if (document.head) document.head.appendChild(immediateReduceMotionStyle);
+            } catch (_) {}
             
             // Use WAAPI to pause/cancel running animations immediately
             try {
@@ -103,8 +109,10 @@
         // Check localStorage immediately for seizure-safe mode
         const seizureSafeFromStorage = localStorage.getItem('accessibility-widget-seizure-safe');
         if (seizureSafeFromStorage === 'true') {
-            
-            document.body.classList.add('seizure-safe');
+            // SECURITY: Protected by Designer mode check at line 20
+            try {
+                if (document.body) document.body.classList.add('seizure-safe');
+            } catch (_) {}
             
             // Apply immediate CSS to stop all animations
             const immediateStyle = document.createElement('style');
@@ -450,8 +458,11 @@
                 }
                 /* REMOVED: Duplicate rule - already covered by scroll-triggered animations section */
                 /* REMOVED: Duplicate data-splitting rules - already covered by letter-by-letter animations section */
-            `;
-            document.head.appendChild(immediateStyle);
+                    `;
+                    // SECURITY: Protected by Designer mode check at line 20
+                    try {
+                        if (document.head) document.head.appendChild(immediateStyle);
+                    } catch (_) {}
             
             // Reinforce at root: cover both html.seizure-safe and body.seizure-safe
             try {
@@ -1151,7 +1162,10 @@
 
                     btn.addEventListener('click', toggleHandler, true);
                     btn.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleHandler(); } }, true);
-                    document.body.appendChild(btn);
+                    // SECURITY: Protected by Designer mode check at line 20
+                    try {
+                        if (document.body) document.body.appendChild(btn);
+                    } catch (_) {}
                 }
             }
         } catch(_) {}
