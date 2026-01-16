@@ -33825,7 +33825,9 @@ class AccessibilityWidget {
         }
         
        updateSelectedIcon(icon) {
+        console.log('[DEBUG] Applying Icon:', icon);
     const iconElement = this.shadowRoot?.getElementById('accessibility-icon');
+    
     if (iconElement) {
         const iconMap = {
             'accessibility': 'fas fa-universal-access',
