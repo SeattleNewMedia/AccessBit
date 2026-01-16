@@ -25807,8 +25807,7 @@ class AccessibilityWidget {
             // This is critical for animations to resume after !important rules are removed
             void document.body.offsetHeight;
             
-            // 4. Restore requestAnimationFrame
-            this.restoreRequestAnimationFrame();
+           
             
             // 5. Restore setTimeout and setInterval
             this.restoreDOMAnimationLoops();
@@ -28061,17 +28060,33 @@ class AccessibilityWidget {
             // 5. Force browser reflow to ensure CSS changes take effect
             void document.body.offsetHeight;
             
-            // 6. Restore requestAnimationFrame
-            this.restoreRequestAnimationFrame();
             
             // 7. Restore setTimeout and setInterval
-            this.restoreDOMAnimationLoops();
+            if (typeof this.restoreDOMAnimationLoops === 'function') {
+                try {
+                    this.restoreDOMAnimationLoops();
+                } catch (e) {
+                    console.warn('Error restoring DOM animation loops:', e);
+                }
+            }
             
             // 8. Restore animated media
-            this.restoreAnimatedMedia();
+            if (typeof this.restoreAnimatedMedia === 'function') {
+                try {
+                    this.restoreAnimatedMedia();
+                } catch (e) {
+                    console.warn('Error restoring animated media:', e);
+                }
+            }
             
             // 9. Restore JavaScript animations
-            this.restoreJavaScriptAnimations();
+            if (typeof this.restoreJavaScriptAnimations === 'function') {
+                try {
+                    this.restoreJavaScriptAnimations();
+                } catch (e) {
+                    console.warn('Error restoring JavaScript animations:', e);
+                }
+            }
             
             // 10. Force re-enable CSS animations by triggering a style recalculation
             requestAnimationFrame(() => {
