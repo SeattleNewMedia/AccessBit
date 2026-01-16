@@ -19847,39 +19847,77 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-contrast-fix';
             style.textContent = `
                 /* Simple High Contrast Mode - Only increase contrast, preserve everything else */
-                /* CRITICAL: Apply filter to elements directly, NOT to body, to avoid breaking sticky positioning */
-                /* By applying to elements instead of body, we avoid creating a stacking context that breaks sticky nav */
-                body.high-contrast *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not([style*="position: sticky"]):not([style*="position:fixed"]):not([style*="position: fixed"]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
+                /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
+                /* Dark/Light contrast work because they use color/background properties, NOT filters */
+                /* Filters create stacking contexts that break sticky positioning - so we avoid them on nav ancestors */
+                
+                /* Apply filter ONLY to media elements inside main content areas (main, section, article) */
+                /* These are guaranteed to not contain nav elements, preventing stacking context issues */
+                body.high-contrast main img,
+                body.high-contrast main video,
+                body.high-contrast main picture,
+                body.high-contrast main canvas,
+                body.high-contrast main svg,
+                body.high-contrast section img,
+                body.high-contrast section video,
+                body.high-contrast section picture,
+                body.high-contrast section canvas,
+                body.high-contrast section svg,
+                body.high-contrast article img,
+                body.high-contrast article video,
+                body.high-contrast article picture,
+                body.high-contrast article canvas,
+                body.high-contrast article svg {
                     filter: contrast(1.1) brightness(1.05) !important;
                     -webkit-filter: contrast(1.1) brightness(1.05) !important;
                 }
                 
-                /* CRITICAL: Explicitly ensure navigation elements have no filter to preserve sticky/fixed positioning */
+                /* CRITICAL: Ensure navigation elements and their children NEVER get filters */
                 body.high-contrast nav,
+                body.high-contrast nav *,
                 body.high-contrast header,
+                body.high-contrast header *,
                 body.high-contrast .navbar,
+                body.high-contrast .navbar *,
                 body.high-contrast [role="navigation"],
+                body.high-contrast [role="navigation"] *,
                 body.high-contrast [class*="nav"],
+                body.high-contrast [class*="nav"] *,
                 body.high-contrast [class*="header"],
+                body.high-contrast [class*="header"] *,
                 body.high-contrast [class*="navbar"],
+                body.high-contrast [class*="navbar"] *,
                 body.high-contrast [data-sticky],
+                body.high-contrast [data-sticky] *,
                 body.high-contrast [data-fixed],
+                body.high-contrast [data-fixed] *,
                 body.high-contrast [style*="position: sticky"],
+                body.high-contrast [style*="position: sticky"] *,
                 body.high-contrast [style*="position:fixed"],
-                body.high-contrast [style*="position: fixed"] {
+                body.high-contrast [style*="position:fixed"] *,
+                body.high-contrast [style*="position: fixed"],
+                body.high-contrast [style*="position: fixed"] * {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
                 
                 /* Preserve accessibility widget from contrast filters */
                 body.high-contrast .accessibility-widget,
+                body.high-contrast .accessibility-widget *,
                 body.high-contrast .accessibility-panel,
+                body.high-contrast .accessibility-panel *,
                 body.high-contrast .accessibility-icon,
+                body.high-contrast .accessibility-icon *,
                 body.high-contrast #accessibility-widget,
+                body.high-contrast #accessibility-widget *,
                 body.high-contrast #accessibility-panel,
+                body.high-contrast #accessibility-panel *,
                 body.high-contrast #accessibility-icon,
+                body.high-contrast #accessibility-icon *,
                 body.high-contrast [data-ck-widget],
-                body.high-contrast [class*="accessibility"] {
+                body.high-contrast [data-ck-widget] *,
+                body.high-contrast [class*="accessibility"],
+                body.high-contrast [class*="accessibility"] * {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -20218,39 +20256,77 @@ class AccessibilityWidget {
             style.id = 'accessibility-high-saturation-css';
             style.textContent = `
                 /* Simple High Saturation Mode - Only increase saturation, preserve everything else */
-                /* CRITICAL: Apply filter to elements directly, NOT to body, to avoid breaking sticky positioning */
-                /* By applying to elements instead of body, we avoid creating a stacking context that breaks sticky nav */
-                body.high-saturation *:not(nav):not(header):not(.navbar):not([role="navigation"]):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]):not([data-sticky]):not([data-fixed]):not([style*="position: sticky"]):not([style*="position:fixed"]):not([style*="position: fixed"]):not(.accessibility-widget):not(.accessibility-panel):not(.accessibility-icon):not(#accessibility-widget):not(#accessibility-panel):not(#accessibility-icon):not([data-ck-widget]):not([class*="accessibility"]) {
+                /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
+                /* Dark/Light contrast work because they use color/background properties, NOT filters */
+                /* Filters create stacking contexts that break sticky positioning - so we avoid them on nav ancestors */
+                
+                /* Apply filter ONLY to media elements inside main content areas (main, section, article) */
+                /* These are guaranteed to not contain nav elements, preventing stacking context issues */
+                body.high-saturation main img,
+                body.high-saturation main video,
+                body.high-saturation main picture,
+                body.high-saturation main canvas,
+                body.high-saturation main svg,
+                body.high-saturation section img,
+                body.high-saturation section video,
+                body.high-saturation section picture,
+                body.high-saturation section canvas,
+                body.high-saturation section svg,
+                body.high-saturation article img,
+                body.high-saturation article video,
+                body.high-saturation article picture,
+                body.high-saturation article canvas,
+                body.high-saturation article svg {
                     filter: saturate(1.2) !important;
                     -webkit-filter: saturate(1.2) !important;
                 }
                 
-                /* CRITICAL: Explicitly ensure navigation elements have no filter to preserve sticky/fixed positioning */
+                /* CRITICAL: Ensure navigation elements and their children NEVER get filters */
                 body.high-saturation nav,
+                body.high-saturation nav *,
                 body.high-saturation header,
+                body.high-saturation header *,
                 body.high-saturation .navbar,
+                body.high-saturation .navbar *,
                 body.high-saturation [role="navigation"],
+                body.high-saturation [role="navigation"] *,
                 body.high-saturation [class*="nav"],
+                body.high-saturation [class*="nav"] *,
                 body.high-saturation [class*="header"],
+                body.high-saturation [class*="header"] *,
                 body.high-saturation [class*="navbar"],
+                body.high-saturation [class*="navbar"] *,
                 body.high-saturation [data-sticky],
+                body.high-saturation [data-sticky] *,
                 body.high-saturation [data-fixed],
+                body.high-saturation [data-fixed] *,
                 body.high-saturation [style*="position: sticky"],
+                body.high-saturation [style*="position: sticky"] *,
                 body.high-saturation [style*="position:fixed"],
-                body.high-saturation [style*="position: fixed"] {
+                body.high-saturation [style*="position:fixed"] *,
+                body.high-saturation [style*="position: fixed"],
+                body.high-saturation [style*="position: fixed"] * {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
                 
                 /* Preserve accessibility widget from saturation filters */
                 body.high-saturation .accessibility-widget,
+                body.high-saturation .accessibility-widget *,
                 body.high-saturation .accessibility-panel,
+                body.high-saturation .accessibility-panel *,
                 body.high-saturation .accessibility-icon,
+                body.high-saturation .accessibility-icon *,
                 body.high-saturation #accessibility-widget,
+                body.high-saturation #accessibility-widget *,
                 body.high-saturation #accessibility-panel,
+                body.high-saturation #accessibility-panel *,
                 body.high-saturation #accessibility-icon,
+                body.high-saturation #accessibility-icon *,
                 body.high-saturation [data-ck-widget],
-                body.high-saturation [class*="accessibility"] {
+                body.high-saturation [data-ck-widget] *,
+                body.high-saturation [class*="accessibility"],
+                body.high-saturation [class*="accessibility"] * {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
