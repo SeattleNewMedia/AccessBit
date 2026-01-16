@@ -119,8 +119,38 @@
             immediateStyle.id = 'accessibility-seizure-immediate-early';
             immediateStyle.textContent = `
                 /* APPLY GREYISH COLOR FILTER IMMEDIATELY - Reduce color intensity to prevent seizures */
-                body.seizure-safe,
-                html.seizure-safe {
+                /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
+                /* Filters create stacking contexts that break sticky positioning - so we avoid them on nav ancestors */
+                body.seizure-safe main img,
+                body.seizure-safe main video,
+                body.seizure-safe main picture,
+                body.seizure-safe main canvas,
+                body.seizure-safe main svg,
+                body.seizure-safe section img,
+                body.seizure-safe section video,
+                body.seizure-safe section picture,
+                body.seizure-safe section canvas,
+                body.seizure-safe section svg,
+                body.seizure-safe article img,
+                body.seizure-safe article video,
+                body.seizure-safe article picture,
+                body.seizure-safe article canvas,
+                body.seizure-safe article svg,
+                html.seizure-safe main img,
+                html.seizure-safe main video,
+                html.seizure-safe main picture,
+                html.seizure-safe main canvas,
+                html.seizure-safe main svg,
+                html.seizure-safe section img,
+                html.seizure-safe section video,
+                html.seizure-safe section picture,
+                html.seizure-safe section canvas,
+                html.seizure-safe section svg,
+                html.seizure-safe article img,
+                html.seizure-safe article video,
+                html.seizure-safe article picture,
+                html.seizure-safe article canvas,
+                html.seizure-safe article svg {
                     filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                 }
@@ -28407,8 +28437,28 @@ class AccessibilityWidget {
             }
             
             body.vision-impaired {
-                filter: brightness(1.06) !important;
                 overflow-x: hidden !important;
+            }
+            
+            /* CRITICAL: Apply brightness filter ONLY to media inside main content areas - NEVER to nav/header */
+            /* Filters create stacking contexts that break sticky positioning - so we avoid them on nav ancestors */
+            body.vision-impaired main img,
+            body.vision-impaired main video,
+            body.vision-impaired main picture,
+            body.vision-impaired main canvas,
+            body.vision-impaired main svg,
+            body.vision-impaired section img,
+            body.vision-impaired section video,
+            body.vision-impaired section picture,
+            body.vision-impaired section canvas,
+            body.vision-impaired section svg,
+            body.vision-impaired article img,
+            body.vision-impaired article video,
+            body.vision-impaired article picture,
+            body.vision-impaired article canvas,
+            body.vision-impaired article svg {
+                filter: brightness(1.06) !important;
+                -webkit-filter: brightness(1.06) !important;
             }
             
             /* Gentle zoom for main content only, anchored at top to avoid pushing nav off-screen */
@@ -29626,8 +29676,38 @@ class AccessibilityWidget {
             style.id = 'accessibility-seizure-safe-grey-overlay';
             style.textContent = `
                 /* APPLY GREYISH COLOR FILTER - Reduce color intensity to prevent seizures */
-                body.seizure-safe,
-                html.seizure-safe {
+                /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
+                /* Filters create stacking contexts that break sticky positioning - so we avoid them on nav ancestors */
+                body.seizure-safe main img,
+                body.seizure-safe main video,
+                body.seizure-safe main picture,
+                body.seizure-safe main canvas,
+                body.seizure-safe main svg,
+                body.seizure-safe section img,
+                body.seizure-safe section video,
+                body.seizure-safe section picture,
+                body.seizure-safe section canvas,
+                body.seizure-safe section svg,
+                body.seizure-safe article img,
+                body.seizure-safe article video,
+                body.seizure-safe article picture,
+                body.seizure-safe article canvas,
+                body.seizure-safe article svg,
+                html.seizure-safe main img,
+                html.seizure-safe main video,
+                html.seizure-safe main picture,
+                html.seizure-safe main canvas,
+                html.seizure-safe main svg,
+                html.seizure-safe section img,
+                html.seizure-safe section video,
+                html.seizure-safe section picture,
+                html.seizure-safe section canvas,
+                html.seizure-safe section svg,
+                html.seizure-safe article img,
+                html.seizure-safe article video,
+                html.seizure-safe article picture,
+                html.seizure-safe article canvas,
+                html.seizure-safe article svg {
                     filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                 }
