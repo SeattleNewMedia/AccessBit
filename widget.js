@@ -38,6 +38,68 @@
             return;
         }
         
+        // Check localStorage immediately for reduce-motion mode
+        const reduceMotionFromStorage = localStorage.getItem('accessibility-widget-reduce-motion');
+        if (reduceMotionFromStorage === 'true') {
+            document.body.classList.add('reduce-motion');
+            document.documentElement.classList.add('reduce-motion');
+            
+            // Apply immediate CSS to stop all animations
+            const immediateReduceMotionStyle = document.createElement('style');
+            immediateReduceMotionStyle.id = 'accessibility-reduce-motion-immediate-early';
+            immediateReduceMotionStyle.textContent = `
+                /* Per Webflow Security recommendations: Global CSS kill switch for Reduce Motion */
+                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
+                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
+                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after,
+                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
+                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
+                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after {
+                    animation: none !important;
+                    transition: none !important;
+                    scroll-behavior: auto !important;
+                }
+                
+                /* Remove common flash triggers (blinking caret effects, shimmer skeletons, pulsing outlines, etc.) */
+                body.reduce-motion *[class*="blink"], body.reduce-motion *[class*="shimmer"], 
+                body.reduce-motion *[class*="pulse"], body.reduce-motion *[class*="caret"], 
+                body.reduce-motion *[class*="cursor-blink"], body.reduce-motion *[class*="skeleton"],
+                body.reduce-motion *[class*="pulsing"], body.reduce-motion *[class*="flashing"],
+                html.reduce-motion *[class*="blink"], html.reduce-motion *[class*="shimmer"], 
+                html.reduce-motion *[class*="pulse"], html.reduce-motion *[class*="caret"], 
+                html.reduce-motion *[class*="cursor-blink"], html.reduce-motion *[class*="skeleton"],
+                html.reduce-motion *[class*="pulsing"], html.reduce-motion *[class*="flashing"] {
+                    animation: none !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                }
+                
+                /* Remove blinking caret effects */
+                body.reduce-motion input[type="text"], body.reduce-motion input[type="email"], 
+                body.reduce-motion input[type="search"], body.reduce-motion input[type="tel"], 
+                body.reduce-motion input[type="url"], body.reduce-motion input[type="password"], 
+                body.reduce-motion textarea, body.reduce-motion [contenteditable="true"],
+                html.reduce-motion input[type="text"], html.reduce-motion input[type="email"], 
+                html.reduce-motion input[type="search"], html.reduce-motion input[type="tel"], 
+                html.reduce-motion input[type="url"], html.reduce-motion input[type="password"], 
+                html.reduce-motion textarea, html.reduce-motion [contenteditable="true"] {
+                    caret-color: transparent !important;
+                }
+            `;
+            document.head.appendChild(immediateReduceMotionStyle);
+            
+            // Use WAAPI to pause/cancel running animations immediately
+            try {
+                const all = (document.getAnimations && document.getAnimations({ subtree: true })) || [];
+                all.forEach(anim => {
+                    try {
+                        if (typeof anim.pause === 'function') anim.pause();
+                        if (typeof anim.playbackRate !== 'undefined') anim.playbackRate = 0;
+                    } catch (_) {}
+                });
+            } catch (_) {}
+        }
+        
         // Check localStorage immediately for seizure-safe mode
         const seizureSafeFromStorage = localStorage.getItem('accessibility-widget-seizure-safe');
         if (seizureSafeFromStorage === 'true') {
@@ -1493,6 +1555,105 @@ function applyVisionImpaired(on) {
     } catch (_) {}
 }
 
+// Ensure the reduce-motion toggle actually applies classes and storage immediately
+(function() {
+    try {
+        function bindReduceMotionToggle() {
+            const input = document.getElementById('reduce-motion');
+            if (!input) return;
+            const enabled = localStorage.getItem('accessibility-widget-reduce-motion') === 'true';
+            try { input.checked = enabled; } catch (_) {}
+            if (!input.__reduceMotionBound) {
+                input.addEventListener('change', function() {
+                    const on = !!this.checked;
+                    localStorage.setItem('accessibility-widget-reduce-motion', on ? 'true' : 'false');
+                    try { document.documentElement.classList.toggle('reduce-motion', on); } catch (_) {}
+                    try { document.body.classList.toggle('reduce-motion', on); } catch (_) {}
+                    // Apply CSS and WAAPI controls
+                    if (on) {
+                        const style = document.getElementById('reduce-motion-css') || (() => {
+                            const s = document.createElement('style');
+                            s.id = 'reduce-motion-css';
+                            document.head.appendChild(s);
+                            return s;
+                        })();
+                        if (style && !style.textContent) {
+                            style.textContent = `
+                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
+                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
+                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after,
+                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
+                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
+                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after {
+                                    animation: none !important;
+                                    transition: none !important;
+                                    scroll-behavior: auto !important;
+                                }
+                                body.reduce-motion *[class*="blink"], body.reduce-motion *[class*="shimmer"], 
+                                body.reduce-motion *[class*="pulse"], body.reduce-motion *[class*="caret"], 
+                                body.reduce-motion *[class*="cursor-blink"], body.reduce-motion *[class*="skeleton"],
+                                body.reduce-motion *[class*="pulsing"], body.reduce-motion *[class*="flashing"],
+                                html.reduce-motion *[class*="blink"], html.reduce-motion *[class*="shimmer"], 
+                                html.reduce-motion *[class*="pulse"], html.reduce-motion *[class*="caret"], 
+                                html.reduce-motion *[class*="cursor-blink"], html.reduce-motion *[class*="skeleton"],
+                                html.reduce-motion *[class*="pulsing"], html.reduce-motion *[class*="flashing"] {
+                                    animation: none !important;
+                                    visibility: visible !important;
+                                    opacity: 1 !important;
+                                }
+                                body.reduce-motion input[type="text"], body.reduce-motion input[type="email"], 
+                                body.reduce-motion input[type="search"], body.reduce-motion input[type="tel"], 
+                                body.reduce-motion input[type="url"], body.reduce-motion input[type="password"], 
+                                body.reduce-motion textarea, body.reduce-motion [contenteditable="true"],
+                                html.reduce-motion input[type="text"], html.reduce-motion input[type="email"], 
+                                html.reduce-motion input[type="search"], html.reduce-motion input[type="tel"], 
+                                html.reduce-motion input[type="url"], html.reduce-motion input[type="password"], 
+                                html.reduce-motion textarea, html.reduce-motion [contenteditable="true"] {
+                                    caret-color: transparent !important;
+                                }
+                            `;
+                        }
+                        // Use WAAPI to pause animations
+                        try {
+                            const all = (document.getAnimations && document.getAnimations({ subtree: true })) || [];
+                            all.forEach(anim => {
+                                try {
+                                    if (typeof anim.pause === 'function') anim.pause();
+                                    if (typeof anim.playbackRate !== 'undefined') anim.playbackRate = 0;
+                                } catch (_) {}
+                            });
+                        } catch (_) {}
+                    } else {
+                        // Remove CSS
+                        const style = document.getElementById('reduce-motion-css');
+                        if (style) style.remove();
+                        // Restore WAAPI animations
+                        try {
+                            const all = (document.getAnimations && document.getAnimations({ subtree: true })) || [];
+                            all.forEach(anim => {
+                                try {
+                                    if (typeof anim.playbackRate !== 'undefined') anim.playbackRate = 1;
+                                    if (typeof anim.play === 'function' && anim.playState === 'paused') anim.play();
+                                } catch (_) {}
+                            });
+                        } catch (_) {}
+                    }
+                });
+                input.__reduceMotionBound = true;
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindReduceMotionToggle, { once: true });
+        } else {
+            bindReduceMotionToggle();
+        }
+        // Also check periodically in case widget loads later
+        setInterval(bindReduceMotionToggle, 1000);
+    } catch (e) {
+       
+    }
+})();
+
 // Ensure the seizure-safe toggle actually applies classes and storage immediately
 (function() {
     try {
@@ -2785,6 +2946,16 @@ class AccessibilityWidget {
             
             this.loadSettings();
     
+            // If reduce-motion was previously enabled, apply it ASAP so it persists on refresh
+            if (this.settings && this.settings['reduce-motion']) {
+                try {
+                    this.safeBodyClassToggle('reduce-motion', true);
+                    this.enableReduceMotion();
+                } catch (e) {
+                    
+                }
+            }
+            
             // If seizure-safe was previously enabled, apply it ASAP so it persists on refresh
             if (this.settings && this.settings['seizure-safe']) {
                 try {
@@ -9036,6 +9207,7 @@ class AccessibilityWidget {
             // Create all profile items
             const profiles = [
                 { id: 'seizure-safe', title: 'Seizure Safe Profile', description: 'Clear flashes & reduces color', descriptionId: 'seizure-safe-desc', ariaLabel: 'Seizure Safe Profile - Clear flashes and reduces color', ariaDescribedBy: 'seizure-safe-desc' },
+                { id: 'reduce-motion', title: 'Reduce Motion', description: 'Disable animations and transitions', descriptionId: 'reduce-motion-desc', ariaLabel: 'Reduce Motion - Disable animations, transitions, and flash triggers', ariaDescribedBy: 'reduce-motion-desc' },
                 { id: 'vision-impaired', title: 'Vision Impaired Profile', description: 'Enhances text readability and visual clarity', descriptionId: 'vision-impaired-desc', ariaLabel: 'Vision Impaired Profile - Enhances text readability and visual clarity', ariaDescribedBy: 'vision-impaired-desc' },
                 { id: 'adhd-friendly', title: 'ADHD Friendly Profile', description: 'More focus & fewer distractions', ariaLabel: 'ADHD Friendly Profile - Reduces distractions and highlights focus' },
                 { id: 'cognitive-disability', title: 'Cognitive Disability Profile', description: 'Assists with reading & focusing', ariaLabel: 'Cognitive Disability Profile - Simplifies interface and content' },
@@ -9232,6 +9404,34 @@ class AccessibilityWidget {
                                 <h4>Seizure Safe Profile</h4>
     
                                 <p id="seizure-safe-desc">Clear flashes & reduces color</p>
+    
+                            </div>
+    
+                        </div>
+    
+                    </div>
+    
+    
+    
+                    <!-- Module 1.5: Reduce Motion -->
+    
+                    <div class="profile-item">
+    
+                        <label class="toggle-switch">
+    
+                            <input type="checkbox" id="reduce-motion" tabindex="0" aria-label="Reduce Motion - Disable animations, transitions, and flash triggers" aria-describedby="reduce-motion-desc">
+    
+                            <span class="slider"></span>
+    
+                        </label>
+    
+                        <div class="profile-info">
+    
+                            <div>
+    
+                                <h4>Reduce Motion</h4>
+    
+                                <p id="reduce-motion-desc">Disable animations and transitions</p>
     
                             </div>
     
@@ -13309,6 +13509,8 @@ class AccessibilityWidget {
     
                     'seizure-safe': 'Seizure safe mode',
     
+                    'reduce-motion': 'Reduce motion mode',
+    
                     'vision-impaired': 'Vision impaired mode',
     
                     'adhd-friendly': 'ADHD friendly mode',
@@ -14088,6 +14290,12 @@ class AccessibilityWidget {
     
                         break;
     
+                    case 'reduce-motion':
+    
+                        this.enableReduceMotion();
+    
+                        break;
+    
                     case 'stop-animation':
     
                         this.enableStopAnimation();
@@ -14262,6 +14470,12 @@ class AccessibilityWidget {
                     case 'seizure-safe':
     
                         this.disableSeizureSafe();
+    
+                        break;
+    
+                    case 'reduce-motion':
+    
+                        this.disableReduceMotion();
     
                         break;
     
@@ -25461,6 +25675,120 @@ class AccessibilityWidget {
                     
                 }
             }
+        }
+        
+        enableReduceMotion() {
+            // Per Webflow Security recommendations: Add explicit in-product "Reduce Motion" toggle
+            // This is different from "Seizure Safe" - it only disables animations/transitions without color filters
+            document.body.classList.add('reduce-motion');
+            document.documentElement.classList.add('reduce-motion');
+            this.settings['reduce-motion'] = true;
+            this.saveSettings();
+            
+            // Apply global CSS kill switch
+            this.injectReduceMotionCSS();
+            
+            // Use WAAPI to pause/cancel running animations
+            this.applyWAAPIReduceMotion(true);
+        }
+        
+        disableReduceMotion() {
+            // Remove CSS rules
+            const existingStyle = document.getElementById('reduce-motion-css');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+            
+            // Remove reduce-motion class
+            document.body.classList.remove('reduce-motion');
+            document.documentElement.classList.remove('reduce-motion');
+            
+            // Restore WAAPI animations
+            this.applyWAAPIReduceMotion(false);
+            
+            this.settings['reduce-motion'] = false;
+            this.saveSettings();
+        }
+        
+        injectReduceMotionCSS() {
+            if (!document.getElementById('reduce-motion-css')) {
+                const style = document.createElement('style');
+                style.id = 'reduce-motion-css';
+                style.textContent = `
+                    /* Per Webflow Security recommendations: Global CSS kill switch for Reduce Motion */
+                    /* This provides stricter controls than prefers-reduced-motion for users who need it */
+                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
+                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
+                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after,
+                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
+                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
+                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after {
+                        animation: none !important;
+                        transition: none !important;
+                        scroll-behavior: auto !important;
+                    }
+                    
+                    /* Remove common flash triggers (blinking caret effects, shimmer skeletons, pulsing outlines, etc.) */
+                    body.reduce-motion *[class*="blink"], body.reduce-motion *[class*="shimmer"], 
+                    body.reduce-motion *[class*="pulse"], body.reduce-motion *[class*="caret"], 
+                    body.reduce-motion *[class*="cursor-blink"], body.reduce-motion *[class*="skeleton"],
+                    body.reduce-motion *[class*="pulsing"], body.reduce-motion *[class*="flashing"],
+                    html.reduce-motion *[class*="blink"], html.reduce-motion *[class*="shimmer"], 
+                    html.reduce-motion *[class*="pulse"], html.reduce-motion *[class*="caret"], 
+                    html.reduce-motion *[class*="cursor-blink"], html.reduce-motion *[class*="skeleton"],
+                    html.reduce-motion *[class*="pulsing"], html.reduce-motion *[class*="flashing"] {
+                        animation: none !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                    }
+                    
+                    /* Remove blinking caret effects */
+                    body.reduce-motion input[type="text"], body.reduce-motion input[type="email"], 
+                    body.reduce-motion input[type="search"], body.reduce-motion input[type="tel"], 
+                    body.reduce-motion input[type="url"], body.reduce-motion input[type="password"], 
+                    body.reduce-motion textarea, body.reduce-motion [contenteditable="true"],
+                    html.reduce-motion input[type="text"], html.reduce-motion input[type="email"], 
+                    html.reduce-motion input[type="search"], html.reduce-motion input[type="tel"], 
+                    html.reduce-motion input[type="url"], html.reduce-motion input[type="password"], 
+                    html.reduce-motion textarea, html.reduce-motion [contenteditable="true"] {
+                        caret-color: transparent !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        applyWAAPIReduceMotion(enabled) {
+            // Use WAAPI controls where we own the animations
+            // Per Webflow Security recommendations: Use WAAPI for explicit control
+            try {
+                if (enabled) {
+                    const all = (document.getAnimations && document.getAnimations({ subtree: true })) || [];
+                    all.forEach(anim => {
+                        try {
+                            if (typeof anim.pause === 'function') {
+                                anim.pause();
+                            }
+                            if (typeof anim.playbackRate !== 'undefined') {
+                                anim.playbackRate = 0;
+                            }
+                        } catch (_) {}
+                    });
+                } else {
+                    // Restore animations when disabled
+                    const all = (document.getAnimations && document.getAnimations({ subtree: true })) || [];
+                    all.forEach(anim => {
+                        try {
+                            if (typeof anim.playbackRate !== 'undefined') {
+                                anim.playbackRate = 1;
+                            }
+                            if (typeof anim.play === 'function' && anim.playState === 'paused') {
+                                anim.play();
+                            }
+                        } catch (_) {}
+                    });
+                }
+            } catch (_) {}
         }
         
         disableStopAnimation() {
