@@ -17591,76 +17591,71 @@ class AccessibilityWidget {
                     break;
     
                 case 'header':
-                    // Find header on current page - try multiple common selectors in order of specificity
+                    // Find header on current page - try multiple common selectors in order of priority
                     let headerElement = document.querySelector('header[role="banner"], header, [role="banner"]');
                     
-                    // If not found, try class-based selectors
                     if (!headerElement) {
-                        headerElement = document.querySelector('.header, .site-header, .main-header, .page-header, .navbar-header');
+                        headerElement = document.querySelector('.header, .site-header, .main-header, .page-header');
                     }
                     
-                    // If still not found, try ID-based selectors
                     if (!headerElement) {
-                        headerElement = document.querySelector('#header, #site-header, #main-header, #page-header');
+                        headerElement = document.querySelector('#header, #site-header, #main-header');
                     }
                     
-                    // If still not found, try attribute-based selectors
                     if (!headerElement) {
                         headerElement = document.querySelector('[class*="header"]:not([class*="subheader"]):not([class*="sub-header"])');
                     }
                     
-                    // Last resort: try nav elements (but prioritize actual headers)
                     if (!headerElement) {
-                        const navElement = document.querySelector('nav.navbar, nav.main-nav, nav[role="navigation"]');
-                        if (navElement) {
-                            headerElement = navElement;
-                        }
+                        headerElement = document.querySelector('nav.navbar, nav.main-nav, nav[role="navigation"]');
                     }
                     
                     if (headerElement) {
-                        // Get the header's position
-                        const headerRect = headerElement.getBoundingClientRect();
-                        const headerTop = window.pageYOffset + headerRect.top;
+                        // Get header position
+                        const rect = headerElement.getBoundingClientRect();
+                        const headerTop = window.pageYOffset + rect.top;
                         
-                        // Check if header is already visible at the top
-                        const isHeaderVisible = headerRect.top >= 0 && headerRect.top < 100;
+                        // Check if header is fixed or sticky
+                        const style = window.getComputedStyle(headerElement);
+                        const isFixed = style.position === 'fixed' || style.position === 'sticky';
                         
-                        if (!isHeaderVisible) {
-                            // Temporarily enable smooth scrolling if it was disabled
-                            const originalScrollBehavior = document.documentElement.style.scrollBehavior || 
-                                                          document.body.style.scrollBehavior || 
-                                                          getComputedStyle(document.documentElement).scrollBehavior;
-                            
+                        if (isFixed) {
+                            // For fixed/sticky headers, just scroll to top
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            // Fallback if smooth scroll is disabled
+                            setTimeout(() => {
+                                if (window.pageYOffset > 5) {
+                                    window.scrollTo({ top: 0, behavior: 'auto' });
+                                }
+                            }, 100);
+                        } else {
+                            // For normal headers, scroll to header position
                             try {
-                                // Try smooth scroll first
                                 headerElement.scrollIntoView({ 
                                     behavior: 'smooth', 
                                     block: 'start',
                                     inline: 'nearest'
                                 });
-                                
-                                // Fallback: if smooth scroll doesn't work (e.g., due to reduce-motion), use instant scroll
+                                // Fallback if scrollIntoView doesn't work
                                 setTimeout(() => {
-                                    const currentScroll = window.pageYOffset;
-                                    const targetScroll = headerTop;
-                                    // If we didn't scroll close enough, use instant scroll
-                                    if (Math.abs(currentScroll - targetScroll) > 50) {
-                                        window.scrollTo({ top: targetScroll, behavior: 'auto' });
+                                    const currentPos = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
+                                    if (Math.abs(currentPos - headerTop) > 20) {
+                                        window.scrollTo({ top: Math.max(0, headerTop - 10), behavior: 'auto' });
                                     }
-                                }, 100);
+                                }, 150);
                             } catch (e) {
-                                // Fallback to instant scroll if scrollIntoView fails
-                                window.scrollTo({ top: headerTop, behavior: 'auto' });
-                            }
-                        } else {
-                            // Header is already visible, just ensure we're at the very top
-                            if (headerRect.top > 0) {
-                                window.scrollTo({ top: headerTop, behavior: 'smooth' });
+                                // Direct scroll if scrollIntoView fails
+                                window.scrollTo({ top: Math.max(0, headerTop - 10), behavior: 'auto' });
                             }
                         }
                     } else {
                         // If no header found, scroll to top
                         window.scrollTo({ top: 0, behavior: 'smooth' });
+                        setTimeout(() => {
+                            if (window.pageYOffset > 5) {
+                                window.scrollTo({ top: 0, behavior: 'auto' });
+                            }
+                        }, 100);
                     }
                     break;
     
