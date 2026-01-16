@@ -33824,40 +33824,43 @@ class AccessibilityWidget {
             }
         }
         
-        updateSelectedIcon(icon) {
-           
-            const iconElement = this.shadowRoot?.getElementById('accessibility-icon');
-            if (iconElement) {
-                // Map icon names to FontAwesome classes
-                const iconMap = {
-                    'accessibility': 'fas fa-universal-access',
-                    'wheelchair': 'fas fa-wheelchair',
-                    'eye': 'fas fa-eye',
-                    'ear': 'fas fa-deaf',
-                    'brain': 'fas fa-brain',
-                    'hand': 'fas fa-hand-paper',
-                    'heart': 'fas fa-heart',
-                    'star': 'fas fa-star',
-                    'gear': 'fas fa-cog',
-                    'settings': 'fas fa-sliders-h'
-                };
-                
-                const iconClass = iconMap[icon] || 'fas fa-universal-access';
-                
-                // Clear existing content and add the new icon
-                const sanitizedIconClass = this.validateClassName(iconClass);
-                const iconInner = document.createElement('i');
-                iconInner.className = sanitizedIconClass;
-                iconElement.appendChild(iconInner);
-                
-                // Ensure proper styling
-                iconElement.style.display = 'flex';
-                iconElement.style.alignItems = 'center';
-                iconElement.style.justifyContent = 'center';
-                iconElement.style.color = '#ffffff';
-                iconElement.style.fontSize = 'inherit';
-            }
+       updateSelectedIcon(icon) {
+    const iconElement = this.shadowRoot?.getElementById('accessibility-icon');
+    if (iconElement) {
+        const iconMap = {
+            'accessibility': 'fas fa-universal-access',
+            'wheelchair': 'fas fa-wheelchair',
+            'eye': 'fas fa-eye',
+            'ear': 'fas fa-deaf',
+            'brain': 'fas fa-brain',
+            'hand': 'fas fa-hand-paper',
+            'heart': 'fas fa-heart',
+            'star': 'fas fa-star',
+            'gear': 'fas fa-cog',
+            'settings': 'fas fa-sliders-h'
+        };
+        
+        const iconClass = iconMap[icon] || 'fas fa-universal-access';
+        
+        
+        const existingIcon = iconElement.querySelector('i');
+        if (existingIcon) {
+            existingIcon.remove();
         }
+   
+        const sanitizedIconClass = this.validateClassName(iconClass);
+        const iconInner = document.createElement('i');
+        iconInner.className = sanitizedIconClass;
+        iconElement.appendChild(iconInner); // Now it appends to a clean container
+        
+        // Ensure proper styling
+        iconElement.style.display = 'flex';
+        iconElement.style.alignItems = 'center';
+        iconElement.style.justifyContent = 'center';
+        iconElement.style.color = '#ffffff';
+        iconElement.style.fontSize = 'inherit';
+    }
+}
         
         updateSelectedIconName(name) {
           
