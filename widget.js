@@ -119,38 +119,27 @@
             immediateStyle.id = 'accessibility-seizure-immediate-early';
             immediateStyle.textContent = `
                 /* APPLY GREYISH COLOR FILTER IMMEDIATELY - Reduce color intensity to prevent seizures */
-                /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
-                /* Filters create stacking contexts that break sticky positioning - so we avoid them on nav ancestors */
-                body.seizure-safe main img,
-                body.seizure-safe main video,
-                body.seizure-safe main picture,
-                body.seizure-safe main canvas,
-                body.seizure-safe main svg,
-                body.seizure-safe section img,
-                body.seizure-safe section video,
-                body.seizure-safe section picture,
-                body.seizure-safe section canvas,
-                body.seizure-safe section svg,
-                body.seizure-safe article img,
-                body.seizure-safe article video,
-                body.seizure-safe article picture,
-                body.seizure-safe article canvas,
-                body.seizure-safe article svg,
-                html.seizure-safe main img,
-                html.seizure-safe main video,
-                html.seizure-safe main picture,
-                html.seizure-safe main canvas,
-                html.seizure-safe main svg,
-                html.seizure-safe section img,
-                html.seizure-safe section video,
-                html.seizure-safe section picture,
-                html.seizure-safe section canvas,
-                html.seizure-safe section svg,
-                html.seizure-safe article img,
-                html.seizure-safe article video,
-                html.seizure-safe article picture,
-                html.seizure-safe article canvas,
-                html.seizure-safe article svg {
+                /* CRITICAL: Apply filters to content containers, NOT to body/html, to preserve sticky nav */
+                /* Filters create stacking contexts that break sticky positioning - so we avoid them on body/html */
+                /* Apply to main content areas and their children to get the grey muted color effect throughout the page */
+                body.seizure-safe main,
+                body.seizure-safe main *,
+                body.seizure-safe section,
+                body.seizure-safe section *,
+                body.seizure-safe article,
+                body.seizure-safe article *,
+                body.seizure-safe div:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]),
+                body.seizure-safe p:not(nav p):not(header p),
+                body.seizure-safe span:not(nav span):not(header span),
+                html.seizure-safe main,
+                html.seizure-safe main *,
+                html.seizure-safe section,
+                html.seizure-safe section *,
+                html.seizure-safe article,
+                html.seizure-safe article *,
+                html.seizure-safe div:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]),
+                html.seizure-safe p:not(nav p):not(header p),
+                html.seizure-safe span:not(nav span):not(header span) {
                     filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                 }
@@ -1320,22 +1309,42 @@ const seizureState = {
                                 });
 
                                 if (!seizureState.waapiListenersInstalled) {
-                                    seizureState.onAnimationStart = function(e) {
+                                    // Function to stop any animation
+                                    const stopAnimation = function(anim) {
                                         try {
-                                            const target = e.target;
-                                            const anims = target.getAnimations ? target.getAnimations() : [];
-                                            anims.forEach(a => {
-                                                try {
-                                                    if (!seizureState.savedAnimations.has(a)) {
-                                                        seizureState.savedAnimations.set(a, { playbackRate: a.playbackRate || 1, playState: a.playState || null, currentTime: a.currentTime || 0 });
-                                                    }
-                                                    if (typeof a.pause === 'function') try { a.pause(); } catch(_) {}
-                                                    try { a.playbackRate = 0; } catch(_) {}
-                                                } catch(_) {}
-                                            });
+                                            if (!seizureState.savedAnimations.has(anim)) {
+                                                seizureState.savedAnimations.set(anim, { 
+                                                    playbackRate: anim.playbackRate || 1, 
+                                                    playState: anim.playState || null, 
+                                                    currentTime: anim.currentTime || 0 
+                                                });
+                                            }
+                                            if (typeof anim.pause === 'function') try { anim.pause(); } catch(_) {}
+                                            try { anim.playbackRate = 0; } catch(_) {}
                                         } catch(_) {}
                                     };
+                                    
+                                    // Function to stop all animations on an element
+                                    const stopElementAnimations = function(target) {
+                                        try {
+                                            const anims = target.getAnimations ? target.getAnimations() : [];
+                                            anims.forEach(stopAnimation);
+                                        } catch(_) {}
+                                    };
+                                    
+                                    // animationstart - catch new animations as they start
+                                    seizureState.onAnimationStart = function(e) {
+                                        stopElementAnimations(e.target);
+                                    };
                                     document.addEventListener('animationstart', seizureState.onAnimationStart, true);
+                                    
+                                    // animationiteration - catch animations that continue
+                                    seizureState.onAnimationIteration = function(e) {
+                                        stopElementAnimations(e.target);
+                                    };
+                                    document.addEventListener('animationiteration', seizureState.onAnimationIteration, true);
+                                    
+                                    // transitionrun - catch transitions
                                     seizureState.onTransitionRun = function(e) {
                                         try {
                                             const t = e.target;
@@ -1343,9 +1352,58 @@ const seizureState = {
                                                 t.style.transition = 'none';
                                                 t.style.animation = 'none';
                                             }
+                                            stopElementAnimations(t);
                                         } catch(_) {}
                                     };
                                     document.addEventListener('transitionrun', seizureState.onTransitionRun, true);
+                                    
+                                    // transitionstart - catch transitions early
+                                    seizureState.onTransitionStart = function(e) {
+                                        try {
+                                            const t = e.target;
+                                            if (t && t.style) {
+                                                t.style.transition = 'none';
+                                                t.style.animation = 'none';
+                                            }
+                                            stopElementAnimations(t);
+                                        } catch(_) {}
+                                    };
+                                    document.addEventListener('transitionstart', seizureState.onTransitionStart, true);
+                                    
+                                    // Continuous polling to catch animations that start without events
+                                    if (!seizureState.waapiPollInterval) {
+                                        seizureState.waapiPollInterval = setInterval(function() {
+                                            try {
+                                                const all = (document.getAnimations && document.getAnimations({ subtree: true })) || [];
+                                                all.forEach(stopAnimation);
+                                            } catch(_) {}
+                                        }, 100); // Check every 100ms
+                                    }
+                                    
+                                    // MutationObserver to catch dynamically added elements with animations
+                                    if (!seizureState.waapiMutationObserver) {
+                                        seizureState.waapiMutationObserver = new MutationObserver(function(mutations) {
+                                            mutations.forEach(function(mutation) {
+                                                mutation.addedNodes.forEach(function(node) {
+                                                    if (node.nodeType === 1) { // Element node
+                                                        try {
+                                                            stopElementAnimations(node);
+                                                            // Also check children
+                                                            const children = node.querySelectorAll ? node.querySelectorAll('*') : [];
+                                                            children.forEach(function(child) {
+                                                                stopElementAnimations(child);
+                                                            });
+                                                        } catch(_) {}
+                                                    }
+                                                });
+                                            });
+                                        });
+                                        seizureState.waapiMutationObserver.observe(document.body, {
+                                            childList: true,
+                                            subtree: true
+                                        });
+                                    }
+                                    
                                     seizureState.waapiListenersInstalled = true;
                                 }
                             } else {
@@ -1362,9 +1420,26 @@ const seizureState = {
                                 }
                                 if (seizureState.waapiListenersInstalled) {
                                     try { document.removeEventListener('animationstart', seizureState.onAnimationStart, true); } catch(_) {}
+                                    try { document.removeEventListener('animationiteration', seizureState.onAnimationIteration, true); } catch(_) {}
                                     try { document.removeEventListener('transitionrun', seizureState.onTransitionRun, true); } catch(_) {}
+                                    try { document.removeEventListener('transitionstart', seizureState.onTransitionStart, true); } catch(_) {}
                                     seizureState.onAnimationStart = null;
+                                    seizureState.onAnimationIteration = null;
                                     seizureState.onTransitionRun = null;
+                                    seizureState.onTransitionStart = null;
+                                    
+                                    // Clear polling interval
+                                    if (seizureState.waapiPollInterval) {
+                                        clearInterval(seizureState.waapiPollInterval);
+                                        seizureState.waapiPollInterval = null;
+                                    }
+                                    
+                                    // Disconnect MutationObserver
+                                    if (seizureState.waapiMutationObserver) {
+                                        seizureState.waapiMutationObserver.disconnect();
+                                        seizureState.waapiMutationObserver = null;
+                                    }
+                                    
                                     seizureState.waapiListenersInstalled = false;
                                 }
                             }
@@ -27049,23 +27124,57 @@ class AccessibilityWidget {
         // API Controls: Execute .stop() or .pause() methods on known animation libraries
         stopAnimationLibraries() {
             try {
-                // Stop Lottie animations (but don't destroy them)
-                if (typeof window.lottie !== 'undefined' && window.lottie.getRegisteredAnimations) {
-                    const lottieAnimations = window.lottie.getRegisteredAnimations();
-                    lottieAnimations.forEach(animation => {
-                        try {
-                            if (animation && typeof animation.stop === 'function') {
-                                animation.stop();
-                            }
-                            if (animation && typeof animation.pause === 'function') {
-                                animation.pause();
-                            }
-                            // REMOVED: animation.destroy() - Don't destroy, just stop
-                        } catch (error) {
-                           
+                // Stop Lottie animations - Multiple API detection methods
+                // Method 1: lottie-player web component
+                const lottiePlayers = document.querySelectorAll('lottie-player');
+                lottiePlayers.forEach(player => {
+                    try {
+                        if (player.stop) player.stop();
+                        if (player.pause) player.pause();
+                        if (player.setSpeed) player.setSpeed(0);
+                    } catch (_) {}
+                });
+                
+                // Method 2: bodymovin/lottie library (old API)
+                if (typeof window.lottie !== 'undefined') {
+                    try {
+                        if (window.lottie.getRegisteredAnimations) {
+                            const lottieAnimations = window.lottie.getRegisteredAnimations();
+                            lottieAnimations.forEach(animation => {
+                                try {
+                                    if (animation && typeof animation.stop === 'function') {
+                                        animation.stop();
+                                    }
+                                    if (animation && typeof animation.pause === 'function') {
+                                        animation.pause();
+                                    }
+                                    if (animation && typeof animation.setSpeed === 'function') {
+                                        animation.setSpeed(0);
+                                    }
+                                } catch (_) {}
+                            });
                         }
-                    });
-                  
+                    } catch (_) {}
+                }
+                
+                // Method 3: lottie-web (newer API)
+                if (typeof window.bodymovin !== 'undefined') {
+                    try {
+                        const lottieElements = document.querySelectorAll('[data-lottie], [data-animation], .lottie, .lottie-animation');
+                        lottieElements.forEach(el => {
+                            try {
+                                const animData = el.getAttribute('data-lottie') || el.getAttribute('data-animation');
+                                if (animData && window.bodymovin) {
+                                    // Try to find and stop the animation instance
+                                    if (el._lottie) {
+                                        if (el._lottie.stop) el._lottie.stop();
+                                        if (el._lottie.pause) el._lottie.pause();
+                                        if (el._lottie.setSpeed) el._lottie.setSpeed(0);
+                                    }
+                                }
+                            } catch (_) {}
+                        });
+                    } catch (_) {}
                 }
                 
                 
@@ -27147,61 +27256,21 @@ class AccessibilityWidget {
                     }
                 }
                 
-                // GSAP: Stop all animations including motionPath (orbit), progress bars, and pointer animations
+                // GSAP: Stop ALL animations globally - Most comprehensive approach
                 if (typeof window.gsap !== 'undefined') {
                     try {
-                        // Kill all active GSAP tweens and timelines
+                        // CRITICAL: Kill ALL active tweens globally first
                         if (window.gsap.killTweensOf) {
-                            // Stop motionPath animations (orbit animations) - target elements with motionPath animations
-                            // BUT ensure they remain visible in their final position
-                            const orbitElements = document.querySelectorAll('[class*="orbit"], [class*="dot"], .dot-1a, .dot-1b, .dot-1c, .dot-1d, .dot-2a, .dot-2b, .dot-2c, .dot-2d, .dot-3a, .dot-3b, .dot-3c, .dot-3d');
-                            orbitElements.forEach(el => {
-                                try {
-                                    // Kill the animation but preserve final state
-                                    const currentTransform = window.getComputedStyle(el).transform;
-                                    const currentOpacity = window.getComputedStyle(el).opacity;
-                                    window.gsap.killTweensOf(el);
-                                    // Ensure element remains visible
-                                    el.style.opacity = currentOpacity !== '0' ? '1' : '1';
-                                    el.style.visibility = 'visible';
-                                    el.style.display = '';
-                                    // Preserve final transform position
-                                    if (currentTransform && currentTransform !== 'none' && currentTransform !== 'matrix(1, 0, 0, 1, 0, 0)') {
-                                        el.style.transform = currentTransform;
-                                    }
-                                } catch (_) {}
-                            });
-                            
-                            // Stop progress bar animations
-                            const progressElements = document.querySelectorAll('[class*="progress"], [role="progressbar"], .progress, .slider-progress, .progress-bar');
-                            progressElements.forEach(el => {
-                                try {
-                                    window.gsap.killTweensOf(el);
-                                } catch (_) {}
-                            });
-                            
-                            // Stop pointer animations (click simulation with expanding overlays)
-                            const pointerElements = document.querySelectorAll('.pointer, .color-overlay, .color-overlay-2, [class*="pointer"], [class*="overlay"]');
-                            pointerElements.forEach(el => {
-                                try {
-                                    window.gsap.killTweensOf(el);
-                                } catch (_) {}
-                            });
-                            
-                            // Stop floating image animations
-                            const floatingElements = document.querySelectorAll('.floating-image, [class*="floating"]');
-                            floatingElements.forEach(el => {
-                                try {
-                                    window.gsap.killTweensOf(el);
-                                } catch (_) {}
-                            });
+                            // Kill all tweens on all elements - this is the most effective
+                            window.gsap.killTweensOf('*');
                         }
                         
-                        // Kill all timelines that might contain these animations
-                        if (window.gsap.globals && window.gsap.globals.timeline) {
+                        // Kill all timelines globally
+                        if (window.gsap.utils && window.gsap.utils.toArray) {
                             try {
-                                const timelines = window.gsap.globals.timeline.getAll ? window.gsap.globals.timeline.getAll() : [];
-                                timelines.forEach(tl => {
+                                // Get all timelines and kill them
+                                const allTimelines = window.gsap.getAllTimelines ? window.gsap.getAllTimelines() : [];
+                                allTimelines.forEach(tl => {
                                     try {
                                         if (tl && typeof tl.kill === 'function') {
                                             tl.kill();
@@ -27211,19 +27280,29 @@ class AccessibilityWidget {
                             } catch (_) {}
                         }
                         
-                        // Get all active tweens and kill motionPath-related ones
+                        // Kill all active tweens (alternative method)
                         if (window.gsap.getAllTweens) {
                             try {
                                 const allTweens = window.gsap.getAllTweens();
                                 allTweens.forEach(tween => {
                                     try {
-                                        if (tween && tween.vars && (tween.vars.motionPath || tween.vars.motionPath)) {
+                                        if (tween && typeof tween.kill === 'function') {
                                             tween.kill();
                                         }
                                     } catch (_) {}
                                 });
                             } catch (_) {}
                         }
+                        
+                        // Also kill specific element types to be thorough
+                        const animatedElements = document.querySelectorAll('[class*="animate"], [class*="fade"], [class*="slide"], [class*="bounce"], [class*="pulse"], [class*="orbit"], [class*="dot"], [class*="floating"], [class*="progress"]');
+                        animatedElements.forEach(el => {
+                            try {
+                                if (window.gsap.killTweensOf) {
+                                    window.gsap.killTweensOf(el);
+                                }
+                            } catch (_) {}
+                        });
                     } catch (error) {
                         // Silent fail
                     }
@@ -29676,38 +29755,27 @@ class AccessibilityWidget {
             style.id = 'accessibility-seizure-safe-grey-overlay';
             style.textContent = `
                 /* APPLY GREYISH COLOR FILTER - Reduce color intensity to prevent seizures */
-                /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
-                /* Filters create stacking contexts that break sticky positioning - so we avoid them on nav ancestors */
-                body.seizure-safe main img,
-                body.seizure-safe main video,
-                body.seizure-safe main picture,
-                body.seizure-safe main canvas,
-                body.seizure-safe main svg,
-                body.seizure-safe section img,
-                body.seizure-safe section video,
-                body.seizure-safe section picture,
-                body.seizure-safe section canvas,
-                body.seizure-safe section svg,
-                body.seizure-safe article img,
-                body.seizure-safe article video,
-                body.seizure-safe article picture,
-                body.seizure-safe article canvas,
-                body.seizure-safe article svg,
-                html.seizure-safe main img,
-                html.seizure-safe main video,
-                html.seizure-safe main picture,
-                html.seizure-safe main canvas,
-                html.seizure-safe main svg,
-                html.seizure-safe section img,
-                html.seizure-safe section video,
-                html.seizure-safe section picture,
-                html.seizure-safe section canvas,
-                html.seizure-safe section svg,
-                html.seizure-safe article img,
-                html.seizure-safe article video,
-                html.seizure-safe article picture,
-                html.seizure-safe article canvas,
-                html.seizure-safe article svg {
+                /* CRITICAL: Apply filters to content containers, NOT to body/html, to preserve sticky nav */
+                /* Filters create stacking contexts that break sticky positioning - so we avoid them on body/html */
+                /* Apply to main content areas and their children to get the grey muted color effect throughout the page */
+                body.seizure-safe main,
+                body.seizure-safe main *,
+                body.seizure-safe section,
+                body.seizure-safe section *,
+                body.seizure-safe article,
+                body.seizure-safe article *,
+                body.seizure-safe div:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]),
+                body.seizure-safe p:not(nav p):not(header p),
+                body.seizure-safe span:not(nav span):not(header span),
+                html.seizure-safe main,
+                html.seizure-safe main *,
+                html.seizure-safe section,
+                html.seizure-safe section *,
+                html.seizure-safe article,
+                html.seizure-safe article *,
+                html.seizure-safe div:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]),
+                html.seizure-safe p:not(nav p):not(header p),
+                html.seizure-safe span:not(nav span):not(header span) {
                     filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                     -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
                 }
