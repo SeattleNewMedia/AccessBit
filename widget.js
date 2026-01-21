@@ -25786,7 +25786,7 @@ class AccessibilityWidget {
             this.stopJavaScriptAnimations();
 
             // Stop Webflow interactions / data-w-id transforms and hovers
-            this.stopWebflowInteractions();
+            try { this.stopWebflowInteractions && this.stopWebflowInteractions(); } catch (_) {}
         }
         
         // 1. CSS Injection: Stop all CSS animations, transitions, and blinking text
@@ -27105,7 +27105,7 @@ class AccessibilityWidget {
                     const wfLotties = document.querySelectorAll('[data-animation-type="lottie"], [data-w-id][data-animation-type="lottie"]');
                     wfLotties.forEach(el => {
                         try {
-                            const inst = el.lottie || el._lottie || el.__lottie;
+                            const inst = el.lottie || el._lottie || el.__lottie || el.lottieAnimation || el.__wfLottie;
                             if (inst) {
                                 if (inst.setSpeed) inst.setSpeed(0);
                                 if (inst.stop) inst.stop();
@@ -27135,12 +27135,48 @@ class AccessibilityWidget {
                             if (cs.transform && cs.transform !== 'none') {
                                 el.style.transform = 'none';
                             }
+                            if (cs.opacity !== '1') {
+                                el.style.opacity = '1';
+                            }
                         } catch (_) {}
                     });
                 } catch (_) {}
             } catch (error) {
                
             }
+        }
+
+        // Webflow interactions stopper (IX2 + data-w-id fallback)
+        stopWebflowInteractions() {
+            // IX2 official API stop
+            try {
+                if (window.Webflow && typeof window.Webflow.require === 'function') {
+                    const ix2 = window.Webflow.require('ix2');
+                    if (ix2) {
+                        if (typeof ix2.stop === 'function') ix2.stop();
+                        // destroy is heavier; call if available to fully halt interactions
+                        if (typeof ix2.destroy === 'function') ix2.destroy();
+                    }
+                }
+            } catch (_) {}
+
+            // Fallback: neutralize data-w-id elements
+            try {
+                const wfElems = document.querySelectorAll('[data-w-id]');
+                wfElems.forEach(el => {
+                    try {
+                        el.style.transition = 'none';
+                        el.style.animation = 'none';
+                        const cs = window.getComputedStyle(el);
+                        if (cs.transform && cs.transform !== 'none') {
+                            el.style.transform = 'none';
+                        }
+                        if (cs.opacity !== '1') {
+                            el.style.opacity = '1';
+                        }
+                    } catch (_) {}
+                });
+            } catch (_) {}
         }
         
         // Start continuous polling for Lottie and GSAP animations
@@ -28253,7 +28289,7 @@ class AccessibilityWidget {
             this.stopAutoplayMedia();
             this.stopJavaScriptAnimations();
             // 6) Stop Webflow interactions / data-w-id transforms and hovers
-            this.stopWebflowInteractions();
+            try { this.stopWebflowInteractions && this.stopWebflowInteractions(); } catch (_) {}
         }
     
     
