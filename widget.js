@@ -25780,6 +25780,13 @@ class AccessibilityWidget {
             // Library APIs + polling (official APIs only)
             this.stopAnimationLibraries();
             this.startLottieGSAPPolling();
+
+            // Stop autoplay media and JS-driven sliders (e.g., Swiper/Webflow)
+            this.stopAutoplayMedia();
+            this.stopJavaScriptAnimations();
+
+            // Stop Webflow interactions / data-w-id transforms and hovers
+            this.stopWebflowInteractions();
         }
         
         // 1. CSS Injection: Stop all CSS animations, transitions, and blinking text
@@ -25817,6 +25824,31 @@ class AccessibilityWidget {
                     animation: none !important;
                     visibility: visible !important;
                     opacity: 1 !important;
+                }
+
+                /* Stop Webflow interactions (data-w-id) */
+                html.stop-animation [data-w-id],
+                body.stop-animation [data-w-id],
+                .stop-animation [data-w-id] {
+                    animation: none !important;
+                    transition: none !important;
+                    transform: none !important;
+                    opacity: 1 !important;
+                }
+
+                /* Stop hover-driven transforms on buttons/links */
+                html.stop-animation a, html.stop-animation button, html.stop-animation [role="button"],
+                body.stop-animation a, body.stop-animation button, body.stop-animation [role="button"],
+                .stop-animation a, .stop-animation button, .stop-animation [role="button"] {
+                    transition: none !important;
+                    transform: none !important;
+                }
+
+                html.stop-animation a:hover, html.stop-animation button:hover, html.stop-animation [role="button"]:hover,
+                body.stop-animation a:hover, body.stop-animation button:hover, body.stop-animation [role="button"]:hover,
+                .stop-animation a:hover, .stop-animation button:hover, .stop-animation [role="button"]:hover {
+                    transition: none !important;
+                    transform: none !important;
                 }
             `;
             document.head.appendChild(style);
@@ -27057,6 +27089,55 @@ class AccessibilityWidget {
                         }
                     } catch (_) {}
                 }
+
+                // Webflow IX2 (official require API)
+                try {
+                    if (window.Webflow && typeof window.Webflow.require === 'function') {
+                        const ix2 = window.Webflow.require('ix2');
+                        if (ix2 && typeof ix2.stop === 'function') {
+                            ix2.stop();
+                        }
+                    }
+                } catch (_) {}
+
+                // Webflow Lottie embeds (generic, no hardcoding)
+                try {
+                    const wfLotties = document.querySelectorAll('[data-animation-type="lottie"], [data-w-id][data-animation-type="lottie"]');
+                    wfLotties.forEach(el => {
+                        try {
+                            const inst = el.lottie || el._lottie || el.__lottie;
+                            if (inst) {
+                                if (inst.setSpeed) inst.setSpeed(0);
+                                if (inst.stop) inst.stop();
+                                if (inst.pause) inst.pause();
+                                if (inst.goToAndStop) inst.goToAndStop(0, true);
+                                if (inst.autoplay !== undefined) inst.autoplay = false;
+                                if (inst.loop !== undefined) inst.loop = false;
+                            }
+                            // Fallback: pause inner svg/canvas
+                            const svg = el.querySelector('svg, canvas');
+                            if (svg) {
+                                svg.style.animation = 'none';
+                                svg.style.transition = 'none';
+                            }
+                        } catch (_) {}
+                    });
+                } catch (_) {}
+
+                // Webflow interactions: stop transforms/animations on data-w-id elements (finish to final)
+                try {
+                    const wfElems = document.querySelectorAll('[data-w-id]');
+                    wfElems.forEach(el => {
+                        try {
+                            el.style.transition = 'none';
+                            el.style.animation = 'none';
+                            const cs = window.getComputedStyle(el);
+                            if (cs.transform && cs.transform !== 'none') {
+                                el.style.transform = 'none';
+                            }
+                        } catch (_) {}
+                    });
+                } catch (_) {}
             } catch (error) {
                
             }
@@ -28168,6 +28249,11 @@ class AccessibilityWidget {
             // 4) Library APIs + polling
             this.stopAnimationLibraries();
             this.startLottieGSAPPolling();
+            // 5) Stop autoplay media and JS-driven sliders
+            this.stopAutoplayMedia();
+            this.stopJavaScriptAnimations();
+            // 6) Stop Webflow interactions / data-w-id transforms and hovers
+            this.stopWebflowInteractions();
         }
     
     
@@ -29699,6 +29785,25 @@ class AccessibilityWidget {
                         visibility: visible !important;
                         opacity: 1 !important;
                     }
+
+                /* Stop Webflow interactions (data-w-id) */
+                .seizure-safe [data-w-id] {
+                    animation: none !important;
+                    transition: none !important;
+                    transform: none !important;
+                    opacity: 1 !important;
+                }
+
+                /* Stop hover-driven transforms on buttons/links */
+                .seizure-safe a, .seizure-safe button, .seizure-safe [role="button"] {
+                    transition: none !important;
+                    transform: none !important;
+                }
+
+                .seizure-safe a:hover, .seizure-safe button:hover, .seizure-safe [role="button"]:hover {
+                    transition: none !important;
+                    transform: none !important;
+                }
                 `;
                 document.head.appendChild(style);
             }
