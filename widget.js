@@ -1319,7 +1319,15 @@ const seizureState = {
                                                     currentTime: anim.currentTime || 0 
                                                 });
                                             }
-                                            if (typeof anim.pause === 'function') try { anim.pause(); } catch(_) {}
+                                            // Stop/finish WAAPI animation to avoid mid-state
+                                            if (typeof anim.pause === 'function') { try { anim.pause(); } catch(_) {} }
+                                            if (typeof anim.finish === 'function') { try { anim.finish(); } catch(_) {} }
+                                            else if (anim.effect && anim.effect.getComputedTiming) {
+                                                try {
+                                                    const end = anim.effect.getComputedTiming().endTime;
+                                                    if (end != null) anim.currentTime = end;
+                                                } catch(_) {}
+                                            }
                                             try { anim.playbackRate = 0; } catch(_) {}
                                         } catch(_) {}
                                     };
@@ -27055,13 +27063,19 @@ class AccessibilityWidget {
                         if (window.gsap.getAllTimelines) {
                             const allTimelines = window.gsap.getAllTimelines();
                             allTimelines.forEach(tl => {
-                                try { tl && tl.kill && tl.kill(); } catch (_) {}
+                                try {
+                                    if (tl && tl.totalProgress) { tl.totalProgress(1); }
+                                    tl && tl.kill && tl.kill();
+                                } catch (_) {}
                             });
                         }
                         if (window.gsap.getAllTweens) {
                             const allTweens = window.gsap.getAllTweens();
                             allTweens.forEach(tween => {
-                                try { tween && tween.kill && tween.kill(); } catch (_) {}
+                                try {
+                                    if (tween && tween.totalProgress) { tween.totalProgress(1); }
+                                    tween && tween.kill && tween.kill();
+                                } catch (_) {}
                             });
                         }
                     } catch (_) {}
@@ -27185,6 +27199,7 @@ class AccessibilityWidget {
                                 const allTimelines = window.gsap.getAllTimelines();
                                 allTimelines.forEach(tl => {
                                     try {
+                                        if (tl && tl.totalProgress) { tl.totalProgress(1); }
                                         if (tl && typeof tl.kill === 'function') {
                                             tl.kill();
                                         }
@@ -27197,6 +27212,7 @@ class AccessibilityWidget {
                                 const allTweens = window.gsap.getAllTweens();
                                 allTweens.forEach(tween => {
                                     try {
+                                        if (tween && tween.totalProgress) { tween.totalProgress(1); }
                                         if (tween && typeof tween.kill === 'function') {
                                             tween.kill();
                                         }
