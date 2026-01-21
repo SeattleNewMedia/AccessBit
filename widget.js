@@ -25764,69 +25764,62 @@ class AccessibilityWidget {
     
         // Stop Animation Methods
     
+        // --- STOP ANIMATION (photosensitive: no visual overlay) ---
         enableStopAnimation() {
-    
             document.body.classList.add('stop-animation');
             document.documentElement.classList.add('stop-animation');
             this.settings['stop-animation'] = true;
             this.saveSettings();
             
-            // 1) CSS kill switch (no global overrides)
+            // CSS kill switch (no global overrides)
             this.injectStopAnimationCSS();
 
-            // 2) WAAPI pause/cancel running animations (Webflow-approved, no prototype hijack)
-            try {
-                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
-                    window.seizureState.applyWAAPIStopMotion(true);
-                }
-            } catch (_) {}
+            // WAAPI pause/cancel running animations (allowed)
+            try { window.seizureState?.applyWAAPIStopMotion?.(true); } catch (_) {}
             
-            // 3) Library APIs (official) + polling for late-starting animations
+            // Library APIs + polling (official APIs only)
             this.stopAnimationLibraries();
             this.startLottieGSAPPolling();
         }
         
         // 1. CSS Injection: Stop all CSS animations, transitions, and blinking text
         injectStopAnimationCSS() {
-            if (!document.getElementById('stop-animation-css')) {
-                const style = document.createElement('style');
-                style.id = 'stop-animation-css';
-                style.textContent = `
-                    /* Prefers-reduced-motion default */
-                    @media (prefers-reduced-motion: reduce) {
-                        *, *::before, *::after {
-                            animation: none !important;
-                            transition: none !important;
-                            scroll-behavior: auto !important;
-                        }
-                    }
-
-                    /* Stop-animation toggle */
-                    html.stop-animation *, html.stop-animation *::before, html.stop-animation *::after,
-                    body.stop-animation *, body.stop-animation *::before, body.stop-animation *::after,
-                    .stop-animation *, .stop-animation *::before, .stop-animation *::after {
+            if (document.getElementById('stop-animation-css')) return;
+            const style = document.createElement('style');
+            style.id = 'stop-animation-css';
+            style.textContent = `
+                /* Respect user/system reduce motion */
+                @media (prefers-reduced-motion: reduce) {
+                    *, *::before, *::after {
                         animation: none !important;
                         transition: none !important;
                         scroll-behavior: auto !important;
-                        animation-play-state: paused !important;
                     }
-
-                    /* Remove common flash triggers */
-                    html.stop-animation *[class*="blink"], html.stop-animation *[class*="shimmer"], 
-                    html.stop-animation *[class*="pulse"], html.stop-animation *[class*="caret"], 
-                    html.stop-animation *[class*="cursor-blink"], html.stop-animation *[class*="skeleton"],
-                    html.stop-animation *[class*="pulsing"], html.stop-animation *[class*="flashing"],
-                    body.stop-animation *[class*="blink"], body.stop-animation *[class*="shimmer"], 
-                    body.stop-animation *[class*="pulse"], body.stop-animation *[class*="caret"], 
-                    body.stop-animation *[class*="cursor-blink"], body.stop-animation *[class*="skeleton"],
-                    body.stop-animation *[class*="pulsing"], body.stop-animation *[class*="flashing"] {
-                        animation: none !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
+                }
+                /* Explicit stop-animation toggle */
+                html.stop-animation *, html.stop-animation *::before, html.stop-animation *::after,
+                body.stop-animation *, body.stop-animation *::before, body.stop-animation *::after,
+                .stop-animation *, .stop-animation *::before, .stop-animation *::after {
+                    animation: none !important;
+                    transition: none !important;
+                    scroll-behavior: auto !important;
+                    animation-play-state: paused !important;
+                }
+                /* Remove common flash triggers */
+                html.stop-animation *[class*="blink"], html.stop-animation *[class*="shimmer"], 
+                html.stop-animation *[class*="pulse"], html.stop-animation *[class*="caret"], 
+                html.stop-animation *[class*="cursor-blink"], html.stop-animation *[class*="skeleton"],
+                html.stop-animation *[class*="pulsing"], html.stop-animation *[class*="flashing"],
+                body.stop-animation *[class*="blink"], body.stop-animation *[class*="shimmer"], 
+                body.stop-animation *[class*="pulse"], body.stop-animation *[class*="caret"], 
+                body.stop-animation *[class*="cursor-blink"], body.stop-animation *[class*="skeleton"],
+                body.stop-animation *[class*="pulsing"], body.stop-animation *[class*="flashing"] {
+                    animation: none !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                }
+            `;
+            document.head.appendChild(style);
         }
         
         
@@ -26051,30 +26044,14 @@ class AccessibilityWidget {
         }
         
         disableStopAnimation() {
-   
-            // 1. Remove CSS rules for stop animation FIRST
             const existingStyle = document.getElementById('stop-animation-css');
-            if (existingStyle) {
-                existingStyle.remove();
-            }
-            
-            // 2. Remove stop-animation class from body and html
+            if (existingStyle) existingStyle.remove();
             document.body.classList.remove('stop-animation');
             document.documentElement.classList.remove('stop-animation');
-            
-            // 3. Stop continuous polling for Lottie and GSAP
             this.stopLottieGSAPPolling();
-            
-            // 4. Restore WAAPI animations
-            try {
-                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
-                    window.seizureState.applyWAAPIStopMotion(false);
-                }
-            } catch (_) {}
-            
+            try { window.seizureState?.applyWAAPIStopMotion?.(false); } catch (_) {}
             this.settings['stop-animation'] = false;
             this.saveSettings();
-        
         }
         
        
@@ -28173,38 +28150,22 @@ class AccessibilityWidget {
     
         enableSeizureSafe(immediate = false) {
             // Disable other mutually exclusive features
-            if (this.settings['vision-impaired']) {
-                this.disableVisionImpaired();
-                this.updateToggleSwitch('vision-impaired', false);
-            }
-            if (this.settings['adhd-friendly']) {
-                this.disableADHDFriendly();
-                this.updateToggleSwitch('adhd-friendly', false);
-            }
-            if (this.settings['cognitive-disability']) {
-                this.disableCognitiveDisability();
-                this.updateToggleSwitch('cognitive-disability', false);
-            }
+            if (this.settings['vision-impaired']) { this.disableVisionImpaired(); this.updateToggleSwitch('vision-impaired', false); }
+            if (this.settings['adhd-friendly']) { this.disableADHDFriendly(); this.updateToggleSwitch('adhd-friendly', false); }
+            if (this.settings['cognitive-disability']) { this.disableCognitiveDisability(); this.updateToggleSwitch('cognitive-disability', false); }
             
             this.settings['seizure-safe'] = true;
             document.body.classList.add('seizure-safe');
             try { document.documentElement.classList.add('seizure-safe'); } catch (_) {}
             this.saveSettings();
             
-            // 1) Grey overlay (light) for seizure-safe
+            // 1) Grey overlay (light, non-sticky-breaking)
             this.addSeizureSafeGreyOverlay();
-
-            // 2) CSS kill switch for animations
+            // 2) CSS kill switch
             this.injectSeizureSafeAnimationCSS();
-            
-            // 3) WAAPI pause/cancel running animations (Webflow-approved)
-            try {
-                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
-                    window.seizureState.applyWAAPIStopMotion(true);
-                }
-            } catch (_) {}
-            
-            // 4) Library APIs (official) + polling for late-starting animations
+            // 3) WAAPI pause/cancel running animations (no globals)
+            try { window.seizureState?.applyWAAPIStopMotion?.(true); } catch (_) {}
+            // 4) Library APIs + polling
             this.stopAnimationLibraries();
             this.startLottieGSAPPolling();
         }
