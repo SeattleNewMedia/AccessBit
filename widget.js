@@ -140,8 +140,8 @@
                 html.seizure-safe div:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]),
                 html.seizure-safe p:not(nav p):not(header p),
                 html.seizure-safe span:not(nav span):not(header span) {
-                    filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
-                    -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
+                    filter: grayscale(15%) contrast(0.95) brightness(0.98) !important;
+                    -webkit-filter: grayscale(15%) contrast(0.95) brightness(0.98) !important;
                 }
                 
                 /* Per Webflow Security recommendations: Global CSS kill switch for seizure-safe mode */
@@ -1388,10 +1388,74 @@ const seizureState = {
                                                     if (node.nodeType === 1) { // Element node
                                                         try {
                                                             stopElementAnimations(node);
+                                                            
+                                                            // Also stop Lottie animations on new elements
+                                                            if (node.tagName === 'LOTTIE-PLAYER' || node.classList.contains('lottie') || node.classList.contains('lottie-animation') || node.hasAttribute('data-lottie') || node.hasAttribute('data-animation')) {
+                                                                try {
+                                                                    if (node.stop) node.stop();
+                                                                    if (node.pause) node.pause();
+                                                                    if (node.setSpeed) node.setSpeed(0);
+                                                                } catch(_) {}
+                                                                try {
+                                                                    if (node._lottie) {
+                                                                        if (node._lottie.stop) node._lottie.stop();
+                                                                        if (node._lottie.pause) node._lottie.pause();
+                                                                        if (node._lottie.setSpeed) node._lottie.setSpeed(0);
+                                                                    }
+                                                                    if (node.lottie) {
+                                                                        if (node.lottie.stop) node.lottie.stop();
+                                                                        if (node.lottie.pause) node.lottie.pause();
+                                                                        if (node.lottie.setSpeed) node.lottie.setSpeed(0);
+                                                                    }
+                                                                } catch(_) {}
+                                                            }
+                                                            
+                                                            // Also stop GSAP animations on new elements
+                                                            if (typeof window.gsap !== 'undefined' && window.gsap.killTweensOf) {
+                                                                try {
+                                                                    window.gsap.killTweensOf(node);
+                                                                    // Also check children for GSAP animations
+                                                                    const children = node.querySelectorAll ? node.querySelectorAll('*') : [];
+                                                                    children.forEach(function(child) {
+                                                                        try {
+                                                                            window.gsap.killTweensOf(child);
+                                                                        } catch(_) {}
+                                                                    });
+                                                                } catch(_) {}
+                                                            }
+                                                            
                                                             // Also check children
                                                             const children = node.querySelectorAll ? node.querySelectorAll('*') : [];
                                                             children.forEach(function(child) {
                                                                 stopElementAnimations(child);
+                                                                
+                                                                // Stop Lottie on children
+                                                                if (child.tagName === 'LOTTIE-PLAYER' || child.classList.contains('lottie') || child.classList.contains('lottie-animation') || child.hasAttribute('data-lottie') || child.hasAttribute('data-animation')) {
+                                                                    try {
+                                                                        if (child.stop) child.stop();
+                                                                        if (child.pause) child.pause();
+                                                                        if (child.setSpeed) child.setSpeed(0);
+                                                                    } catch(_) {}
+                                                                    try {
+                                                                        if (child._lottie) {
+                                                                            if (child._lottie.stop) child._lottie.stop();
+                                                                            if (child._lottie.pause) child._lottie.pause();
+                                                                            if (child._lottie.setSpeed) child._lottie.setSpeed(0);
+                                                                        }
+                                                                        if (child.lottie) {
+                                                                            if (child.lottie.stop) child.lottie.stop();
+                                                                            if (child.lottie.pause) child.lottie.pause();
+                                                                            if (child.lottie.setSpeed) child.lottie.setSpeed(0);
+                                                                        }
+                                                                    } catch(_) {}
+                                                                }
+                                                                
+                                                                // Stop GSAP on children
+                                                                if (typeof window.gsap !== 'undefined' && window.gsap.killTweensOf) {
+                                                                    try {
+                                                                        window.gsap.killTweensOf(child);
+                                                                    } catch(_) {}
+                                                                }
                                                             });
                                                         } catch(_) {}
                                                     }
@@ -25704,8 +25768,18 @@ class AccessibilityWidget {
             
             // SECURITY FIX: Removed requestAnimationFrame override - use CSS-only animation blocking
             
+            // 2. Use WAAPI to pause/cancel running animations (Webflow-approved method)
+            try {
+                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
+                    window.seizureState.applyWAAPIStopMotion(true);
+                }
+            } catch (_) {}
+            
             // 3. API Controls: Execute .stop() or .pause() methods on known animation libraries
             this.stopAnimationLibraries();
+            
+            // 3a. Start continuous polling for Lottie and GSAP animations (catch animations that start later)
+            this.startLottieGSAPPolling();
             
             // 4. Media Replacement: Pause autoplay videos and replace animated GIFs with static placeholders
             this.replaceAnimatedMedia();
@@ -26094,13 +26168,23 @@ class AccessibilityWidget {
             document.body.classList.remove('stop-animation');
             document.documentElement.classList.remove('stop-animation');
             
-            // 3. Force browser reflow to ensure CSS changes take effect
+            // 3. Stop continuous polling for Lottie and GSAP
+            this.stopLottieGSAPPolling();
+            
+            // 4. Restore WAAPI animations
+            try {
+                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
+                    window.seizureState.applyWAAPIStopMotion(false);
+                }
+            } catch (_) {}
+            
+            // 5. Force browser reflow to ensure CSS changes take effect
             // This is critical for animations to resume after !important rules are removed
             void document.body.offsetHeight;
             
            
             
-            // 5. Restore setTimeout and setInterval
+            // 6. Restore setTimeout and setInterval
             this.restoreDOMAnimationLoops();
             
             // 6. Restore animated media
@@ -27124,58 +27208,8 @@ class AccessibilityWidget {
         // API Controls: Execute .stop() or .pause() methods on known animation libraries
         stopAnimationLibraries() {
             try {
-                // Stop Lottie animations - Multiple API detection methods
-                // Method 1: lottie-player web component
-                const lottiePlayers = document.querySelectorAll('lottie-player');
-                lottiePlayers.forEach(player => {
-                    try {
-                        if (player.stop) player.stop();
-                        if (player.pause) player.pause();
-                        if (player.setSpeed) player.setSpeed(0);
-                    } catch (_) {}
-                });
-                
-                // Method 2: bodymovin/lottie library (old API)
-                if (typeof window.lottie !== 'undefined') {
-                    try {
-                        if (window.lottie.getRegisteredAnimations) {
-                            const lottieAnimations = window.lottie.getRegisteredAnimations();
-                            lottieAnimations.forEach(animation => {
-                                try {
-                                    if (animation && typeof animation.stop === 'function') {
-                                        animation.stop();
-                                    }
-                                    if (animation && typeof animation.pause === 'function') {
-                                        animation.pause();
-                                    }
-                                    if (animation && typeof animation.setSpeed === 'function') {
-                                        animation.setSpeed(0);
-                                    }
-                                } catch (_) {}
-                            });
-                        }
-                    } catch (_) {}
-                }
-                
-                // Method 3: lottie-web (newer API)
-                if (typeof window.bodymovin !== 'undefined') {
-                    try {
-                        const lottieElements = document.querySelectorAll('[data-lottie], [data-animation], .lottie, .lottie-animation');
-                        lottieElements.forEach(el => {
-                            try {
-                                const animData = el.getAttribute('data-lottie') || el.getAttribute('data-animation');
-                                if (animData && window.bodymovin) {
-                                    // Try to find and stop the animation instance
-                                    if (el._lottie) {
-                                        if (el._lottie.stop) el._lottie.stop();
-                                        if (el._lottie.pause) el._lottie.pause();
-                                        if (el._lottie.setSpeed) el._lottie.setSpeed(0);
-                                    }
-                                }
-                            } catch (_) {}
-                        });
-                    } catch (_) {}
-                }
+                // Stop Lottie animations - Use comprehensive method
+                this.stopAllLottieAnimations();
                 
                 
                 // Three.js: Stop animations if present
@@ -27312,6 +27346,115 @@ class AccessibilityWidget {
                 
             } catch (error) {
                
+            }
+        }
+        
+        // Start continuous polling for Lottie and GSAP animations
+        // This catches animations that start AFTER seizure mode is enabled
+        startLottieGSAPPolling() {
+            // Clear any existing intervals first
+            this.stopLottieGSAPPolling();
+            
+            // Poll for Lottie animations every 100ms
+            if (!this.lottiePollInterval) {
+                this.lottiePollInterval = setInterval(() => {
+                    try {
+                        // Method 1: lottie-player web component
+                        const lottiePlayers = document.querySelectorAll('lottie-player');
+                        lottiePlayers.forEach(player => {
+                            try {
+                                if (player.stop) player.stop();
+                                if (player.pause) player.pause();
+                                if (player.setSpeed) player.setSpeed(0);
+                            } catch (_) {}
+                        });
+                        
+                        // Method 2: bodymovin/lottie library
+                        if (typeof window.lottie !== 'undefined' && window.lottie.getRegisteredAnimations) {
+                            const lottieAnimations = window.lottie.getRegisteredAnimations();
+                            lottieAnimations.forEach(animation => {
+                                try {
+                                    if (animation && typeof animation.stop === 'function') {
+                                        animation.stop();
+                                    }
+                                    if (animation && typeof animation.pause === 'function') {
+                                        animation.pause();
+                                    }
+                                    if (animation && typeof animation.setSpeed === 'function') {
+                                        animation.setSpeed(0);
+                                    }
+                                } catch (_) {}
+                            });
+                        }
+                        
+                        // Method 3: lottie-web (newer API) - check element instances
+                        const lottieElements = document.querySelectorAll('[data-lottie], [data-animation], .lottie, .lottie-animation');
+                        lottieElements.forEach(el => {
+                            try {
+                                if (el._lottie) {
+                                    if (el._lottie.stop) el._lottie.stop();
+                                    if (el._lottie.pause) el._lottie.pause();
+                                    if (el._lottie.setSpeed) el._lottie.setSpeed(0);
+                                }
+                                if (el.lottie) {
+                                    if (el.lottie.stop) el.lottie.stop();
+                                    if (el.lottie.pause) el.lottie.pause();
+                                    if (el.lottie.setSpeed) el.lottie.setSpeed(0);
+                                }
+                            } catch (_) {}
+                        });
+                    } catch (_) {}
+                }, 100); // Check every 100ms
+            }
+            
+            // Poll for GSAP animations every 100ms
+            if (!this.gsapPollInterval) {
+                this.gsapPollInterval = setInterval(() => {
+                    try {
+                        if (typeof window.gsap !== 'undefined') {
+                            // Kill all active tweens globally
+                            if (window.gsap.killTweensOf) {
+                                window.gsap.killTweensOf('*');
+                            }
+                            
+                            // Kill all timelines
+                            if (window.gsap.getAllTimelines) {
+                                const allTimelines = window.gsap.getAllTimelines();
+                                allTimelines.forEach(tl => {
+                                    try {
+                                        if (tl && typeof tl.kill === 'function') {
+                                            tl.kill();
+                                        }
+                                    } catch (_) {}
+                                });
+                            }
+                            
+                            // Kill all active tweens (alternative method)
+                            if (window.gsap.getAllTweens) {
+                                const allTweens = window.gsap.getAllTweens();
+                                allTweens.forEach(tween => {
+                                    try {
+                                        if (tween && typeof tween.kill === 'function') {
+                                            tween.kill();
+                                        }
+                                    } catch (_) {}
+                                });
+                            }
+                        }
+                    } catch (_) {}
+                }, 100); // Check every 100ms
+            }
+        }
+        
+        // Stop continuous polling for Lottie and GSAP animations
+        stopLottieGSAPPolling() {
+            if (this.lottiePollInterval) {
+                clearInterval(this.lottiePollInterval);
+                this.lottiePollInterval = null;
+            }
+            if (this.gsapPollInterval) {
+                clearInterval(this.gsapPollInterval);
+                this.gsapPollInterval = null;
             }
         }
         
@@ -28278,8 +28421,18 @@ class AccessibilityWidget {
             
             // SECURITY FIX: Removed requestAnimationFrame override - use CSS-only animation blocking
             
+            // 2. Use WAAPI to pause/cancel running animations (Webflow-approved method)
+            try {
+                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
+                    window.seizureState.applyWAAPIStopMotion(true);
+                }
+            } catch (_) {}
+            
             // 3. API Controls: Execute .stop() or .pause() methods on known animation libraries
             this.stopAnimationLibraries();
+            
+            // 3a. Start continuous polling for Lottie and GSAP animations (catch animations that start later)
+            this.startLottieGSAPPolling();
 
             // 3b. Force animations/text to final visible state
             this.forceAllAnimationsToFinalVisibleState();
@@ -28352,11 +28505,21 @@ class AccessibilityWidget {
             this.safeBodyClassToggle('seizure-safe', false);
             document.documentElement.classList.remove('seizure-safe');
             
-            // 5. Force browser reflow to ensure CSS changes take effect
+            // 5. Stop continuous polling for Lottie and GSAP
+            this.stopLottieGSAPPolling();
+            
+            // 6. Restore WAAPI animations
+            try {
+                if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
+                    window.seizureState.applyWAAPIStopMotion(false);
+                }
+            } catch (_) {}
+            
+            // 7. Force browser reflow to ensure CSS changes take effect
             void document.body.offsetHeight;
             
             
-            // 7. Restore setTimeout and setInterval
+            // 8. Restore setTimeout and setInterval
             if (typeof this.restoreDOMAnimationLoops === 'function') {
                 try {
                     this.restoreDOMAnimationLoops();
@@ -28413,10 +28576,13 @@ class AccessibilityWidget {
             this.settings['seizure-safe'] = false;
             this.saveSettings();
             
-            // 11. Update widget appearance to sync Shadow DOM host classes
+            // 11. Stop continuous polling for Lottie and GSAP
+            this.stopLottieGSAPPolling();
+            
+            // 12. Update widget appearance to sync Shadow DOM host classes
             this.updateWidgetAppearance();
             
-            // 12. Refresh the page to ensure all animations resume properly
+            // 13. Refresh the page to ensure all animations resume properly
             setTimeout(() => {
                 window.location.reload();
             }, 100);
@@ -29776,8 +29942,8 @@ class AccessibilityWidget {
                 html.seizure-safe div:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]):not([class*="navbar"]),
                 html.seizure-safe p:not(nav p):not(header p),
                 html.seizure-safe span:not(nav span):not(header span) {
-                    filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
-                    -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
+                    filter: grayscale(15%) contrast(0.95) brightness(0.98) !important;
+                    -webkit-filter: grayscale(15%) contrast(0.95) brightness(0.98) !important;
                 }
                 
                 /* Exclude widget container and all its contents from color filter */
@@ -29877,8 +30043,8 @@ class AccessibilityWidget {
                 /* 0. APPLY GREYISH COLOR FILTER - Reduce color intensity to prevent seizures */
                 body.seizure-safe,
                 html.seizure-safe {
-                    filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
-                    -webkit-filter: grayscale(30%) contrast(0.9) brightness(0.95) !important;
+                    filter: grayscale(15%) contrast(0.95) brightness(0.98) !important;
+                    -webkit-filter: grayscale(15%) contrast(0.95) brightness(0.98) !important;
                 }
                 
                 /* Exclude widget container and all its contents from color filter */
