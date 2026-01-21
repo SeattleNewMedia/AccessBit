@@ -27359,50 +27359,91 @@ class AccessibilityWidget {
             if (!this.lottiePollInterval) {
                 this.lottiePollInterval = setInterval(() => {
                     try {
-                        // Method 1: lottie-player web component
+                        // Method 1: lottie-player web component - Use official API methods
                         const lottiePlayers = document.querySelectorAll('lottie-player');
                         lottiePlayers.forEach(player => {
                             try {
-                                if (player.stop) player.stop();
-                                if (player.pause) player.pause();
-                                if (player.setSpeed) player.setSpeed(0);
+                                // Use lottie-player's official API methods in correct order
+                                if (typeof player.setSpeed === 'function') {
+                                    player.setSpeed(0);
+                                }
+                                if (typeof player.stop === 'function') {
+                                    player.stop();
+                                }
+                                if (typeof player.pause === 'function') {
+                                    player.pause();
+                                }
+                                if (typeof player.seek === 'function') {
+                                    player.seek(0);
+                                }
+                                if (typeof player.setMode === 'function') {
+                                    player.setMode('normal');
+                                }
+                                player.setAttribute('autoplay', 'false');
+                                player.removeAttribute('loop');
                             } catch (_) {}
                         });
                         
-                        // Method 2: bodymovin/lottie library
+                        // Method 2: bodymovin/lottie library - Use official API methods
                         if (typeof window.lottie !== 'undefined' && window.lottie.getRegisteredAnimations) {
                             const lottieAnimations = window.lottie.getRegisteredAnimations();
                             lottieAnimations.forEach(animation => {
                                 try {
-                                    if (animation && typeof animation.stop === 'function') {
-                                        animation.stop();
-                                    }
-                                    if (animation && typeof animation.pause === 'function') {
-                                        animation.pause();
-                                    }
-                                    if (animation && typeof animation.setSpeed === 'function') {
-                                        animation.setSpeed(0);
+                                    if (animation) {
+                                        // Use Lottie's official API in correct order
+                                        if (typeof animation.setSpeed === 'function') {
+                                            animation.setSpeed(0);
+                                        }
+                                        if (typeof animation.stop === 'function') {
+                                            animation.stop();
+                                        }
+                                        if (typeof animation.pause === 'function') {
+                                            animation.pause();
+                                        }
+                                        if (typeof animation.goToAndStop === 'function') {
+                                            animation.goToAndStop(0, true);
+                                        }
+                                        if (animation.autoplay !== undefined) {
+                                            animation.autoplay = false;
+                                        }
+                                        if (animation.loop !== undefined) {
+                                            animation.loop = false;
+                                        }
                                     }
                                 } catch (_) {}
                             });
                         }
                         
-                        // Method 3: lottie-web (newer API) - check element instances
+                        // Method 3: lottie-web (newer API) - check element instances with comprehensive API calls
                         const lottieElements = document.querySelectorAll('[data-lottie], [data-animation], .lottie, .lottie-animation');
                         lottieElements.forEach(el => {
                             try {
-                                if (el._lottie) {
-                                    if (el._lottie.stop) el._lottie.stop();
-                                    if (el._lottie.pause) el._lottie.pause();
-                                    if (el._lottie.setSpeed) el._lottie.setSpeed(0);
-                                }
-                                if (el.lottie) {
-                                    if (el.lottie.stop) el.lottie.stop();
-                                    if (el.lottie.pause) el.lottie.pause();
-                                    if (el.lottie.setSpeed) el.lottie.setSpeed(0);
+                                const lottieInstance = el._lottie || el.lottie || el.__lottie;
+                                if (lottieInstance) {
+                                    if (typeof lottieInstance.setSpeed === 'function') {
+                                        lottieInstance.setSpeed(0);
+                                    }
+                                    if (typeof lottieInstance.stop === 'function') {
+                                        lottieInstance.stop();
+                                    }
+                                    if (typeof lottieInstance.pause === 'function') {
+                                        lottieInstance.pause();
+                                    }
+                                    if (typeof lottieInstance.goToAndStop === 'function') {
+                                        lottieInstance.goToAndStop(0, true);
+                                    }
+                                    if (lottieInstance.autoplay !== undefined) {
+                                        lottieInstance.autoplay = false;
+                                    }
+                                    if (lottieInstance.loop !== undefined) {
+                                        lottieInstance.loop = false;
+                                    }
                                 }
                             } catch (_) {}
                         });
+                        
+                        // Method 4: Also handle lottie-player web components in polling (already handled in Method 1 above)
+                        // Note: lottie-player is handled at the start of this polling function
                     } catch (_) {}
                 }, 100); // Check every 100ms
             }
@@ -29241,12 +29282,12 @@ class AccessibilityWidget {
         }
         
         // Universal Lottie Animation Stopping - Works on ALL websites
-        // SAFE VERSION: Makes animations invisible instead of destroying (prevents crashes)
+        // Uses Lottie's official API methods as recommended by Lottie documentation
         stopAllLottieAnimations() {
             
             
             try {
-                // Method 1: Stop via lottie-web API (most reliable) - DON'T DESTROY
+                // Method 1: Stop via lottie-web API (most reliable) - Using Lottie's official methods
                 if (typeof window.lottie !== 'undefined') {
                     try {
                         // Get all registered animations
@@ -29255,20 +29296,55 @@ class AccessibilityWidget {
                             if (allAnimations && allAnimations.length > 0) {
                                 allAnimations.forEach(anim => {
                                     try {
-                                        // Only stop/pause - NEVER destroy (prevents crashes)
-                                        if (anim && typeof anim.stop === 'function') {
-                                            anim.stop();
+                                        if (anim) {
+                                            // CRITICAL: Use Lottie's official API methods in the correct order
+                                            // 1. Set speed to 0 first (immediately stops playback)
+                                            if (typeof anim.setSpeed === 'function') {
+                                                anim.setSpeed(0);
+                                            }
+                                            
+                                            // 2. Stop the animation (stops playback)
+                                            if (typeof anim.stop === 'function') {
+                                                anim.stop();
+                                            }
+                                            
+                                            // 3. Pause the animation (pauses at current frame)
+                                            if (typeof anim.pause === 'function') {
+                                                anim.pause();
+                                            }
+                                            
+                                            // 4. Go to first frame and stop (ensures it's at frame 0)
+                                            if (typeof anim.goToAndStop === 'function') {
+                                                anim.goToAndStop(0, true);
+                                            }
+                                            
+                                            // 5. Prevent autoplay
+                                            if (anim.autoplay !== undefined) {
+                                                anim.autoplay = false;
+                                            }
+                                            
+                                            // 6. Set direction to normal (prevents reverse)
+                                            if (typeof anim.setDirection === 'function') {
+                                                anim.setDirection(1);
+                                            }
+                                            
+                                            // 7. Remove all event listeners that might restart animation
+                                            if (anim.removeEventListener) {
+                                                anim.removeEventListener('complete', anim.restart);
+                                                anim.removeEventListener('loopComplete', anim.restart);
+                                            }
+                                            
+                                            // 8. Disable looping
+                                            if (anim.loop !== undefined) {
+                                                anim.loop = false;
+                                            }
                                         }
-                                        if (anim && typeof anim.pause === 'function') {
-                                            anim.pause();
-                                        }
-                                        // REMOVED: anim.destroy() - Too aggressive, causes crashes
                                     } catch (_) {}
                                 });
                             }
                         }
                         
-                        // Freeze all future animations
+                        // Freeze all future animations (prevents new animations from starting)
                         if (typeof window.lottie.freeze === 'function') {
                             try {
                                 window.lottie.freeze();
@@ -29276,6 +29352,7 @@ class AccessibilityWidget {
                         }
                         
                         // Method 5: Override Lottie loading globally (store original for restoration)
+                        // Prevents new animations from starting when seizure-safe is active
                         if (typeof window.lottie.loadAnimation === 'function' && !seizureState.originalLottieLoadAnimation) {
                             seizureState.originalLottieLoadAnimation = window.lottie.loadAnimation;
                             const self = this;
@@ -29284,11 +29361,24 @@ class AccessibilityWidget {
                                     const anim = seizureState.originalLottieLoadAnimation.call(this, config);
                                     if (anim) {
                                         try {
+                                            // Immediately stop new animations using comprehensive API methods
+                                            if (typeof anim.setSpeed === 'function') {
+                                                anim.setSpeed(0);
+                                            }
                                             if (typeof anim.stop === 'function') {
                                                 anim.stop();
                                             }
                                             if (typeof anim.pause === 'function') {
                                                 anim.pause();
+                                            }
+                                            if (typeof anim.goToAndStop === 'function') {
+                                                anim.goToAndStop(0, true);
+                                            }
+                                            if (anim.autoplay !== undefined) {
+                                                anim.autoplay = false;
+                                            }
+                                            if (anim.loop !== undefined) {
+                                                anim.loop = false;
                                             }
                                         } catch (_) {}
                                     }
@@ -29302,17 +29392,41 @@ class AccessibilityWidget {
                     } catch (_) {}
                 }
                 
-                // Method 2: Stop via lottie-player web components
+                // Method 2: Stop via lottie-player web components (using official lottie-player API)
                 try {
                     const lottiePlayers = document.querySelectorAll('lottie-player');
                     lottiePlayers.forEach(player => {
                         try {
+                            // Use lottie-player's official API methods
+                            // 1. Stop the animation
                             if (typeof player.stop === 'function') {
                                 player.stop();
                             }
+                            
+                            // 2. Pause the animation
                             if (typeof player.pause === 'function') {
                                 player.pause();
                             }
+                            
+                            // 3. Set speed to 0
+                            if (typeof player.setSpeed === 'function') {
+                                player.setSpeed(0);
+                            }
+                            
+                            // 4. Go to first frame and stop
+                            if (typeof player.seek === 'function') {
+                                player.seek(0);
+                            }
+                            
+                            // 5. Set mode to 'normal' (prevents looping)
+                            if (typeof player.setMode === 'function') {
+                                player.setMode('normal');
+                            }
+                            
+                            // 6. Disable autoplay via attribute
+                            player.setAttribute('autoplay', 'false');
+                            player.removeAttribute('loop');
+                            
                             player.setAttribute('data-seizure-safe-stopped', 'true');
                             // Keep visible but stop animation - force to final state
                             player.style.opacity = '1';
@@ -29321,18 +29435,34 @@ class AccessibilityWidget {
                     });
                 } catch (_) {}
                 
-                // Method 3: Stop via DOM elements with Lottie data attributes
+                // Method 3: Stop via DOM elements with Lottie data attributes (using element.lottie reference)
                 try {
                     const lottieElements = document.querySelectorAll('[data-lottie], [data-animation], .lottie, .lottie-animation');
                     lottieElements.forEach(element => {
                         try {
                             // Try to find and stop any Lottie instance on this element
-                            if (element.lottie) {
-                                if (typeof element.lottie.stop === 'function') {
-                                    element.lottie.stop();
+                            // Check both element.lottie and element._lottie (different implementations store it differently)
+                            const lottieInstance = element.lottie || element._lottie || element.__lottie;
+                            
+                            if (lottieInstance) {
+                                // Use Lottie's official API methods
+                                if (typeof lottieInstance.setSpeed === 'function') {
+                                    lottieInstance.setSpeed(0);
                                 }
-                                if (typeof element.lottie.pause === 'function') {
-                                    element.lottie.pause();
+                                if (typeof lottieInstance.stop === 'function') {
+                                    lottieInstance.stop();
+                                }
+                                if (typeof lottieInstance.pause === 'function') {
+                                    lottieInstance.pause();
+                                }
+                                if (typeof lottieInstance.goToAndStop === 'function') {
+                                    lottieInstance.goToAndStop(0, true);
+                                }
+                                if (lottieInstance.autoplay !== undefined) {
+                                    lottieInstance.autoplay = false;
+                                }
+                                if (lottieInstance.loop !== undefined) {
+                                    lottieInstance.loop = false;
                                 }
                             }
                             
