@@ -25763,36 +25763,19 @@ class AccessibilityWidget {
             this.settings['stop-animation'] = true;
             this.saveSettings();
             
-            // 1. CSS Injection: Stop all CSS animations, transitions, and blinking text
+            // 1) CSS kill switch (no global overrides)
             this.injectStopAnimationCSS();
-            
-            // SECURITY FIX: Removed requestAnimationFrame override - use CSS-only animation blocking
-            
-            // 2. Use WAAPI to pause/cancel running animations (Webflow-approved method)
+
+            // 2) WAAPI pause/cancel running animations (Webflow-approved, no prototype hijack)
             try {
                 if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
                     window.seizureState.applyWAAPIStopMotion(true);
                 }
             } catch (_) {}
             
-            // 3. API Controls: Execute .stop() or .pause() methods on known animation libraries
+            // 3) Library APIs (official) + polling for late-starting animations
             this.stopAnimationLibraries();
-            
-            // 3a. Start continuous polling for Lottie and GSAP animations (catch animations that start later)
             this.startLottieGSAPPolling();
-            
-            // 4. Media Replacement: Pause autoplay videos and replace animated GIFs with static placeholders
-            this.replaceAnimatedMedia();
-            
-            // Stop DOM manipulation animations (setTimeout/setInterval loops)
-            this.stopDOMAnimationLoops();
-            
-            // 6. Stop autoplay videos and embedded media
-            this.stopAutoplayMedia();
-            
-            // 7. Stop any JavaScript-based animations (like the slider auto-slide)
-            this.stopJavaScriptAnimations();
-            
         }
         
         // 1. CSS Injection: Stop all CSS animations, transitions, and blinking text
@@ -25801,134 +25784,37 @@ class AccessibilityWidget {
                 const style = document.createElement('style');
                 style.id = 'stop-animation-css';
                 style.textContent = `
-                    /* UNIVERSAL ANIMATION STOPPER - Covers all CSS animation types */
-                    html.stop-animation *,
-                    html.stop-animation *::before,
-                    html.stop-animation *::after,
-                    body.stop-animation *,
-                    body.stop-animation *::before,
-                    body.stop-animation *::after,
-                    .stop-animation *,
-                    .stop-animation *::before,
-                    .stop-animation *::after {
-                        /* Stop all CSS animations and transitions */
+                    /* Prefers-reduced-motion default */
+                    @media (prefers-reduced-motion: reduce) {
+                        *, *::before, *::after {
+                            animation: none !important;
+                            transition: none !important;
+                            scroll-behavior: auto !important;
+                        }
+                    }
+
+                    /* Stop-animation toggle */
+                    html.stop-animation *, html.stop-animation *::before, html.stop-animation *::after,
+                    body.stop-animation *, body.stop-animation *::before, body.stop-animation *::after,
+                    .stop-animation *, .stop-animation *::before, .stop-animation *::after {
                         animation: none !important;
                         transition: none !important;
+                        scroll-behavior: auto !important;
                         animation-play-state: paused !important;
-                        animation-duration: 0s !important;
-                        animation-delay: 0s !important;
-                        transition-duration: 0s !important;
-                        transition-delay: 0s !important;
-                        
-                        /* Stop blinking and flashing text */
-                        text-decoration: none !important;
                     }
-                    
-                    /* Stop all animation classes and libraries */
-                    html.stop-animation *[class*="animate"],
-                    html.stop-animation *[class*="fade"],
-                    html.stop-animation *[class*="slide"],
-                    html.stop-animation *[class*="bounce"],
-                    html.stop-animation *[class*="pulse"],
-                    html.stop-animation *[class*="shake"],
-                    html.stop-animation *[class*="flash"],
-                    html.stop-animation *[class*="blink"],
-                    html.stop-animation *[class*="glow"],
-                    html.stop-animation *[class*="spin"],
-                    html.stop-animation *[class*="rotate"],
-                    html.stop-animation *[class*="scale"],
-                    html.stop-animation *[class*="zoom"],
-                    html.stop-animation *[class*="wiggle"],
-                    html.stop-animation *[class*="jiggle"],
-                    html.stop-animation *[class*="twist"],
-                    html.stop-animation *[class*="flip"],
-                    html.stop-animation *[class*="swing"],
-                    html.stop-animation *[class*="wobble"],
-                    html.stop-animation *[class*="tilt"],
-                    body.stop-animation *[class*="animate"],
-                    body.stop-animation *[class*="fade"],
-                    body.stop-animation *[class*="slide"],
-                    body.stop-animation *[class*="bounce"],
-                    body.stop-animation *[class*="pulse"],
-                    body.stop-animation *[class*="shake"],
-                    body.stop-animation *[class*="flash"],
-                    body.stop-animation *[class*="blink"],
-                    body.stop-animation *[class*="glow"],
-                    body.stop-animation *[class*="spin"],
-                    body.stop-animation *[class*="rotate"],
-                    body.stop-animation *[class*="scale"],
-                    body.stop-animation *[class*="zoom"],
-                    body.stop-animation *[class*="wiggle"],
-                    body.stop-animation *[class*="jiggle"],
-                    body.stop-animation *[class*="twist"],
-                    body.stop-animation *[class*="flip"],
-                    body.stop-animation *[class*="swing"],
-                    body.stop-animation *[class*="wobble"],
-                    body.stop-animation *[class*="tilt"],
-                    .stop-animation *[class*="animate"],
-                    .stop-animation *[class*="fade"],
-                    .stop-animation *[class*="slide"],
-                    .stop-animation *[class*="bounce"],
-                    .stop-animation *[class*="pulse"],
-                    .stop-animation *[class*="shake"],
-                    .stop-animation *[class*="flash"],
-                    .stop-animation *[class*="blink"],
-                    .stop-animation *[class*="glow"],
-                    .stop-animation *[class*="spin"],
-                    .stop-animation *[class*="rotate"],
-                    .stop-animation *[class*="scale"],
-                    .stop-animation *[class*="zoom"],
-                    .stop-animation *[class*="wiggle"],
-                    .stop-animation *[class*="jiggle"],
-                    .stop-animation *[class*="twist"],
-                    .stop-animation *[class*="flip"],
-                    .stop-animation *[class*="swing"],
-                    .stop-animation *[class*="wobble"],
-                    .stop-animation *[class*="tilt"] {
+
+                    /* Remove common flash triggers */
+                    html.stop-animation *[class*="blink"], html.stop-animation *[class*="shimmer"], 
+                    html.stop-animation *[class*="pulse"], html.stop-animation *[class*="caret"], 
+                    html.stop-animation *[class*="cursor-blink"], html.stop-animation *[class*="skeleton"],
+                    html.stop-animation *[class*="pulsing"], html.stop-animation *[class*="flashing"],
+                    body.stop-animation *[class*="blink"], body.stop-animation *[class*="shimmer"], 
+                    body.stop-animation *[class*="pulse"], body.stop-animation *[class*="caret"], 
+                    body.stop-animation *[class*="cursor-blink"], body.stop-animation *[class*="skeleton"],
+                    body.stop-animation *[class*="pulsing"], body.stop-animation *[class*="flashing"] {
                         animation: none !important;
-                        transition: none !important;
-                        animation-duration: 0s !important;
-                        animation-delay: 0s !important;
-                        transition-duration: 0s !important;
-                        transition-delay: 0s !important;
-                    }
-                    
-                    /* Stop SVG and Canvas animations */
-                    html.stop-animation svg,
-                    html.stop-animation svg path,
-                    html.stop-animation svg line,
-                    html.stop-animation canvas,
-                    body.stop-animation svg,
-                    body.stop-animation svg path,
-                    body.stop-animation svg line,
-                    body.stop-animation canvas,
-                    .stop-animation svg,
-                    .stop-animation svg path,
-                    .stop-animation svg line,
-                    .stop-animation canvas {
-                        animation: none !important;
-                        transition: none !important;
-                        animation-duration: 0s !important;
-                        transition-duration: 0s !important;
-                    }
-                    
-                    /* Stop text splitting animations */
-                    html.stop-animation [data-splitting],
-                    html.stop-animation .split, 
-                    html.stop-animation .char, 
-                    html.stop-animation .word,
-                    body.stop-animation [data-splitting],
-                    body.stop-animation .split, 
-                    body.stop-animation .char, 
-                    body.stop-animation .word,
-                    .stop-animation [data-splitting],
-                    .stop-animation .split, 
-                    .stop-animation .char, 
-                    .stop-animation .word {
-                        animation: none !important;
-                        transition: none !important;
-                        animation-duration: 0s !important;
-                        transition-duration: 0s !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
                     }
                 `;
                 document.head.appendChild(style);
@@ -26178,59 +26064,8 @@ class AccessibilityWidget {
                 }
             } catch (_) {}
             
-            // 5. Force browser reflow to ensure CSS changes take effect
-            // This is critical for animations to resume after !important rules are removed
-            void document.body.offsetHeight;
-            
-           
-            
-            // 6. Restore setTimeout and setInterval
-            this.restoreDOMAnimationLoops();
-            
-            // 6. Restore animated media
-            this.restoreAnimatedMedia();
-            
-            // 7. Restore JavaScript animations
-            this.restoreJavaScriptAnimations();
-            
-            // 8. Force re-enable CSS animations by triggering a style recalculation
-            // This ensures animations resume after !important rules are removed
-            requestAnimationFrame(() => {
-                // Re-initialize animation libraries that might have been paused
-                if (typeof AOS !== 'undefined' && AOS.refresh) {
-                    try {
-                        AOS.refresh();
-                    } catch (e) {}
-                }
-                
-                // Re-enable Swiper autoplay
-                if (typeof Swiper !== 'undefined') {
-                    try {
-                        document.querySelectorAll('.swiper').forEach(swiperEl => {
-                            if (swiperEl.swiper && swiperEl.swiper.autoplay) {
-                                swiperEl.swiper.autoplay.start();
-                            }
-                        });
-                    } catch (e) {}
-                }
-                
-                // Force style recalculation on elements with animation classes
-                // This helps browser re-evaluate styles after !important rules are removed
-                const animatedElements = document.querySelectorAll('[class*="animate"], [class*="fade"], [class*="slide"], [class*="bounce"], [class*="pulse"], [class*="animation"]');
-                animatedElements.forEach(el => {
-                    // Trigger minimal reflow to force browser to re-evaluate styles
-                    void el.offsetHeight;
-                });
-            });
-            
             this.settings['stop-animation'] = false;
             this.saveSettings();
-            
-            // 9. Refresh the page to ensure all animations resume properly
-            // This ensures a clean state after disabling stop animation
-            setTimeout(() => {
-                window.location.reload();
-            }, 100);
         
         }
         
@@ -27208,142 +27043,29 @@ class AccessibilityWidget {
         // API Controls: Execute .stop() or .pause() methods on known animation libraries
         stopAnimationLibraries() {
             try {
-                // Stop Lottie animations - Use comprehensive method
+                // Lottie (official API)
                 this.stopAllLottieAnimations();
-                
-                
-                // Three.js: Stop animations if present
-                if (typeof window.THREE !== 'undefined') {
-                    try {
 
-                    } catch (error) {
-                       
-                    }
-                }
-                
-                // Anime.js: Stop animations if present
-                if (typeof window.anime !== 'undefined') {
-                    try {
-                        // Pause all anime instances
-                        if (window.anime.pause) {
-                            window.anime.pause();
-                     
-                        }
-                    } catch (error) {
-                        
-                    }
-                }
-                
-                // Velocity.js: Stop animations if present
-                if (typeof window.Velocity !== 'undefined') {
-                    try {
-                        // Stop all velocity animations
-                        if (window.Velocity.Utilities && window.Velocity.Utilities.stopAll) {
-                            window.Velocity.Utilities.stopAll();
-                           
-                        }
-                    } catch (error) {
-                        
-                    }
-                }
-                
-                // jQuery: Stop all jQuery animations
-                if (typeof window.jQuery !== 'undefined' || typeof window.$ !== 'undefined') {
-                    try {
-                        const $ = window.jQuery || window.$;
-                        if ($ && $.fx) {
-                            $.fx.off = true; // Disable all jQuery animations
-                  
-                        }
-                    } catch (error) {
-                     
-                    }
-                }
-                
-                // Framer Motion: Stop animations if present
-                if (typeof window.framer !== 'undefined' || typeof window.motion !== 'undefined') {
-                    try {
-
-                    } catch (error) {
-                        
-                    }
-                }
-                
-                // AOS (Animate On Scroll): Disable if present
-                if (typeof window.AOS !== 'undefined') {
-                    try {
-                        if (window.AOS.refresh) {
-                            window.AOS.refresh();
-                        }
-                    
-                    } catch (error) {
-                      
-                    }
-                }
-                
-                // WOW.js: Disable if present
-                if (typeof window.WOW !== 'undefined') {
-                    try {
-                      
-                    } catch (error) {
-                     
-                    }
-                }
-                
-                // GSAP: Stop ALL animations globally - Most comprehensive approach
+                // GSAP (official API)
                 if (typeof window.gsap !== 'undefined') {
                     try {
-                        // CRITICAL: Kill ALL active tweens globally first
                         if (window.gsap.killTweensOf) {
-                            // Kill all tweens on all elements - this is the most effective
                             window.gsap.killTweensOf('*');
                         }
-                        
-                        // Kill all timelines globally
-                        if (window.gsap.utils && window.gsap.utils.toArray) {
-                            try {
-                                // Get all timelines and kill them
-                                const allTimelines = window.gsap.getAllTimelines ? window.gsap.getAllTimelines() : [];
-                                allTimelines.forEach(tl => {
-                                    try {
-                                        if (tl && typeof tl.kill === 'function') {
-                                            tl.kill();
-                                        }
-                                    } catch (_) {}
-                                });
-                            } catch (_) {}
+                        if (window.gsap.getAllTimelines) {
+                            const allTimelines = window.gsap.getAllTimelines();
+                            allTimelines.forEach(tl => {
+                                try { tl && tl.kill && tl.kill(); } catch (_) {}
+                            });
                         }
-                        
-                        // Kill all active tweens (alternative method)
                         if (window.gsap.getAllTweens) {
-                            try {
-                                const allTweens = window.gsap.getAllTweens();
-                                allTweens.forEach(tween => {
-                                    try {
-                                        if (tween && typeof tween.kill === 'function') {
-                                            tween.kill();
-                                        }
-                                    } catch (_) {}
-                                });
-                            } catch (_) {}
+                            const allTweens = window.gsap.getAllTweens();
+                            allTweens.forEach(tween => {
+                                try { tween && tween.kill && tween.kill(); } catch (_) {}
+                            });
                         }
-                        
-                        // Also kill specific element types to be thorough
-                        const animatedElements = document.querySelectorAll('[class*="animate"], [class*="fade"], [class*="slide"], [class*="bounce"], [class*="pulse"], [class*="orbit"], [class*="dot"], [class*="floating"], [class*="progress"]');
-                        animatedElements.forEach(el => {
-                            try {
-                                if (window.gsap.killTweensOf) {
-                                    window.gsap.killTweensOf(el);
-                                }
-                            } catch (_) {}
-                        });
-                    } catch (error) {
-                        // Silent fail
-                    }
+                    } catch (_) {}
                 }
-                
-               
-                
             } catch (error) {
                
             }
@@ -28453,73 +28175,22 @@ class AccessibilityWidget {
             try { document.documentElement.classList.add('seizure-safe'); } catch (_) {}
             this.saveSettings();
             
-            // Apply grey overlay (grayscale filter) - this is the only difference from stop-animation
+            // 1) Grey overlay (light) for seizure-safe
             this.addSeizureSafeGreyOverlay();
-            
-            // Use stop-animation's approach for all animation stopping
-            // 1. CSS Injection: Stop all CSS animations, transitions, and blinking text
+
+            // 2) CSS kill switch for animations
             this.injectSeizureSafeAnimationCSS();
             
-            // SECURITY FIX: Removed requestAnimationFrame override - use CSS-only animation blocking
-            
-            // 2. Use WAAPI to pause/cancel running animations (Webflow-approved method)
+            // 3) WAAPI pause/cancel running animations (Webflow-approved)
             try {
                 if (window.seizureState && window.seizureState.applyWAAPIStopMotion) {
                     window.seizureState.applyWAAPIStopMotion(true);
                 }
             } catch (_) {}
             
-            // 3. API Controls: Execute .stop() or .pause() methods on known animation libraries
+            // 4) Library APIs (official) + polling for late-starting animations
             this.stopAnimationLibraries();
-            
-            // 3a. Start continuous polling for Lottie and GSAP animations (catch animations that start later)
             this.startLottieGSAPPolling();
-
-            // 3b. Force animations/text to final visible state
-            this.forceAllAnimationsToFinalVisibleState();
-            this.forceCompleteTextAnimations();
-            // Extra: normalize hero text block so GSAP/Webflow text animations don't leave overlapping layers
-            try {
-                const heroBlocks = document.querySelectorAll('.hero-text-block, [class*="hero-text"], [class*="hero_heading"], [class*="hero-title"]');
-                heroBlocks.forEach(block => {
-                    const headings = block.querySelectorAll('h1, h2, h3');
-                    if (headings.length > 1) {
-                        const primary = headings[0];
-                        const primaryText = (primary.textContent || '').trim();
-                        for (let i = 1; i < headings.length; i++) {
-                            const h = headings[i];
-                            const text = (h.textContent || '').trim();
-                            // Hide only true duplicates; keep unique text (e.g., subheadings)
-                            if (!text || text === primaryText) {
-                                h.style.display = 'none';
-                                h.style.visibility = 'hidden';
-                                h.style.opacity = '0';
-                                h.style.position = 'absolute';
-                                h.style.pointerEvents = 'none';
-                            }
-                        }
-                        // Ensure primary heading is visible and not transformed
-                        primary.style.opacity = '1';
-                        primary.style.visibility = 'visible';
-                        primary.style.transform = 'none';
-                    }
-                });
-            } catch (e) {}
-            
-            // 4. Media Replacement: Pause autoplay videos and replace animated GIFs with static placeholders
-            this.replaceAnimatedMedia();
-            
-            // 5. Stop DOM manipulation animations (setTimeout/setInterval loops)
-            this.stopDOMAnimationLoops();
-            
-            // 6. Stop autoplay videos and embedded media
-            this.stopAutoplayMedia();
-            
-            // 7. Stop any JavaScript-based animations (like the slider auto-slide)
-            this.stopJavaScriptAnimations();
-            
-            // Update widget appearance to sync Shadow DOM host classes
-            this.updateWidgetAppearance();
         }
     
     
@@ -28556,77 +28227,11 @@ class AccessibilityWidget {
                 }
             } catch (_) {}
             
-            // 7. Force browser reflow to ensure CSS changes take effect
-            void document.body.offsetHeight;
-            
-            
-            // 8. Restore setTimeout and setInterval
-            if (typeof this.restoreDOMAnimationLoops === 'function') {
-                try {
-                    this.restoreDOMAnimationLoops();
-                } catch (e) {
-                    console.warn('Error restoring DOM animation loops:', e);
-                }
-            }
-            
-            // 8. Restore animated media
-            if (typeof this.restoreAnimatedMedia === 'function') {
-                try {
-                    this.restoreAnimatedMedia();
-                } catch (e) {
-                    console.warn('Error restoring animated media:', e);
-                }
-            }
-            
-            // 9. Restore JavaScript animations
-            if (typeof this.restoreJavaScriptAnimations === 'function') {
-                try {
-                    this.restoreJavaScriptAnimations();
-                } catch (e) {
-                    console.warn('Error restoring JavaScript animations:', e);
-                }
-            }
-            
-            // 10. Force re-enable CSS animations by triggering a style recalculation
-            requestAnimationFrame(() => {
-                // Re-initialize animation libraries that might have been paused
-                if (typeof AOS !== 'undefined' && AOS.refresh) {
-                    try {
-                        AOS.refresh();
-                    } catch (e) {}
-                }
-                
-                // Re-enable Swiper autoplay
-                if (typeof Swiper !== 'undefined') {
-                    try {
-                        document.querySelectorAll('.swiper').forEach(swiperEl => {
-                            if (swiperEl.swiper && swiperEl.swiper.autoplay) {
-                                swiperEl.swiper.autoplay.start();
-                            }
-                        });
-                    } catch (e) {}
-                }
-                
-                // Force style recalculation on elements with animation classes
-                const animatedElements = document.querySelectorAll('[class*="animate"], [class*="fade"], [class*="slide"], [class*="bounce"], [class*="pulse"], [class*="animation"]');
-                animatedElements.forEach(el => {
-                    void el.offsetHeight;
-                });
-            });
-            
             this.settings['seizure-safe'] = false;
             this.saveSettings();
             
-            // 11. Stop continuous polling for Lottie and GSAP
-            this.stopLottieGSAPPolling();
-            
-            // 12. Update widget appearance to sync Shadow DOM host classes
+            // Update widget appearance to sync Shadow DOM host classes
             this.updateWidgetAppearance();
-            
-            // 13. Refresh the page to ensure all animations resume properly
-            setTimeout(() => {
-                window.location.reload();
-            }, 100);
         }
     
         // Vision Impaired - comprehensive scaling and contrast enhancement
@@ -30100,60 +29705,22 @@ class AccessibilityWidget {
                 const style = document.createElement('style');
                 style.id = 'seizure-safe-animation-css';
                 style.textContent = `
-                    /* UNIVERSAL ANIMATION STOPPER - Covers all CSS animation types - same as stop-animation */
-                    .seizure-safe *,
-                    .seizure-safe *::before,
-                    .seizure-safe *::after {
-                        /* Stop all CSS animations and transitions */
+                    /* Seizure-safe animation kill switch */
+                    .seizure-safe *, .seizure-safe *::before, .seizure-safe *::after {
                         animation: none !important;
                         transition: none !important;
+                        scroll-behavior: auto !important;
                         animation-play-state: paused !important;
-                        
-                        /* Stop blinking and flashing text */
-                        text-decoration: none !important;
                     }
-                    
-                    /* Stop all animation classes and libraries */
-                    .seizure-safe *[class*="animate"],
-                    .seizure-safe *[class*="fade"],
-                    .seizure-safe *[class*="slide"],
-                    .seizure-safe *[class*="bounce"],
-                    .seizure-safe *[class*="pulse"],
-                    .seizure-safe *[class*="shake"],
-                    .seizure-safe *[class*="flash"],
-                    .seizure-safe *[class*="blink"],
-                    .seizure-safe *[class*="glow"],
-                    .seizure-safe *[class*="spin"],
-                    .seizure-safe *[class*="rotate"],
-                    .seizure-safe *[class*="scale"],
-                    .seizure-safe *[class*="zoom"],
-                    .seizure-safe *[class*="wiggle"],
-                    .seizure-safe *[class*="jiggle"],
-                    .seizure-safe *[class*="twist"],
-                    .seizure-safe *[class*="flip"],
-                    .seizure-safe *[class*="swing"],
-                    .seizure-safe *[class*="wobble"],
-                    .seizure-safe *[class*="tilt"],
-                    /* REMOVED: Scroll-related classes to preserve scroll animations */
-                    
-                    /* Stop SVG and Canvas animations */
-                    .seizure-safe svg,
-                    .seizure-safe svg path,
-                    .seizure-safe svg line,
-                    .seizure-safe canvas {
+
+                    /* Remove common flash triggers */
+                    .seizure-safe *[class*="blink"], .seizure-safe *[class*="shimmer"], 
+                    .seizure-safe *[class*="pulse"], .seizure-safe *[class*="caret"], 
+                    .seizure-safe *[class*="cursor-blink"], .seizure-safe *[class*="skeleton"],
+                    .seizure-safe *[class*="pulsing"], .seizure-safe *[class*="flashing"] {
                         animation: none !important;
-                        transition: none !important;
-                        /* Removed visibility and transform rules to prevent positioning issues */
-                    }
-                    
-                    /* Stop text splitting animations */
-                    .seizure-safe [data-splitting],
-                    .seizure-safe .split, 
-                    .seizure-safe .char, 
-                    .seizure-safe .word {
-                        animation: none !important;
-                        transition: none !important;
-                        /* Removed opacity, visibility, and display rules to prevent extra text and positioning issues */
+                        visibility: visible !important;
+                        opacity: 1 !important;
                     }
                 `;
                 document.head.appendChild(style);
