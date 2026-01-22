@@ -12383,11 +12383,19 @@ class AccessibilityWidget {
     
     
         showStatement() {
-    
+            // Check if we have a custom accessibility statement link
+            if (this.customizationData && this.customizationData.accessibilityStatementLink) {
+                // Validate the link before opening
+                const link = this.customizationData.accessibilityStatementLink.trim();
+                if (link !== '') {
+                    window.open(link, '_blank');
+                    return;
+                }
+            }
+            
+            // Default statement if no link is provided
             const message = 'Accessibility Statement: This website is committed to providing an accessible experience for all users. We follow WCAG 2.1 guidelines and continuously work to improve accessibility.';
-    
             alert(message);
-    
         }
     
         
@@ -18665,17 +18673,18 @@ class AccessibilityWidget {
     
     
         showStatement() {
-          
-            
             // Check if we have a custom accessibility statement link
             if (this.customizationData && this.customizationData.accessibilityStatementLink) {
-             
-                window.open(this.customizationData.accessibilityStatementLink, '_blank');
-            } else {
-               
-                // Default statement
-                alert('This website is committed to providing an accessible experience for all users. We follow WCAG 2.1 guidelines and continuously work to improve accessibility.');
+                // Validate the link before opening
+                const link = this.customizationData.accessibilityStatementLink.trim();
+                if (link !== '') {
+                    window.open(link, '_blank');
+                    return;
+                }
             }
+            
+            // Default statement if no link is provided
+            alert('This website is committed to providing an accessible experience for all users. We follow WCAG 2.1 guidelines and continuously work to improve accessibility.');
         }
     
     
