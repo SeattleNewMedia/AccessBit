@@ -2730,12 +2730,15 @@ class AccessibilityWidget {
                 }
                 
                 // Read siteToken from this script tag
+                // SAFETY: Using specific script filename patterns to avoid matching user content
+                // Only matches script tags with our widget filenames, not user elements
                 let siteTokenParam = null;
                 try {
                     const scriptEl = document.currentScript || 
                                    document.querySelector('script[src*="test.js"]') ||
                                    document.querySelector('script[src*="new.js"]') ||
-                                   document.querySelector('script[src*="accessibility"]');
+                                   document.querySelector('script[src*="accessbit"]') ||
+                                   document.querySelector('script[src*="widget.js"]');
                     if (scriptEl && scriptEl.src) {
                         const u = new URL(scriptEl.src);
                         siteTokenParam = u.searchParams.get('siteToken');
@@ -32196,14 +32199,24 @@ class AccessibilityWidget {
             }
             
             // Apply icon customizations
-            if (customizationData.selectedIcon) {
-               
-                this.updateSelectedIcon(customizationData.selectedIcon);
+            // Support both selectedIcon and triggerIcon field names (for backward compatibility)
+            const iconValue = customizationData.selectedIcon || customizationData.triggerIcon;
+            if (iconValue) {
+                console.log('[CUSTOMIZATION] Applying icon from customization data:', {
+                    selectedIcon: customizationData.selectedIcon,
+                    triggerIcon: customizationData.triggerIcon,
+                    iconValue: iconValue,
+                    allCustomizationKeys: Object.keys(customizationData)
+                });
+                this.updateSelectedIcon(iconValue);
+            } else {
+                console.warn('[CUSTOMIZATION] No icon found in customization data. Available keys:', Object.keys(customizationData));
             }
             
-            if (customizationData.selectedIconName) {
- 
-                this.updateSelectedIconName(customizationData.selectedIconName);
+            // Support both selectedIconName and triggerIconName field names
+            const iconName = customizationData.selectedIconName || customizationData.triggerIconName;
+            if (iconName) {
+                this.updateSelectedIconName(iconName);
             }
             
             // Apply mobile customizations
@@ -34465,7 +34478,11 @@ class AccessibilityWidget {
         }
         
        updateSelectedIcon(icon) {
-        console.log('[DEBUG] Applying Icon:', icon);
+        console.log('[DEBUG] Applying Icon:', {
+            iconValue: icon,
+            iconType: typeof icon,
+            iconTrimmed: icon ? String(icon).trim() : null
+        });
     const iconElement = this.shadowRoot?.getElementById('accessbit-widget-icon');
     
     if (iconElement) {
@@ -34482,7 +34499,17 @@ class AccessibilityWidget {
             'settings': 'fas fa-sliders-h'
         };
         
-        const iconClass = iconMap[icon] || 'fas fa-universal-access';
+        // Normalize icon value (trim whitespace, lowercase for comparison)
+        const normalizedIcon = icon ? String(icon).trim().toLowerCase() : '';
+        const iconClass = iconMap[normalizedIcon] || iconMap[icon] || 'fas fa-universal-access';
+        
+        console.log('[DEBUG] Icon mapping result:', {
+            originalIcon: icon,
+            normalizedIcon: normalizedIcon,
+            mappedClass: iconClass,
+            iconMapKeys: Object.keys(iconMap),
+            foundInMap: normalizedIcon in iconMap || icon in iconMap
+        });
         
         
         const existingIcon = iconElement.querySelector('i');
@@ -35167,13 +35194,16 @@ class AccessibilityWidget {
                 }
                 
                 // For custom domains, validate with signed token from script tag
+                // SAFETY: Using specific script filename patterns to avoid matching user content
+                // Only matches script tags with our widget filenames, not user elements
                 let siteIdParam = null; let siteTokenParam = null;
                 try {
-                    // Try to find the script tag - check for both test.js and new.js
+                    // Try to find the script tag - check for widget-specific filenames only
                     const scriptEl = document.currentScript || 
                                    document.querySelector('script[src*="test.js"]') ||
                                    document.querySelector('script[src*="new.js"]') ||
-                                   document.querySelector('script[src*="accessibility"]');
+                                   document.querySelector('script[src*="accessbit"]') ||
+                                   document.querySelector('script[src*="widget.js"]');
                     if (scriptEl && scriptEl.src) {
                         const u = new URL(scriptEl.src);
                         siteIdParam = u.searchParams.get('siteId');
