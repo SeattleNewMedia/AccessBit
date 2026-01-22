@@ -31902,23 +31902,37 @@ class AccessibilityWidget {
             }
             
             // Check cache first (5 minute cache as per worker headers)
+            // Cache is invalidated if publishedAt changes (new customization published)
             const cacheKey = `customization_cache_${this.siteId || 'unknown'}`;
             const cached = sessionStorage.getItem(cacheKey);
+            let cachedPublishedAt = null;
+            let cachedDataObj = null;
+            
             if (cached) {
                 try {
-                    const cachedData = JSON.parse(cached);
-                    const cacheTime = cachedData.timestamp || 0;
+                    cachedDataObj = JSON.parse(cached);
+                    const cacheTime = cachedDataObj.timestamp || 0;
                     const cacheAge = Date.now() - cacheTime;
                     const cacheTTL = 5 * 60 * 1000; // 5 minutes
+                    cachedPublishedAt = cachedDataObj.data?.publishedAt || cachedDataObj.publishedAt;
                     
                     if (cacheAge < cacheTTL) {
-                        console.log('[FETCH] Returning cached data:', { cacheAge, cacheTTL });
-                        return cachedData.data;
+                        // Cache is fresh, but we'll still fetch to check if publishedAt changed
+                        // This ensures new customizations are immediately detected
+                        console.log('[FETCH] Cache found, will verify publishedAt on fetch:', { 
+                            cacheAge, 
+                            cacheTTL,
+                            cachedPublishedAt 
+                        });
                     } else {
                         sessionStorage.removeItem(cacheKey);
+                        cachedPublishedAt = null;
+                        cachedDataObj = null;
                     }
                 } catch (e) {
                     sessionStorage.removeItem(cacheKey);
+                    cachedPublishedAt = null;
+                    cachedDataObj = null;
                 }
             }
             
@@ -32001,12 +32015,31 @@ class AccessibilityWidget {
                     }
                     
                     // Cache the successful response
+                    // Check if publishedAt changed - if so, use new data (new customization published)
                     if (data && siteId) {
                         try {
+                            const newPublishedAt = data.publishedAt;
+                            
+                            // If publishedAt changed, this means new customization was published
+                            // Always use the new data and update cache
+                            if (cachedPublishedAt && newPublishedAt && cachedPublishedAt !== newPublishedAt) {
+                                console.log('[FETCH] publishedAt changed - new customization detected:', {
+                                    old: cachedPublishedAt,
+                                    new: newPublishedAt
+                                });
+                            } else if (cachedPublishedAt === newPublishedAt) {
+                                console.log('[FETCH] publishedAt unchanged, using fresh data from API:', {
+                                    publishedAt: newPublishedAt
+                                });
+                            }
+                            
+                            // Always update cache with latest data
                             sessionStorage.setItem(`customization_cache_${siteId}`, JSON.stringify({
                                 data: data,
-                                timestamp: Date.now()
+                                timestamp: Date.now(),
+                                publishedAt: data.publishedAt
                             }));
+                            console.log('[FETCH] Updated cache with latest customization data:', { publishedAt: data.publishedAt });
                         } catch (e) {
                             // Ignore storage errors (quota exceeded, etc.)
                         }
