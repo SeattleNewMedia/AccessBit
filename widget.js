@@ -39,7 +39,7 @@
         }
         
         // Check localStorage immediately for reduce-motion mode
-        const reduceMotionFromStorage = localStorage.getItem('accessibility-widget-reduce-motion');
+        const reduceMotionFromStorage = localStorage.getItem('accessbit-widget-reduce-motion');
         if (reduceMotionFromStorage === 'true') {
             // SECURITY: All DOM operations protected by Designer mode check at line 20
             try {
@@ -49,15 +49,15 @@
             
             // Apply immediate CSS to stop all animations
             const immediateReduceMotionStyle = document.createElement('style');
-            immediateReduceMotionStyle.id = 'accessibility-reduce-motion-immediate-early';
+            immediateReduceMotionStyle.id = 'accessbit-reduce-motion-immediate-early';
             immediateReduceMotionStyle.textContent = `
                 /* Per Webflow Security recommendations: Global CSS kill switch for Reduce Motion */
-                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
-                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
-                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after,
-                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
-                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
-                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after {
+                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]),
+                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::before,
+                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::after,
+                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]),
+                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::before,
+                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::after {
                     animation: none !important;
                     transition: none !important;
                     scroll-behavior: auto !important;
@@ -107,7 +107,7 @@
         }
         
         // Check localStorage immediately for seizure-safe mode
-        const seizureSafeFromStorage = localStorage.getItem('accessibility-widget-seizure-safe');
+        const seizureSafeFromStorage = localStorage.getItem('accessbit-widget-seizure-safe');
         if (seizureSafeFromStorage === 'true') {
             // SECURITY: Protected by Designer mode check at line 20
             try {
@@ -116,7 +116,7 @@
             
             // Apply immediate CSS to stop all animations
             const immediateStyle = document.createElement('style');
-            immediateStyle.id = 'accessibility-seizure-immediate-early';
+            immediateStyle.id = 'accessbit-seizure-immediate-early';
             immediateStyle.textContent = `
                 /* APPLY GREYISH COLOR FILTER IMMEDIATELY - Reduce color intensity to prevent seizures */
                 /* CRITICAL: Apply filters to content containers, NOT to body/html, to preserve sticky nav */
@@ -146,8 +146,8 @@
                 
                 /* Per Webflow Security recommendations: Global CSS kill switch for seizure-safe mode */
                 /* This provides stricter controls than prefers-reduced-motion for photosensitive seizure safety */
-                body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]):not(accessibility-widget),
-                html.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]):not(accessibility-widget) {
+                body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]):not(accessbit-widget),
+                html.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]):not(accessbit-widget) {
                     animation: none !important;
                     transition: none !important;
                     scroll-behavior: auto !important;
@@ -185,16 +185,16 @@
                 }
                 
                 /* Exclude widget container and all its contents from color filter */
-                body.seizure-safe #accessibility-widget-container,
-                body.seizure-safe [id*="accessibility-widget"],
-                body.seizure-safe [class*="accessibility-widget"],
+                body.seizure-safe #accessbit-widget-container,
+                body.seizure-safe [id*="accessbit-widget"],
+                body.seizure-safe [class*="accessbit-widget"],
                 body.seizure-safe [data-ck-widget] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
                 
                 /* Also exclude any shadow DOM content by targeting the host element */
-                body.seizure-safe accessibility-widget {
+                body.seizure-safe accessbit-widget {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -485,9 +485,9 @@
             
             // Reinforce at root: cover both html.seizure-safe and body.seizure-safe
             try {
-                if (!document.getElementById('accessibility-seizure-reinforce')) {
+                if (!document.getElementById('accessbit-seizure-reinforce')) {
                     const reinforce = document.createElement('style');
-                    reinforce.id = 'accessibility-seizure-reinforce';
+                    reinforce.id = 'accessbit-seizure-reinforce';
                     reinforce.textContent = `
                         /* Exclude nav/header to preserve sticky positioning */
                         html.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]), html.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"])::before, html.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"])::after,
@@ -515,9 +515,9 @@
             
             // Master layer: globally disable CSS animations/transitions without altering layout
             try {
-                if (!document.getElementById('accessibility-seizure-master')) {
+                if (!document.getElementById('accessbit-seizure-master')) {
                     const master = document.createElement('style');
-                    master.id = 'accessibility-seizure-master';
+                    master.id = 'accessbit-seizure-master';
                     master.textContent = `
                         /* Hard stop for CSS animations and transitions */
                         /* Force animations to final state immediately - either prevent from starting or jump to final state */
@@ -545,9 +545,9 @@
                 }
                 
                 // Correction layer: preserve site layout styles while keeping animations disabled
-                if (!document.getElementById('accessibility-seizure-correction')) {
+                if (!document.getElementById('accessbit-seizure-correction')) {
                     const correction = document.createElement('style');
-                    correction.id = 'accessibility-seizure-correction';
+                    correction.id = 'accessbit-seizure-correction';
                     correction.textContent = `
                         /* Keep animations disabled - exclude nav/header to preserve sticky positioning */
                         body.seizure-safe *:not(nav):not(header):not(.navbar):not([class*="nav"]):not([class*="header"]) {
@@ -608,9 +608,9 @@
             
             // Enforce no-scroll-animations for known libraries/selectors with high specificity
             try {
-                if (!document.getElementById('accessibility-seizure-animation-enforcer')) {
+                if (!document.getElementById('accessbit-seizure-animation-enforcer')) {
                     const enforce = document.createElement('style');
-                    enforce.id = 'accessibility-seizure-animation-enforcer';
+                    enforce.id = 'accessbit-seizure-animation-enforcer';
                     enforce.textContent = `
                         /* Target common scroll animation libs without affecting layout of others */
                         body.seizure-safe [data-aos], body.seizure-safe .aos-init, body.seizure-safe .aos-animate,
@@ -710,7 +710,7 @@
                                     }
                                     
                                     // Mark as widget-managed
-                                    el.setAttribute('data-accessibility-widget-managed', 'true');
+                                    el.setAttribute('data-accessbit-widget-managed', 'true');
                                     
                                     const cs = window.getComputedStyle(el);
                                     // Lock width/transform/transition to current (prefer CSS class, fallback to inline)
@@ -1115,9 +1115,9 @@
         try {
             if (!isDesignerModeStandalone()) {
                 // Default to system preference using @media (prefers-reduced-motion: reduce)
-                if (!document.getElementById('accessibility-reduced-motion-default')) {
+                if (!document.getElementById('accessbit-reduced-motion-default')) {
                     const rm = document.createElement('style');
-                    rm.id = 'accessibility-reduced-motion-default';
+                    rm.id = 'accessbit-reduced-motion-default';
                     rm.textContent = `
 @media (prefers-reduced-motion: reduce) {
   /* Reduce nonessential motion for users who request it at OS level */
@@ -1166,7 +1166,7 @@
                         const currently = document.body.classList.contains('seizure-safe');
                         const next = !currently;
                         if (next) {
-                            localStorage.setItem('accessibility-widget-seizure-safe','true');
+                            localStorage.setItem('accessbit-widget-seizure-safe','true');
                             try { document.documentElement.classList.add('seizure-safe'); } catch (_) {}
                             try { document.body.classList.add('seizure-safe'); } catch (_) {}
                             try { seizureState.installStyleSanitizer && seizureState.installStyleSanitizer(); } catch (_) {}
@@ -1663,7 +1663,7 @@ function applyVisionImpaired(on) {
         document.body.classList.toggle('vision-impaired', !!on);
 
         // Remove content wrapper if it exists (cleanup from old implementation)
-        const wrapper = document.getElementById('accessibility-content-wrapper');
+        const wrapper = document.getElementById('accessbit-content-wrapper');
         if (wrapper && !on) {
             // Move all wrapper children back to body
             while (wrapper.firstChild) {
@@ -1672,10 +1672,10 @@ function applyVisionImpaired(on) {
             wrapper.remove();
         }
         
-        let style = document.getElementById('accessibility-vision-impaired-immediate-early');
+        let style = document.getElementById('accessbit-vision-impaired-immediate-early');
         if (!style && on) {
             style = document.createElement('style');
-            style.id = 'accessibility-vision-impaired-immediate-early';
+            style.id = 'accessbit-vision-impaired-immediate-early';
             document.head.appendChild(style);
         } else if (!on && style) {
             style.remove();
@@ -1716,26 +1716,26 @@ function applyVisionImpaired(on) {
             }
             
             /* Exclude widget from brightness adjustments */
-            body.vision-impaired .accessibility-widget,
-            body.vision-impaired #accessibility-widget,
-            body.vision-impaired .accessibility-panel,
-            .accessibility-panel {
+            body.vision-impaired .accessbit-widget,
+            body.vision-impaired #accessbit-widget,
+            body.vision-impaired .accessbit-widget-panel,
+            .accessbit-widget-panel {
                 filter: none !important;
                 z-index: 2147483646 !important;
             }
             
-            body.vision-impaired .accessibility-icon,
-            body.vision-impaired #accessibility-icon,
-            .accessibility-icon,
-            #accessibility-icon {
+            body.vision-impaired .accessbit-widget-icon,
+            body.vision-impaired #accessbit-widget-icon,
+            .accessbit-widget-icon,
+            #accessbit-widget-icon {
                 filter: none !important;
                 z-index: 2147483645 !important;
             }
             
-            body.vision-impaired .accessibility-widget,
-            body.vision-impaired #accessibility-widget,
-            .accessibility-widget,
-            #accessibility-widget {
+            body.vision-impaired .accessbit-widget,
+            body.vision-impaired #accessbit-widget,
+            .accessbit-widget,
+            #accessbit-widget {
                 filter: none !important;
                 z-index: 2147483647 !important;
             }
@@ -1752,12 +1752,12 @@ function applyVisionImpaired(on) {
         function bindReduceMotionToggle() {
             const input = document.getElementById('reduce-motion');
             if (!input) return;
-            const enabled = localStorage.getItem('accessibility-widget-reduce-motion') === 'true';
+            const enabled = localStorage.getItem('accessbit-widget-reduce-motion') === 'true';
             try { input.checked = enabled; } catch (_) {}
             if (!input.__reduceMotionBound) {
                 input.addEventListener('change', function() {
                     const on = !!this.checked;
-                    localStorage.setItem('accessibility-widget-reduce-motion', on ? 'true' : 'false');
+                    localStorage.setItem('accessbit-widget-reduce-motion', on ? 'true' : 'false');
                     try { document.documentElement.classList.toggle('reduce-motion', on); } catch (_) {}
                     try { document.body.classList.toggle('reduce-motion', on); } catch (_) {}
                     // Apply CSS and WAAPI controls
@@ -1770,12 +1770,12 @@ function applyVisionImpaired(on) {
                         })();
                         if (style && !style.textContent) {
                             style.textContent = `
-                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
-                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
-                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after,
-                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
-                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
-                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after {
+                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]),
+                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::before,
+                                html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::after,
+                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]),
+                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::before,
+                                body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::after {
                                     animation: none !important;
                                     transition: none !important;
                                     scroll-behavior: auto !important;
@@ -1851,12 +1851,12 @@ function applyVisionImpaired(on) {
         function bindSeizureSafeToggle() {
             const input = document.getElementById('seizure-safe');
             if (!input) return;
-            const enabled = localStorage.getItem('accessibility-widget-seizure-safe') === 'true';
+            const enabled = localStorage.getItem('accessbit-widget-seizure-safe') === 'true';
             try { input.checked = enabled; } catch (_) {}
             if (!input.__seizureBound) {
                 input.addEventListener('change', function() {
                     const on = !!this.checked;
-                    localStorage.setItem('accessibility-widget-seizure-safe', on ? 'true' : 'false');
+                    localStorage.setItem('accessbit-widget-seizure-safe', on ? 'true' : 'false');
                     try { document.documentElement.classList.toggle('seizure-safe', on); } catch (_) {}
                     try { document.body.classList.toggle('seizure-safe', on); } catch (_) {}
                     if (on) {
@@ -1880,16 +1880,16 @@ function applyVisionImpaired(on) {
 // CRITICAL: Immediate Vision Impaired profile - apply on first paint if previously enabled
 (function() {
     try {
-        const visionImpairedFromStorage = localStorage.getItem('accessibility-widget-vision-impaired');
+        const visionImpairedFromStorage = localStorage.getItem('accessbit-widget-vision-impaired');
         if (visionImpairedFromStorage === 'true') {
             try { document.documentElement.classList.add('vision-impaired'); } catch (_) {}
             try { document.body.classList.add('vision-impaired'); } catch (_) {}
             try { document.documentElement.setAttribute('data-vision-impaired', 'true'); } catch (_) {}
 
             // Apply comprehensive vision impaired styles immediately
-            if (!document.getElementById('accessibility-vision-impaired-immediate-early')) {
+            if (!document.getElementById('accessbit-vision-impaired-immediate-early')) {
                 const viStyle = document.createElement('style');
-                viStyle.id = 'accessibility-vision-impaired-immediate-early';
+                viStyle.id = 'accessbit-vision-impaired-immediate-early';
                 viStyle.textContent = `
                     /* VISION IMPAIRED: Brightness only, no layout changes */
                     
@@ -1930,12 +1930,12 @@ function applyVisionImpaired(on) {
             try {
                 const input = document.getElementById('vision-impaired');
                 if (!input) return;
-                const enabled = localStorage.getItem('accessibility-widget-vision-impaired') === 'true';
+                const enabled = localStorage.getItem('accessbit-widget-vision-impaired') === 'true';
                 try { input.checked = enabled; } catch (_) {}
                 if (!input.__viBound) {
                     input.addEventListener('change', function() {
                         const on = !!this.checked;
-                        localStorage.setItem('accessibility-widget-vision-impaired', on ? 'true' : 'false');
+                        localStorage.setItem('accessbit-widget-vision-impaired', on ? 'true' : 'false');
                         try { document.documentElement.classList.toggle('vision-impaired', on); } catch (_) {}
                         try { document.body.classList.toggle('vision-impaired', on); } catch (_) {}
                         try {
@@ -2114,9 +2114,9 @@ class AccessibilityWidget {
                         return false;
                     }
                     // Exclude widget's own elements (they're managed separately)
-                    if (el.closest('#accessibility-widget-container') ||
-                        el.closest('accessibility-widget') ||
-                        el.id === 'accessibility-widget-container') {
+                    if (el.closest('#accessbit-widget-container') ||
+                        el.closest('accessbit-widget') ||
+                        el.id === 'accessbit-widget-container') {
                         return false;
                     }
                     return true;
@@ -2147,9 +2147,9 @@ class AccessibilityWidget {
                         continue;
                     }
                     // Exclude widget's own elements
-                    if (el.closest('#accessibility-widget-container') ||
-                        el.closest('accessibility-widget') ||
-                        el.id === 'accessibility-widget-container') {
+                    if (el.closest('#accessbit-widget-container') ||
+                        el.closest('accessbit-widget') ||
+                        el.id === 'accessbit-widget-container') {
                         continue;
                     }
                     return el;
@@ -2391,7 +2391,7 @@ class AccessibilityWidget {
                 }
                 
                 // Mark as widget-manipulated for tracking
-                element.setAttribute('data-accessibility-widget-managed', 'true');
+                element.setAttribute('data-accessbit-widget-managed', 'true');
                 
                 // Add CSS class (preferred method)
                 element.classList.add(className);
@@ -2437,7 +2437,7 @@ class AccessibilityWidget {
                 // Create container with widget scope
                 const container = document.createElement('div');
                 container.id = id;
-                container.setAttribute('data-accessibility-widget-overlay', 'true');
+                container.setAttribute('data-accessbit-widget-overlay', 'true');
 
                 try {
                     const parser = new DOMParser();
@@ -2456,7 +2456,7 @@ class AccessibilityWidget {
                 }
                 
                 // Try to append to widget container first, fallback to body
-                const widgetContainer = document.getElementById('accessibility-widget-container');
+                const widgetContainer = document.getElementById('accessbit-widget-container');
                 if (widgetContainer) {
                     widgetContainer.appendChild(container);
                 } else {
@@ -2777,7 +2777,7 @@ class AccessibilityWidget {
             this.paymentFailed = true;
             
             // Hide the widget container
-            const widgetContainer = document.getElementById('accessibility-widget-container');
+            const widgetContainer = document.getElementById('accessbit-widget-container');
             if (widgetContainer) {
                 widgetContainer.style.display = 'none';
                 widgetContainer.style.visibility = 'hidden';
@@ -2785,8 +2785,8 @@ class AccessibilityWidget {
             }
             
             // Hide the icon and panel inside shadow DOM
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
             
             if (icon) {
                 console.log('[ICON HIDE] disableWidget() - Payment failed, hiding icon');
@@ -2878,7 +2878,7 @@ class AccessibilityWidget {
             try {
                 // Check if seizure-safe is enabled
                 const isSeizureSafe = document.body.classList.contains('seizure-safe');
-                const seizureSafeFromStorage = localStorage.getItem('accessibility-widget-seizure-safe') === 'true';
+                const seizureSafeFromStorage = localStorage.getItem('accessbit-widget-seizure-safe') === 'true';
                 
                 if (isSeizureSafe || seizureSafeFromStorage) {
                     
@@ -2944,7 +2944,7 @@ class AccessibilityWidget {
         checkAndApplyImmediateSeizureSafe() {
             try {
                 // Check localStorage first for immediate application
-                const seizureSafeFromStorage = localStorage.getItem('accessibility-widget-seizure-safe');
+                const seizureSafeFromStorage = localStorage.getItem('accessbit-widget-seizure-safe');
                 if (seizureSafeFromStorage === 'true') {
                     // Use safe class toggle (Designer-compliant)
                     this.safeBodyClassToggle('seizure-safe', true);
@@ -3018,9 +3018,9 @@ class AccessibilityWidget {
         // Minimal early CSS to pause motion before full seizure-safe styles load
         applyImmediateSeizureCSS() {
             try {
-                if (document.getElementById('accessibility-seizure-immediate')) return;
+                if (document.getElementById('accessbit-seizure-immediate')) return;
                 const style = document.createElement('style');
-                style.id = 'accessibility-seizure-immediate';
+                style.id = 'accessbit-seizure-immediate';
                 style.textContent = `
                     /* IMMEDIATE SEIZURE-SAFE CSS - Minimal approach */
                     body.seizure-safe * {
@@ -3120,7 +3120,7 @@ class AccessibilityWidget {
             // CSS is loaded in createWidget() via getWidgetCSS() - no need for separate addCSS()
     
             // Check if interface should be hidden
-            if (localStorage.getItem('accessibility-widget-hidden') === 'true') {
+            if (localStorage.getItem('accessbit-widget-hidden') === 'true') {
                 console.log('[ICON HIDE] init() - Interface is hidden in localStorage, preventing widget creation');
                 return;
             }
@@ -3128,7 +3128,7 @@ class AccessibilityWidget {
             console.log('[INIT] Creating widget...');
             this.createWidget();
             console.log('[INIT] Widget created, checking if icon exists...');
-            const iconCheck = this.shadowRoot?.getElementById('accessibility-icon');
+            const iconCheck = this.shadowRoot?.getElementById('accessbit-widget-icon');
             console.log('[INIT] Icon check after createWidget():', {
                 hasIcon: !!iconCheck,
                 iconDisplay: iconCheck ? iconCheck.style.display : 'N/A',
@@ -3180,7 +3180,7 @@ class AccessibilityWidget {
             
             // Restore saved language FIRST (before showing icon)
             // This ensures language is set before any positioning or customization
-            const savedLanguage = localStorage.getItem('accessibility-widget-language');
+            const savedLanguage = localStorage.getItem('accessbit-widget-language');
             if (savedLanguage) {
                 this.applyLanguage(savedLanguage);
             } else {
@@ -3213,7 +3213,7 @@ class AccessibilityWidget {
                 }
                 
               
-                const icon = this.shadowRoot?.getElementById('accessibility-icon');
+                const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
                 console.log('[INIT] Checking icon visibility conditions:', {
                     hasIcon: !!icon,
                     hasCustomizationData: !!customizationData,
@@ -3264,13 +3264,13 @@ class AccessibilityWidget {
                             forceVisibleStyle.id = 'force-icon-visible';
                             // Use multiple selectors with highest specificity to override everything
                             forceVisibleStyle.textContent = `
-                                #accessibility-icon.accessibility-icon,
-                                #accessibility-icon.circle,
-                                #accessibility-icon.accessibility-icon.circle,
-                                div#accessibility-icon,
-                                div#accessibility-icon.accessibility-icon,
-                                div#accessibility-icon.circle,
-                                div#accessibility-icon.accessibility-icon.circle {
+                                #accessbit-widget-icon.accessbit-widget-icon,
+                                #accessbit-widget-icon.circle,
+                                #accessbit-widget-icon.accessbit-widget-icon.circle,
+                                div#accessbit-widget-icon,
+                                div#accessbit-widget-icon.accessbit-widget-icon,
+                                div#accessbit-widget-icon.circle,
+                                div#accessbit-widget-icon.accessbit-widget-icon.circle {
                                     display: flex !important;
                                     visibility: visible !important;
                                     opacity: 1 !important;
@@ -3459,13 +3459,13 @@ class AccessibilityWidget {
                             } else if (isValid === true && this.paymentFailed === true) {
                                 // Payment status changed from invalid to valid - re-enable widget
                                 this.paymentFailed = false;
-                                const widgetContainer = document.getElementById('accessibility-widget-container');
+                                const widgetContainer = document.getElementById('accessbit-widget-container');
                                 if (widgetContainer) {
                                     widgetContainer.style.display = '';
                                     widgetContainer.style.visibility = '';
                                     widgetContainer.style.opacity = '';
                                 }
-                                const icon = this.shadowRoot?.getElementById('accessibility-icon');
+                                const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
                                 if (icon) {
                                     this.showIcon();
                                 }
@@ -3538,9 +3538,9 @@ class AccessibilityWidget {
     
             // Panel toggle functionality - using Shadow DOM
     
-            const icon = this.shadowRoot.getElementById('accessibility-icon');
+            const icon = this.shadowRoot.getElementById('accessbit-widget-icon');
     
-            const panel = this.shadowRoot.getElementById('accessibility-panel');
+            const panel = this.shadowRoot.getElementById('accessbit-widget-panel');
     
             const closeBtn = this.shadowRoot.getElementById('close-panel');
     
@@ -3574,7 +3574,7 @@ class AccessibilityWidget {
                     this.togglePanel();
                     
                     // Debug: Check panel state
-                    const panel = this.shadowRoot.getElementById('accessibility-panel');
+                    const panel = this.shadowRoot.getElementById('accessbit-widget-panel');
                     console.log('[ICON CLICK] Panel state after toggle:', {
                         hasPanel: !!panel,
                         panelDisplay: panel ? window.getComputedStyle(panel).display : 'N/A',
@@ -4869,7 +4869,7 @@ class AccessibilityWidget {
     
             // Check if CSS is already loaded
     
-            if (!document.querySelector('link[href*="accessibility-widget.css"]')) {
+            if (!document.querySelector('link[href*="accessbit-widget.css"]')) {
     
                 const link = document.createElement('link');
     
@@ -4893,7 +4893,7 @@ class AccessibilityWidget {
     
                 // Define overrideCSS first
                 const overrideCSS = `
-    .accessibility-panel {
+    .accessbit-widget-panel {
       /* Position controlled by JavaScript - no hardcoded positioning */
       left: auto;
       right: auto;
@@ -4902,23 +4902,23 @@ class AccessibilityWidget {
       transform: none;
     }
     
-    /* REMOVED the conflicting accessibility-icon rule that was forcing 50% border-radius */
+    /* REMOVED the conflicting accessbit-widget-icon rule that was forcing 50% border-radius */
     
     /* Icon Shape Rules - Simplified */
-    .accessibility-icon[data-shape="circle"] {
+    .accessbit-widget-icon[data-shape="circle"] {
         border-radius: 50%;
     }
     
-    .accessibility-icon[data-shape="rounded"] {
+    .accessbit-widget-icon[data-shape="rounded"] {
         border-radius: 12px;
     }
     
-    .accessibility-icon[data-shape="square"] {
+    .accessbit-widget-icon[data-shape="square"] {
         border-radius: 0px;
     }
     
     /* Z-index hierarchy: Spotlight > Panel > Icon */
-    .accessibility-panel {
+    .accessbit-widget-panel {
         position: fixed;
         z-index: 2147483646; /* Below spotlight, above icon */
         overflow-y: auto;
@@ -4932,7 +4932,7 @@ class AccessibilityWidget {
         bottom: auto;
     }
     
-    .accessibility-icon {
+    .accessbit-widget-icon {
         z-index: 2147483645 !important; /* Below panel */
     }
     
@@ -4942,15 +4942,15 @@ class AccessibilityWidget {
     }
     
     /* Additional shape classes for compatibility */
-    .accessibility-icon.rounded {
+    .accessbit-widget-icon.rounded {
         border-radius: 12px;
     }
     
-    .accessibility-icon.circle {
+    .accessbit-widget-icon.circle {
         border-radius: 50%;
     }
     
-    .accessibility-icon.square {
+    .accessbit-widget-icon.square {
         border-radius: 0px;
     }
     
@@ -4958,32 +4958,32 @@ class AccessibilityWidget {
     
     /* Very Small Mobile Screens (430px and below) */
     @media (max-width: 430px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             font-size: 12px;
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             font-size: 1.3em;
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             font-size: 1.1em;
         }
         
-        .accessibility-panel h4 {
+        .accessbit-widget-panel h4 {
             font-size: 0.9em;
         }
         
-        .accessibility-panel p {
+        .accessbit-widget-panel p {
             font-size: 0.8em;
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             font-size: 0.8em;
             padding: 4px 8px;
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             font-size: 0.7em;
             padding: 6px 20px;
             height: 28px;
@@ -4999,7 +4999,7 @@ class AccessibilityWidget {
             box-sizing: border-box;
         }
         
-        .accessibility-panel .scaling-btn i.fas {
+        .accessbit-widget-panel .scaling-btn i.fas {
             /* Hide icon to avoid offsetting the +2% / -2% text horizontally,
                especially when Font Awesome is not loaded */
             display: none !important;
@@ -5008,23 +5008,23 @@ class AccessibilityWidget {
         }
         
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             font-size: 0.8em;
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             font-size: 0.7em;
         }
         
-        .accessibility-panel .profile-item h4 {
+        .accessbit-widget-panel .profile-item h4 {
             font-size: 0.8em;
         }
         
-        .accessibility-panel .profile-item p {
+        .accessbit-widget-panel .profile-item p {
             font-size: 0.7em;
         }
         
-        .accessibility-panel .close-btn {
+        .accessbit-widget-panel .close-btn {
             font-size: 16px;
             padding: 4px;
         }
@@ -5032,7 +5032,7 @@ class AccessibilityWidget {
     
     /* Mobile Devices (Small Screens) - Base styles */
     @media (max-width: 480px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             width: 90vw;
             max-width: 350px;
             padding: 12px;
@@ -5044,32 +5044,32 @@ class AccessibilityWidget {
             overscroll-behavior: contain;
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             margin-bottom: 8px;
             font-size: 1.5em;
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             margin-bottom: 6px;
             font-size: 1.2em;
         }
         
-        .accessibility-panel h4 {
+        .accessbit-widget-panel h4 {
             font-size: 1em;
         }
         
-        .accessibility-panel p {
+        .accessbit-widget-panel p {
             line-height: 1.3;
             font-size: 0.9em;
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             padding: 6px 10px;
             min-height: 28px;
             font-size: 0.9em;
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             padding: 4px 6px;
             min-height: 24px;
             font-size: 0.8em;
@@ -5079,41 +5079,41 @@ class AccessibilityWidget {
             gap: 4px;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             font-size: 0.9em;
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             font-size: 0.8em;
         }
         
-        .accessibility-panel .profile-item h4 {
+        .accessbit-widget-panel .profile-item h4 {
             font-size: 0.9em;
         }
         
-        .accessibility-panel .profile-item p {
+        .accessbit-widget-panel .profile-item p {
             font-size: 0.8em;
         }
         
-        .accessibility-panel .close-btn {
+        .accessbit-widget-panel .close-btn {
             font-size: 18px;
             padding: 6px;
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 45px;
             height: 45px;
             /* Position controlled by JS; do not force a corner here */
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
     }
     
     /* Landscape Phones & Smaller Portrait Tablets */
     @media (min-width: 481px) and (max-width: 768px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             width: 80vw;
             max-width: 380px;
             padding: 14px;
@@ -5125,32 +5125,32 @@ class AccessibilityWidget {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             margin-bottom: 10px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             margin-bottom: 8px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h4 {
+        .accessbit-widget-panel h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel p {
+        .accessbit-widget-panel p {
             line-height: 1.4;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             padding: 8px 12px;
             min-height: 32px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             padding: 5px 10px !important;
             min-height: 26px;
             /* Font size controlled by JavaScript */
@@ -5161,7 +5161,7 @@ class AccessibilityWidget {
             text-align: center !important;
         }
         
-        .accessibility-panel .scaling-btn span {
+        .accessbit-widget-panel .scaling-btn span {
             display: flex;
             align-items: center;
             line-height: 1;
@@ -5169,40 +5169,40 @@ class AccessibilityWidget {
             padding: 0;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item h4 {
+        .accessbit-widget-panel .profile-item h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item p {
+        .accessbit-widget-panel .profile-item p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .close-btn {
+        .accessbit-widget-panel .close-btn {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 50px;
             height: 50px;
             /* Position controlled by JS */
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
     }
     
     /* Tablets (Portrait & Landscape) & Laptops */
     @media (min-width: 769px) and (max-width: 1024px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             width: 75vw;
             max-width: 520px;
             max-height: calc(100vh - 40px);
@@ -5219,32 +5219,32 @@ class AccessibilityWidget {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             margin-bottom: 12px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             margin-bottom: 10px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h4 {
+        .accessbit-widget-panel h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel p {
+        .accessbit-widget-panel p {
             line-height: 1.5;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             padding: 10px 14px;
             min-height: 36px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             padding: 6px 10px;
             min-height: 28px;
             /* Font size controlled by JavaScript */
@@ -5254,40 +5254,40 @@ class AccessibilityWidget {
             gap: 4px !important;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item h4 {
+        .accessbit-widget-panel .profile-item h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item p {
+        .accessbit-widget-panel .profile-item p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .close-btn {
+        .accessbit-widget-panel .close-btn {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 55px;
             height: 55px;
             /* Position controlled by JS */
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
     }
     
     /* Larger Displays (Desktops) */
     @media (min-width: 1012px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             width: 600px;
             max-width: 600px;
             max-height: calc(100vh - 40px);
@@ -5295,32 +5295,32 @@ class AccessibilityWidget {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             margin-bottom: 14px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             margin-bottom: 12px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h4 {
+        .accessbit-widget-panel h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel p {
+        .accessbit-widget-panel p {
             line-height: 1.6;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             padding: 12px 16px;
             min-height: 40px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             padding: 8px 12px;
             min-height: 32px;
             /* Font size controlled by JavaScript */
@@ -5330,40 +5330,40 @@ class AccessibilityWidget {
             gap: 4px !important;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item h4 {
+        .accessbit-widget-panel .profile-item h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item p {
+        .accessbit-widget-panel .profile-item p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .close-btn {
+        .accessbit-widget-panel .close-btn {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 60px;
             height: 60px;
             /* Position controlled by JS */
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
     }
     
     /* Orientation-specific styles */
     @media (orientation: landscape) and (max-width: 768px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             width: 85vw;
             max-width: 400px;
             /* REMOVED: height: 100vh, top: 0, bottom: 0 - Panel should position relative to icon */
@@ -5374,32 +5374,32 @@ class AccessibilityWidget {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             margin-bottom: 8px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             margin-bottom: 6px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h4 {
+        .accessbit-widget-panel h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel p {
+        .accessbit-widget-panel p {
             line-height: 1.3;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             padding: 6px 10px;
             min-height: 28px;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             padding: 4px 6px;
             min-height: 24px;
             /* Font size controlled by JavaScript */
@@ -5409,23 +5409,23 @@ class AccessibilityWidget {
             gap: 4px !important;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item h4 {
+        .accessbit-widget-panel .profile-item h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-item p {
+        .accessbit-widget-panel .profile-item p {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .close-btn {
+        .accessbit-widget-panel .close-btn {
             /* Font size controlled by JavaScript */
         }
     }
@@ -5433,27 +5433,27 @@ class AccessibilityWidget {
     /* High-resolution screens */
     @media (-webkit-min-device-pixel-ratio: 2),
            (min-resolution: 192dpi) {
-        .accessibility-icon {
+        .accessbit-widget-icon {
             /* Ensure crisp rendering on high-DPI displays */
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
         }
     }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             padding: 8px 12px !important;
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             padding: 4px 8px !important;
             /* Font size controlled by JavaScript */
             display: flex !important;
@@ -5462,16 +5462,16 @@ class AccessibilityWidget {
             gap: 4px !important;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             /* Font size controlled by JavaScript */
         }
         
         /* Mobile shape adjustments */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px;
         }
     }
@@ -5527,7 +5527,7 @@ class AccessibilityWidget {
         }
         
         /* Ensure rounded shape works on medium mobile */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px !important;
             -webkit-border-radius: 12px !important;
             -moz-border-radius: 12px !important;
@@ -5536,7 +5536,7 @@ class AccessibilityWidget {
     
     /* Small Mobile Screens (375px and below) */
     @media (max-width: 400px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             /* Font size controlled by JavaScript */
             padding: 8px;
             width: 90vw;
@@ -5550,23 +5550,23 @@ class AccessibilityWidget {
             overscroll-behavior: contain;
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */
             margin-bottom: 6px;
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */
             margin-bottom: 4px;
         }
         
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             /* Font size controlled by JavaScript */
             padding: 4px 6px;
             min-height: 24px;
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             /* Font size controlled by JavaScript */
             padding: 2px 4px;
             min-height: 20px;
@@ -5576,11 +5576,11 @@ class AccessibilityWidget {
             gap: 4px !important;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             /* Font size controlled by JavaScript */
         }
         
@@ -5633,7 +5633,7 @@ class AccessibilityWidget {
         }
         
         /* Ensure rounded shape works on small mobile */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px;
             -webkit-border-radius: 12px;
             -moz-border-radius: 12px;
@@ -5641,25 +5641,25 @@ class AccessibilityWidget {
     }
     
     @media (max-width: 480px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             /* Font size controlled by JavaScript */ /* Override external 8px */
         }
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */ /* Override external 9px */
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */ /* Override external 8px */
         }
         
         /* Override external button size conflicts */
-        .accessibility-panel .action-btn {
+        .accessbit-widget-panel .action-btn {
             /* Font size controlled by JavaScript */
             padding: 6px 10px;
         }
         
-        .accessibility-panel .scaling-btn {
+        .accessbit-widget-panel .scaling-btn {
             /* Font size controlled by JavaScript */
             padding: 3px 6px;
             display: flex;
@@ -5668,16 +5668,16 @@ class AccessibilityWidget {
             gap: 4px;
         }
         
-        .accessibility-panel .profile-info h4 {
+        .accessbit-widget-panel .profile-info h4 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel .profile-info p {
+        .accessbit-widget-panel .profile-info p {
             /* Font size controlled by JavaScript */
         }
         
         /* Ensure rounded shape works on small mobile */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px;
             -webkit-border-radius: 12px;
             -moz-border-radius: 12px;
@@ -5685,7 +5685,7 @@ class AccessibilityWidget {
     }
     
     /* Override external panel positioning conflicts */
-    .accessibility-panel {
+    .accessbit-widget-panel {
         /* Let JavaScript control positioning, not external CSS */
         left: auto;
         right: auto;
@@ -5699,28 +5699,28 @@ class AccessibilityWidget {
     /* Removed - replaced with mobile-first approach above */
         
         /* Ensure rounded shape works on large tablets */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px !important;
             -webkit-border-radius: 12px !important;
             -moz-border-radius: 12px !important;
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 55px !important;
             height: 55px !important;
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
         
         /* Better content spacing for large tablets */
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */
             margin-bottom: 14px !important;
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */
             margin-bottom: 12px !important;
         }
@@ -5747,25 +5747,25 @@ class AccessibilityWidget {
     /* Removed - replaced with mobile-first approach above */
         
         /* Ensure rounded shape works on tablets */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px !important;
             -webkit-border-radius: 12px !important;
             -moz-border-radius: 12px !important;
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 50px !important;
             height: 50px !important;
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
     }
     
     /* iPad Mini and Tablet - Responsive sizing */
     @media (max-width: 819px) and (min-width: 769px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             width: 85vw;
             max-width: 450px;
             /* Font size controlled by JavaScript */
@@ -5782,28 +5782,28 @@ class AccessibilityWidget {
         }
         
         /* Ensure rounded shape works on iPad Mini */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px;
             -webkit-border-radius: 12px;
             -moz-border-radius: 12px;
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 50px;
             height: 50px;
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
         
         /* Better content spacing for tablet */
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */
             margin-bottom: 12px;
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */
             margin-bottom: 10px;
         }
@@ -5829,22 +5829,22 @@ class AccessibilityWidget {
     
     /* Removed - replaced with mobile-first approach above */
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 45px !important;
             height: 45px !important;
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
         
         /* Reasonable text and toggles for mobile landscape */
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */
             margin-bottom: 10px !important;
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */
             margin-bottom: 8px !important;
         }
@@ -5906,7 +5906,7 @@ class AccessibilityWidget {
     
     /* Mobile Portrait - Reasonable text and toggles */
     @media (max-width: 480px) {
-        .accessibility-panel {
+        .accessbit-widget-panel {
             width: 75vw !important;
             max-width: 320px !important;
             /* Font size controlled by JavaScript */
@@ -5920,22 +5920,22 @@ class AccessibilityWidget {
             overscroll-behavior: contain;
         }
         
-        .accessibility-icon {
+        .accessbit-widget-icon {
             width: 40px !important;
             height: 40px !important;
         }
         
-        .accessibility-icon i {
+        .accessbit-widget-icon i {
             /* Font size controlled by JavaScript */
         }
         
         /* Reasonable text and toggles for mobile portrait */
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */
             margin-bottom: 8px !important;
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */
             margin-bottom: 6px !important;
         }
@@ -6000,7 +6000,7 @@ class AccessibilityWidget {
     /* Removed conflicting shape styles */
     
     /* DEBUG: Add visual indicators for shape testing */
-    .accessibility-icon[data-shape="circle"]::after {
+    .accessbit-widget-icon[data-shape="circle"]::after {
         content: "CIRCLE" !important;
         position: absolute !important;
         top: -20px !important;
@@ -6011,7 +6011,7 @@ class AccessibilityWidget {
         z-index: 9999 !important;
     }
     
-    .accessibility-icon[data-shape="rounded"]::after {
+    .accessbit-widget-icon[data-shape="rounded"]::after {
         content: "ROUNDED" !important;
         position: absolute !important;
         top: -20px !important;
@@ -6022,7 +6022,7 @@ class AccessibilityWidget {
         z-index: 9999 !important;
     }
     
-    .accessibility-icon[data-shape="square"]::after {
+    .accessbit-widget-icon[data-shape="square"]::after {
         content: "SQUARE" !important;
         position: absolute !important;
         top: -20px !important;
@@ -6046,16 +6046,16 @@ class AccessibilityWidget {
     
     /* Removed - replaced with mobile-first approach above */
         
-        .accessibility-panel h2 {
+        .accessbit-widget-panel h2 {
             /* Font size controlled by JavaScript */
         }
         
-        .accessibility-panel h3 {
+        .accessbit-widget-panel h3 {
             /* Font size controlled by JavaScript */
         }
         
         /* Mobile shape adjustments */
-        .accessibility-icon[data-shape="rounded"] {
+        .accessbit-widget-icon[data-shape="rounded"] {
             border-radius: 12px;
         }
         
@@ -6100,7 +6100,7 @@ class AccessibilityWidget {
         }
     }
     
-    .accessibility-panel {
+    .accessbit-widget-panel {
         display: none !important;
         position: fixed;
         z-index: 100001 !important;
@@ -6111,7 +6111,7 @@ class AccessibilityWidget {
         bottom: auto;
     }
     
-    .accessibility-panel.show {
+    .accessbit-widget-panel.show {
         display: block !important;
         visibility: visible !important;
     }
@@ -6243,30 +6243,30 @@ class AccessibilityWidget {
     }
     
     /* Exclude accessibility widget from text alignment */
-    body.align-left .accessibility-widget,
-    body.align-left .accessibility-panel,
-    body.align-left .accessibility-icon,
-    body.align-left #accessibility-widget,
-    body.align-left #accessibility-panel,
-    body.align-left #accessibility-icon,
+    body.align-left .accessbit-widget,
+    body.align-left .accessbit-widget-panel,
+    body.align-left .accessbit-widget-icon,
+    body.align-left #accessbit-widget,
+    body.align-left #accessbit-widget-panel,
+    body.align-left #accessbit-widget-icon,
     body.align-left [data-ck-widget],
-    body.align-left [class*="accessibility"],
-    body.align-center .accessibility-widget,
-    body.align-center .accessibility-panel,
-    body.align-center .accessibility-icon,
-    body.align-center #accessibility-widget,
-    body.align-center #accessibility-panel,
-    body.align-center #accessibility-icon,
+    body.align-left [class*="accessbit"],
+    body.align-center .accessbit-widget,
+    body.align-center .accessbit-widget-panel,
+    body.align-center .accessbit-widget-icon,
+    body.align-center #accessbit-widget,
+    body.align-center #accessbit-widget-panel,
+    body.align-center #accessbit-widget-icon,
     body.align-center [data-ck-widget],
-    body.align-center [class*="accessibility"],
-    body.align-right .accessibility-widget,
-    body.align-right .accessibility-panel,
-    body.align-right .accessibility-icon,
-    body.align-right #accessibility-widget,
-    body.align-right #accessibility-panel,
-    body.align-right #accessibility-icon,
+    body.align-center [class*="accessbit"],
+    body.align-right .accessbit-widget,
+    body.align-right .accessbit-widget-panel,
+    body.align-right .accessbit-widget-icon,
+    body.align-right #accessbit-widget,
+    body.align-right #accessbit-widget-panel,
+    body.align-right #accessbit-widget-icon,
     body.align-right [data-ck-widget],
-    body.align-right [class*="accessibility"] {
+    body.align-right [class*="accessbit"] {
         text-align: inherit !important;
     }
     `;
@@ -6293,7 +6293,7 @@ class AccessibilityWidget {
             
             const widgetContainer = document.createElement('div');
     
-            widgetContainer.id = 'accessibility-widget-container';
+            widgetContainer.id = 'accessbit-widget-container';
     
             widgetContainer.style.cssText = `
     
@@ -6338,7 +6338,7 @@ class AccessibilityWidget {
             if (!style) {
                 style = document.createElement('style');
                 style.setAttribute('data-widget-css', 'true');
-                style.setAttribute('id', 'accessibility-widget-styles');
+                style.setAttribute('id', 'accessbit-widget-styles');
                 style.textContent = this.getWidgetCSS();
                 // Insert CSS FIRST before any HTML elements to ensure it's always loaded
                 shadowRoot.appendChild(style);
@@ -6355,9 +6355,9 @@ class AccessibilityWidget {
     
             const icon = document.createElement('div');
     
-            icon.id = 'accessibility-icon';
-    
-            icon.className = 'accessibility-icon';
+            icon.id = 'accessbit-widget-icon';
+            
+            icon.className = 'accessbit-widget-icon';
     
             icon.setAttribute('role', 'button');
     
@@ -6367,7 +6367,7 @@ class AccessibilityWidget {
     
             icon.setAttribute('aria-expanded', 'false');
     
-            icon.setAttribute('aria-describedby', 'accessibility-icon-description');
+            icon.setAttribute('aria-describedby', 'accessbit-widget-icon-description');
     
             icon.textContent = '';
             const iconElement = document.createElement('i');
@@ -6375,7 +6375,7 @@ class AccessibilityWidget {
             iconElement.setAttribute('aria-hidden', 'true');
             icon.appendChild(iconElement);
             const descriptionSpan = document.createElement('span');
-            descriptionSpan.id = 'accessibility-icon-description';
+            descriptionSpan.id = 'accessbit-widget-icon-description';
             descriptionSpan.className = 'sr-only';
             descriptionSpan.textContent = 'Click to open accessibility settings panel';
             icon.appendChild(descriptionSpan);
@@ -6398,9 +6398,9 @@ class AccessibilityWidget {
     
             const panel = document.createElement('div');
     
-            panel.id = 'accessibility-panel';
+            panel.id = 'accessbit-widget-panel';
     
-            panel.className = 'accessibility-panel';
+            panel.className = 'accessbit-widget-panel';
     
             panel.setAttribute('role', 'dialog');
     
@@ -6525,9 +6525,9 @@ class AccessibilityWidget {
     
             setTimeout(() => {
     
-                const iconCheck = shadowRoot.getElementById('accessibility-icon');
+                const iconCheck = shadowRoot.getElementById('accessbit-widget-icon');
     
-                const panelCheck = shadowRoot.getElementById('accessibility-panel');
+                const panelCheck = shadowRoot.getElementById('accessbit-widget-panel');
     
                 
     
@@ -6564,7 +6564,7 @@ class AccessibilityWidget {
 
             // Vision Impaired: apply saved state and bind toggle inside Shadow DOM
             try {
-                const viEnabled = localStorage.getItem('accessibility-widget-vision-impaired') === 'true';
+                const viEnabled = localStorage.getItem('accessbit-widget-vision-impaired') === 'true';
                 applyVisionImpaired(viEnabled);
 
                 const bindVIToggle = () => {
@@ -6573,7 +6573,7 @@ class AccessibilityWidget {
                     try { viToggle.checked = viEnabled; } catch (_) {}
                     viToggle.addEventListener('change', () => {
                         const on = !!viToggle.checked;
-                        localStorage.setItem('accessibility-widget-vision-impaired', on ? 'true' : 'false');
+                        localStorage.setItem('accessbit-widget-vision-impaired', on ? 'true' : 'false');
                         applyVisionImpaired(on);
                     });
                     viToggle.__viBound = true;
@@ -6597,97 +6597,97 @@ class AccessibilityWidget {
             @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
             
             /* Force icon shape overrides - must come first */
-            .accessibility-icon {
+            .accessbit-widget-icon {
                 /* REMOVED empty rule that was potentially conflicting */
             }
             
             /* Override external CSS with maximum specificity */
-            .accessibility-icon[data-shape="circle"] {
+            .accessbit-widget-icon[data-shape="circle"] {
                 border-radius: 50% !important;
                 -webkit-border-radius: 50% !important;
                 -moz-border-radius: 50% !important;
             }
             
-            .accessibility-icon[data-shape="rounded"] {
+            .accessbit-widget-icon[data-shape="rounded"] {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
-            .accessibility-icon[data-shape="square"] {
+            .accessbit-widget-icon[data-shape="square"] {
                 border-radius: 0px !important;
                 -webkit-border-radius: 0px !important;
                 -moz-border-radius: 0px !important;
             }
             
             /* ULTRA-AGGRESSIVE OVERRIDE FOR ROUNDED SHAPE */
-            .accessibility-icon.rounded,
-            .accessibility-icon[data-shape="rounded"],
-            .accessibility-icon.rounded[data-shape="rounded"],
-            .accessibility-icon[data-shape="rounded"].rounded {
+            .accessbit-widget-icon.rounded,
+            .accessbit-widget-icon[data-shape="rounded"],
+            .accessbit-widget-icon.rounded[data-shape="rounded"],
+            .accessbit-widget-icon[data-shape="rounded"].rounded {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Force rounded shape with absolute maximum specificity */
-            .accessibility-icon.rounded[data-shape="rounded"] {
+            .accessbit-widget-icon.rounded[data-shape="rounded"] {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Override any external CSS that might be forcing circle shape */
-            .accessibility-icon[data-shape="rounded"]:not([data-shape="circle"]) {
+            .accessbit-widget-icon[data-shape="rounded"]:not([data-shape="circle"]) {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Force rounded shape with absolute maximum specificity */
-            .accessibility-icon.rounded,
-            .accessibility-icon[data-shape="rounded"] {
+            .accessbit-widget-icon.rounded,
+            .accessbit-widget-icon[data-shape="rounded"] {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Override any external CSS that might be forcing circle shape */
-            .accessibility-icon[data-shape="rounded"]:not([data-shape="circle"]) {
+            .accessbit-widget-icon[data-shape="rounded"]:not([data-shape="circle"]) {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Maximum specificity override for rounded shape */
-            .accessibility-icon.rounded[data-shape="rounded"] {
+            .accessbit-widget-icon.rounded[data-shape="rounded"] {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Force rounded shape with absolute maximum specificity */
-            .accessibility-icon[data-shape="rounded"].rounded {
+            .accessbit-widget-icon[data-shape="rounded"].rounded {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Override any external CSS with maximum force */
-            .accessibility-icon[data-shape="rounded"] {
+            .accessbit-widget-icon[data-shape="rounded"] {
                 border-radius: 12px !important;
                 -webkit-border-radius: 12px !important;
                 -moz-border-radius: 12px !important;
             }
             
             /* Force panel positioning */
-            .accessibility-panel {
+            .accessbit-widget-panel {
                 /* REMOVED: position: fixed !important; - This was preventing widget from scrolling with viewport */
                 z-index: 100001 !important;
                 display: none !important; /* Hidden by default */
             }
             
-            .accessibility-panel.show {
+            .accessbit-widget-panel.show {
                 display: block !important;
                 visibility: visible !important;
             }
@@ -6695,16 +6695,16 @@ class AccessibilityWidget {
             /* Mobile responsiveness - handled by main responsive CSS above */
             
             @media (max-width: 480px) {
-                .accessibility-icon {
+                .accessbit-widget-icon {
                     width: 45px !important;
                     height: 45px !important;
                 }
                 
-                .accessibility-icon i {
+                .accessbit-widget-icon i {
                     /* Font size controlled by JavaScript */
                 }
                 
-                .accessibility-panel {
+                .accessbit-widget-panel {
                     width: 95vw !important;
                     max-width: 350px !important;
                 }
@@ -6737,7 +6737,7 @@ class AccessibilityWidget {
     
                 /* Ensure icon positioning is always fixed and not affected by host context */
     
-                .accessibility-icon {
+                .accessbit-widget-icon {
     
                     position: fixed !important;
     
@@ -6756,7 +6756,7 @@ class AccessibilityWidget {
     
                 /* Accessibility Icon - Visual styling */
     
-                .accessibility-icon {
+                .accessbit-widget-icon {
     
                     width: 60px;
     
@@ -6784,7 +6784,7 @@ class AccessibilityWidget {
     
     
     
-                .accessibility-icon:hover {
+                .accessbit-widget-icon:hover {
     
                     transform: scale(1.05);
     
@@ -6794,7 +6794,7 @@ class AccessibilityWidget {
     
     
     
-                .accessibility-icon i {
+                .accessbit-widget-icon i {
     
                     color: #ffffff;
     
@@ -6806,13 +6806,13 @@ class AccessibilityWidget {
     
                 /* CRITICAL: Focus indicators for keyboard navigation in Shadow DOM */
     
-                .accessibility-icon:focus {
+                .accessbit-widget-icon:focus {
     
                     
                 }
     
                 /* Allow focus indicators when highlight-focus is active */
-                body.highlight-focus .accessibility-icon:focus {
+                body.highlight-focus .accessbit-widget-icon:focus {
                     outline: 3px solid #6366f1 !important;
                     outline-offset: 2px !important;
                     background: rgba(99, 102, 241, 0.1) !important;
@@ -6821,7 +6821,7 @@ class AccessibilityWidget {
                 }
                 
                 /* Additional focus styles for accessibility icon when keyboard navigation is active */
-                body.highlight-focus #accessibility-icon:focus {
+                body.highlight-focus #accessbit-widget-icon:focus {
                     outline: 3px solid #6366f1 !important;
                     outline-offset: 2px !important;
                     background: rgba(99, 102, 241, 0.1) !important;
@@ -6931,8 +6931,8 @@ class AccessibilityWidget {
                 }
                 
                 /* Override for accessibility icon to show focus when keyboard navigation is active */
-                body.highlight-focus .accessibility-icon:focus,
-                body.highlight-focus #accessibility-icon:focus {
+                body.highlight-focus .accessbit-widget-icon:focus,
+                body.highlight-focus #accessbit-widget-icon:focus {
                     outline: 3px solid #6366f1 !important;
                     outline-offset: 2px !important;
                     background: rgba(99, 102, 241, 0.1) !important;
@@ -6997,13 +6997,13 @@ class AccessibilityWidget {
     
                 /* Focus indicators for keyboard navigation */
     
-                .accessibility-icon:focus,
+                .accessbit-widget-icon:focus,
     
-                .accessibility-panel button:focus,
+                .accessbit-widget-panel button:focus,
     
-                .accessibility-panel input:focus,
+                .accessbit-widget-panel input:focus,
     
-                .accessibility-panel label:focus {
+                .accessbit-widget-panel label:focus {
     
                     
                     outline-offset: 0px !important;
@@ -7012,10 +7012,10 @@ class AccessibilityWidget {
                 }
     
                 /* Allow focus indicators when highlight-focus is active (document scope) */
-                body.highlight-focus .accessibility-icon:focus,
-                body.highlight-focus .accessibility-panel button:focus,
-                body.highlight-focus .accessibility-panel input:focus,
-                body.highlight-focus .accessibility-panel label:focus {
+                body.highlight-focus .accessbit-widget-icon:focus,
+                body.highlight-focus .accessbit-widget-panel button:focus,
+                body.highlight-focus .accessbit-widget-panel input:focus,
+                body.highlight-focus .accessbit-widget-panel label:focus {
                     outline: 3px solid #6366f1 !important;
                     outline-offset: 2px !important;
                     background: rgba(99, 102, 241, 0.1) !important;
@@ -7024,11 +7024,11 @@ class AccessibilityWidget {
                 }
     
                 /* Ensure focus styles work inside Shadow DOM when body has highlight-focus */
-                :host-context(.highlight-focus) #accessibility-icon:focus,
-                :host-context(.highlight-focus) .accessibility-icon:focus,
-                :host-context(.highlight-focus) .accessibility-panel button:focus,
-                :host-context(.highlight-focus) .accessibility-panel input:focus,
-                :host-context(.highlight-focus) .accessibility-panel label:focus {
+                :host-context(.highlight-focus) #accessbit-widget-icon:focus,
+                :host-context(.highlight-focus) .accessbit-widget-icon:focus,
+                :host-context(.highlight-focus) .accessbit-widget-panel button:focus,
+                :host-context(.highlight-focus) .accessbit-widget-panel input:focus,
+                :host-context(.highlight-focus) .accessbit-widget-panel label:focus {
                     outline: 3px solid #6366f1 !important;
                     outline-offset: 2px !important;
                     background: rgba(99, 102, 241, 0.1) !important;
@@ -7038,11 +7038,11 @@ class AccessibilityWidget {
     
                 /* High contrast focus for better visibility */
     
-                .accessibility-icon:focus-visible,
+                .accessbit-widget-icon:focus-visible,
     
-                .accessibility-panel button:focus-visible,
+                .accessbit-widget-panel button:focus-visible,
     
-                .accessibility-panel input:focus-visible {
+                .accessbit-widget-panel input:focus-visible {
     
                     
     
@@ -7052,7 +7052,7 @@ class AccessibilityWidget {
     
                 /* Accessibility Panel - Fixed position on right side */
     
-                .accessibility-panel {
+                .accessbit-widget-panel {
     
                     /* REMOVED: position: fixed; - This was preventing widget from scrolling with viewport */
     
@@ -7073,17 +7073,17 @@ class AccessibilityWidget {
                 }
                 
                 /* Override GSAP/Lenis smooth scrolling for accessibility panel */
-                .accessibility-panel * {
+                .accessbit-widget-panel * {
                     scroll-behavior: auto !important;
                 }
                 
                 /* Ensure panel content is always scrollable */
-                .accessibility-panel .panel-content {
+                .accessbit-widget-panel .panel-content {
                     overflow-y: auto !important;
                     -webkit-overflow-scrolling: touch !important;
                 }
     
-                .accessibility-panel.active {
+                .accessbit-widget-panel.active {
     
                     display: block !important;
     
@@ -7103,7 +7103,7 @@ class AccessibilityWidget {
     
                 @media (max-width: 480px) {
     
-                    .accessibility-icon {
+                    .accessbit-widget-icon {
     
                         width: 45px !important;
     
@@ -7115,7 +7115,7 @@ class AccessibilityWidget {
     
                     
     
-                    .accessibility-icon i {
+                    .accessbit-widget-icon i {
     
                         /* Font size controlled by JavaScript */
     
@@ -7123,7 +7123,7 @@ class AccessibilityWidget {
     
                     
     
-                    .accessibility-panel {
+                    .accessbit-widget-panel {
     
                         width: 500px !important;
     
@@ -7135,7 +7135,7 @@ class AccessibilityWidget {
     
                     
     
-                    .accessibility-panel.active {
+                    .accessbit-widget-panel.active {
                         /* Position controlled by JavaScript - removed hardcoded left positioning */
                     }
     
@@ -7324,7 +7324,7 @@ class AccessibilityWidget {
     
                 /* Panel Content */
     
-                .accessibility-panel h2 {
+                .accessbit-widget-panel h2 {
     
                     text-align: center;
     
@@ -8216,8 +8216,8 @@ class AccessibilityWidget {
                 /* Exclude widget from seizure-safe filter - widget should never have greyscale */
                 :host,
                 :host(.seizure-safe),
-                :host(.seizure-safe) .accessibility-icon,
-                :host(.seizure-safe) .accessibility-panel,
+                :host(.seizure-safe) .accessbit-widget-icon,
+                :host(.seizure-safe) .accessbit-widget-panel,
                 :host(.seizure-safe) * {
                     filter: none !important;
                     -webkit-filter: none !important;
@@ -8227,7 +8227,7 @@ class AccessibilityWidget {
     
                 /* Ensure seizure safe icon stays in correct position */
     
-                :host(.seizure-safe) .accessibility-icon {
+                :host(.seizure-safe) .accessbit-widget-icon {
     
                     position: fixed !important;
     
@@ -8277,9 +8277,9 @@ class AccessibilityWidget {
     
     
     
-                :host(.adhd-friendly) .accessibility-icon,
+                :host(.adhd-friendly) .accessbit-widget-icon,
     
-                :host(.adhd-friendly) .accessibility-panel {
+                :host(.adhd-friendly) .accessbit-widget-panel {
     
                     filter: saturate(0.9) brightness(0.9) !important;
     
@@ -8287,9 +8287,9 @@ class AccessibilityWidget {
     
     
     
-                :host(.cognitive-disability) .accessibility-icon,
+                :host(.cognitive-disability) .accessbit-widget-icon,
     
-                :host(.cognitive-disability) .accessibility-panel {
+                :host(.cognitive-disability) .accessbit-widget-panel {
     
                     filter: saturate(1.2) brightness(1.1) !important;
     
@@ -8301,9 +8301,9 @@ class AccessibilityWidget {
     
     
     
-                :host(.monochrome) .accessibility-icon,
+                :host(.monochrome) .accessbit-widget-icon,
     
-                :host(.monochrome) .accessibility-panel {
+                :host(.monochrome) .accessbit-widget-panel {
     
                     filter: grayscale(1) !important;
     
@@ -8311,9 +8311,9 @@ class AccessibilityWidget {
     
     
     
-                :host(.dark-contrast) .accessibility-icon,
+                :host(.dark-contrast) .accessbit-widget-icon,
     
-                :host(.dark-contrast) .accessibility-panel {
+                :host(.dark-contrast) .accessbit-widget-panel {
     
                     filter: saturate(1.2) brightness(0.8) contrast(1.3) !important;
     
@@ -8321,9 +8321,9 @@ class AccessibilityWidget {
     
     
     
-                :host(.light-contrast) .accessibility-icon,
+                :host(.light-contrast) .accessbit-widget-icon,
     
-                :host(.light-contrast) .accessibility-panel {
+                :host(.light-contrast) .accessbit-widget-panel {
     
                     filter: saturate(1.2) brightness(1.2) contrast(0.9) !important;
     
@@ -8334,9 +8334,9 @@ class AccessibilityWidget {
                 /* Reduce high contrast intensity for Shadow DOM content */
     
                 /* High contrast should NOT affect widget - remove any filters */
-                :host(.high-contrast) .accessibility-icon,
-                :host(.high-contrast) .accessibility-panel,
-                :host(.high-contrast) .accessibility-panel * {
+                :host(.high-contrast) .accessbit-widget-icon,
+                :host(.high-contrast) .accessbit-widget-panel,
+                :host(.high-contrast) .accessbit-widget-panel * {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -8347,9 +8347,9 @@ class AccessibilityWidget {
     
                 /* Default font styles for widget elements (when readable font is disabled) */
     
-                :host(:not(.readable-font)) .accessibility-icon,
+                :host(:not(.readable-font)) .accessbit-widget-icon,
     
-                :host(:not(.readable-font)) .accessibility-panel {
+                :host(:not(.readable-font)) .accessbit-widget-panel {
     
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     
@@ -8361,21 +8361,21 @@ class AccessibilityWidget {
     
     
     
-                :host(:not(.readable-font)) .accessibility-panel h2,
+                :host(:not(.readable-font)) .accessbit-widget-panel h2,
     
-                :host(:not(.readable-font)) .accessibility-panel h3,
+                :host(:not(.readable-font)) .accessbit-widget-panel h3,
     
-                :host(:not(.readable-font)) .accessibility-panel h4,
+                :host(:not(.readable-font)) .accessbit-widget-panel h4,
     
-                :host(:not(.readable-font)) .accessibility-panel p,
+                :host(:not(.readable-font)) .accessbit-widget-panel p,
     
-                :host(:not(.readable-font)) .accessibility-panel .action-btn,
+                :host(:not(.readable-font)) .accessbit-widget-panel .action-btn,
     
-                :host(:not(.readable-font)) .accessibility-panel button,
+                :host(:not(.readable-font)) .accessbit-widget-panel button,
     
-                :host(:not(.readable-font)) .accessibility-panel input,
+                :host(:not(.readable-font)) .accessbit-widget-panel input,
     
-                :host(:not(.readable-font)) .accessibility-panel label {
+                :host(:not(.readable-font)) .accessbit-widget-panel label {
     
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     
@@ -8389,31 +8389,31 @@ class AccessibilityWidget {
     
                 /* Widget panel font should NOT change when readable font is active */
                 /* Explicitly set widget font even when readable-font class is on body */
-                :host(.readable-font) .accessibility-icon,
-                :host(.readable-font) .accessibility-panel,
-                :host .accessibility-icon,
-                :host .accessibility-panel {
+                :host(.readable-font) .accessbit-widget-icon,
+                :host(.readable-font) .accessbit-widget-panel,
+                :host .accessbit-widget-icon,
+                :host .accessbit-widget-panel {
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     font-weight: normal;
                     letter-spacing: normal;
                 }
                 
-                :host(.readable-font) .accessibility-panel h2,
-                :host(.readable-font) .accessibility-panel h3,
-                :host(.readable-font) .accessibility-panel h4,
-                :host(.readable-font) .accessibility-panel p,
-                :host(.readable-font) .accessibility-panel .action-btn,
-                :host(.readable-font) .accessibility-panel button,
-                :host(.readable-font) .accessibility-panel input,
-                :host(.readable-font) .accessibility-panel label,
-                :host .accessibility-panel h2,
-                :host .accessibility-panel h3,
-                :host .accessibility-panel h4,
-                :host .accessibility-panel p,
-                :host .accessibility-panel .action-btn,
-                :host .accessibility-panel button,
-                :host .accessibility-panel input,
-                :host .accessibility-panel label {
+                :host(.readable-font) .accessbit-widget-panel h2,
+                :host(.readable-font) .accessbit-widget-panel h3,
+                :host(.readable-font) .accessbit-widget-panel h4,
+                :host(.readable-font) .accessbit-widget-panel p,
+                :host(.readable-font) .accessbit-widget-panel .action-btn,
+                :host(.readable-font) .accessbit-widget-panel button,
+                :host(.readable-font) .accessbit-widget-panel input,
+                :host(.readable-font) .accessbit-widget-panel label,
+                :host .accessbit-widget-panel h2,
+                :host .accessbit-widget-panel h3,
+                :host .accessbit-widget-panel h4,
+                :host .accessbit-widget-panel p,
+                :host .accessbit-widget-panel .action-btn,
+                :host .accessbit-widget-panel button,
+                :host .accessbit-widget-panel input,
+                :host .accessbit-widget-panel label {
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     font-weight: normal;
                     letter-spacing: normal;
@@ -8421,9 +8421,9 @@ class AccessibilityWidget {
     
     
     
-                :host(.high-saturation) .accessibility-icon,
+                :host(.high-saturation) .accessbit-widget-icon,
     
-                :host(.high-saturation) .accessibility-panel {
+                :host(.high-saturation) .accessbit-widget-panel {
     
                     filter: saturate(1.2) !important;
     
@@ -12461,7 +12461,7 @@ class AccessibilityWidget {
     
             
     
-            const panel = this.shadowRoot.getElementById('accessibility-panel');
+            const panel = this.shadowRoot.getElementById('accessbit-widget-panel');
     
             
     
@@ -12924,7 +12924,7 @@ class AccessibilityWidget {
     
             this.currentLanguage = langCode;
     
-            localStorage.setItem('accessibility-widget-language', langCode);
+            localStorage.setItem('accessbit-widget-language', langCode);
     
     
     
@@ -13649,7 +13649,7 @@ class AccessibilityWidget {
     
     
         getCurrentLanguage() {
-            const stored = localStorage.getItem('accessibility-widget-language');
+            const stored = localStorage.getItem('accessbit-widget-language');
             const current = this.currentLanguage || stored || 'en';
           
             return current;
@@ -15150,17 +15150,17 @@ class AccessibilityWidget {
     
                 // Skip accessibility widget elements (check both shadow DOM and regular DOM)
     
-                if (element.closest('.accessibility-panel') || 
+                if (element.closest('.accessbit-widget-panel') || 
     
-                    element.closest('#accessibility-icon') ||
+                    element.closest('#accessbit-widget-icon') ||
     
-                    element.closest('accessibility-widget') ||
+                    element.closest('accessbit-widget') ||
     
                     element.tagName === 'ACCESSIBILITY-WIDGET' ||
     
-                    element.id === 'accessibility-icon' ||
+                    element.id === 'accessbit-widget-icon' ||
     
-                    element.id === 'accessibility-panel') {
+                    element.id === 'accessbit-widget-panel') {
     
                     return;
     
@@ -15396,17 +15396,17 @@ class AccessibilityWidget {
     
                 if (target.id === 'text-magnifier' || 
     
-                    target.closest('.accessibility-panel') || 
+                    target.closest('.accessbit-widget-panel') || 
     
-                    target.closest('#accessibility-icon') ||
+                    target.closest('#accessbit-widget-icon') ||
     
-                    target.closest('accessibility-widget') ||
+                    target.closest('accessbit-widget') ||
     
                     target.tagName === 'ACCESSIBILITY-WIDGET' ||
     
-                    target.id === 'accessibility-icon' ||
+                    target.id === 'accessbit-widget-icon' ||
     
-                    target.id === 'accessibility-panel') {
+                    target.id === 'accessbit-widget-panel') {
     
                     return;
     
@@ -15671,9 +15671,9 @@ class AccessibilityWidget {
     
             // Check if accessibility widget is still visible
     
-            const widgetContainer = document.getElementById('accessibility-widget-container');
+            const widgetContainer = document.getElementById('accessbit-widget-container');
     
-            const widgetIcon = document.getElementById('accessibility-icon');
+            const widgetIcon = document.getElementById('accessbit-widget-icon');
     
             
     
@@ -15695,17 +15695,17 @@ class AccessibilityWidget {
     
                 // Skip accessibility widget elements (check both shadow DOM and regular DOM)
     
-                if (element.closest('.accessibility-panel') || 
+                if (element.closest('.accessbit-widget-panel') || 
     
-                    element.closest('#accessibility-icon') ||
+                    element.closest('#accessbit-widget-icon') ||
     
-                    element.closest('accessibility-widget') ||
+                    element.closest('accessbit-widget') ||
     
                     element.tagName === 'ACCESSIBILITY-WIDGET' ||
     
-                    element.id === 'accessibility-icon' ||
+                    element.id === 'accessbit-widget-icon' ||
     
-                    element.id === 'accessibility-panel') {
+                    element.id === 'accessbit-widget-panel') {
     
                     return;
     
@@ -16002,13 +16002,13 @@ class AccessibilityWidget {
             // Use zoom to counter the html zoom - maintains original visual size
             counterStyle.textContent = `
                 /* Counter-scale widget elements to maintain fixed size */
-                #accessibility-panel,
-                #accessibility-icon {
+                #accessbit-widget-panel,
+                #accessbit-widget-icon {
                     zoom: ${inverseScale} !important;
                 }
                 
                 /* Ensure panel maintains its height regardless of zoom */
-                #accessibility-panel {
+                #accessbit-widget-panel {
                     min-height: auto !important;
                     height: auto !important;
                 }
@@ -16515,7 +16515,7 @@ class AccessibilityWidget {
             elements.forEach(el => {
                 try {
                     // Skip anything inside the accessibility widget UI
-                    if (el.closest('.accessibility-widget, #accessibility-widget, .accessibility-panel, .accessibility-icon')) {
+                    if (el.closest('.accessbit-widget, #accessbit-widget, .accessbit-widget-panel, .accessbit-widget-icon')) {
                         return;
                     }
                     
@@ -16937,7 +16937,7 @@ class AccessibilityWidget {
     
                 // Skip if element is inside accessibility panel
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
                     // Exclude icon fonts and ligature-based icons (prevents turning symbols into text)
                     const isIcon = element.matches('svg, i, .icon, [class*="icon"], [class*="fa-"], [class*="material-icons"], [data-icon], [class*="glyph"], [class*="chevron"], [class*="arrow"], [class*="ion-"], [class*="feather"], [class*="lucide"], [class*="heroicon"]');
                     if (isIcon) {
@@ -16988,7 +16988,7 @@ class AccessibilityWidget {
     
                 // Skip if element is inside accessibility panel
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     // Get the current computed size without modifying any styles
     
@@ -17044,7 +17044,7 @@ class AccessibilityWidget {
     
                 elements.forEach(element => {
     
-                    if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                    if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                         element.style.fontSize = '';
     
@@ -17077,7 +17077,7 @@ class AccessibilityWidget {
     
             elements.forEach(element => {
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.fontSize = '';
     
@@ -17100,7 +17100,7 @@ class AccessibilityWidget {
                     }
                 }
                 // Fallback: plain DOM panel containers
-                const panel = document.querySelector('.accessibility-panel, #accessibility-widget');
+                const panel = document.querySelector('.accessbit-widget-panel, #accessbit-widget');
                 if (panel) {
                     const panelOriginal = this.originalFontSizes.get(panel) || parseFloat(getComputedStyle(panel).fontSize) || 14;
                     panel.style.setProperty('font-size', `${panelOriginal}px`, 'important');
@@ -17124,7 +17124,7 @@ class AccessibilityWidget {
     
                 // Skip if element is inside accessibility panel
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon, #accessibility-widget')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon, #accessbit-widget')) {
     
                     const originalSize = this.originalFontSizes.get(element);
     
@@ -17344,7 +17344,7 @@ class AccessibilityWidget {
             headings.forEach(heading => {
     
                 // Skip if heading is inside accessibility panel
-                if (heading.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (heading.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
                     return;
                 }
     
@@ -17416,7 +17416,7 @@ class AccessibilityWidget {
     
             links.forEach(link => {
                 // Skip if link is inside accessibility panel
-                if (link.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (link.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
                     return;
                 }
     
@@ -18474,8 +18474,8 @@ class AccessibilityWidget {
                     }
                     
                     /* Exclude accessibility widget from highlight focus */
-                    body.highlight-focus .accessibility-panel *:focus,
-                    body.highlight-focus .accessibility-icon:focus {
+                    body.highlight-focus .accessbit-widget-panel *:focus,
+                    body.highlight-focus .accessbit-widget-icon:focus {
                         outline: inherit !important;
                         outline-offset: inherit !important;
                         background: inherit !important;
@@ -18518,7 +18518,7 @@ class AccessibilityWidget {
     
                 // Apply to interactive elements not inside the panel (allow the icon itself)
     
-                if (!activeElement.closest('.accessibility-panel') && 
+                if (!activeElement.closest('.accessbit-widget-panel') && 
     
                     isInteractiveElement) {
     
@@ -18553,7 +18553,7 @@ class AccessibilityWidget {
             
                 
                 // Special debugging for accessibility icon
-                if (e.target.classList && e.target.classList.contains('accessibility-icon')) {
+                if (e.target.classList && e.target.classList.contains('accessbit-widget-icon')) {
                    
                     
                     // Always apply focus styles to accessibility icon when focused
@@ -18598,7 +18598,7 @@ class AccessibilityWidget {
     
                         focusedElement === document.documentElement ||
     
-                        focusedElement.closest('.accessibility-panel') ||
+                        focusedElement.closest('.accessbit-widget-panel') ||
     
                         !isInteractiveElement) {
     
@@ -18658,7 +18658,7 @@ class AccessibilityWidget {
             
             // Add focusout handler to clean up accessibility icon styles
             this.highlightFocusOutHandler = (e) => {
-                if (e.target.classList && e.target.classList.contains('accessibility-icon')) {
+                if (e.target.classList && e.target.classList.contains('accessbit-widget-icon')) {
          
                     e.target.style.outline = '';
                     e.target.style.outlineOffset = '';
@@ -18745,7 +18745,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility widget elements
     
-                if (element.closest('.accessibility-panel') || element.closest('#accessibility-icon')) {
+                if (element.closest('.accessbit-widget-panel') || element.closest('#accessbit-widget-icon')) {
     
                     return;
     
@@ -18833,7 +18833,7 @@ class AccessibilityWidget {
             localStorage.removeItem('letter-spacing-used');
             
             // Clear vision-impaired localStorage
-            localStorage.removeItem('accessibility-widget-vision-impaired');
+            localStorage.removeItem('accessbit-widget-vision-impaired');
 
             
             // Reset language to English
@@ -19090,9 +19090,9 @@ class AccessibilityWidget {
             // Ensure widget remains visible after reset - ADD THIS PROTECTION
             setTimeout(() => {
              
-                const widgetContainer = document.getElementById('accessibility-widget-container');
-                const icon = this.shadowRoot?.getElementById('accessibility-icon');
-                const panel = this.shadowRoot?.getElementById('accessibility-panel');
+                const widgetContainer = document.getElementById('accessbit-widget-container');
+                const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
+                const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
                 
                 if (!widgetContainer) {
                 
@@ -20021,7 +20021,7 @@ class AccessibilityWidget {
             this.removeHighContrastStyles();
     
             const style = document.createElement('style');
-            style.id = 'accessibility-high-contrast-fix';
+            style.id = 'accessbit-high-contrast-fix';
             style.textContent = `
                 /* Simple High Contrast Mode - Only increase contrast, preserve everything else */
                 /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
@@ -20079,22 +20079,22 @@ class AccessibilityWidget {
                 }
                 
                 /* Preserve accessibility widget from contrast filters */
-                body.high-contrast .accessibility-widget,
-                body.high-contrast .accessibility-widget *,
-                body.high-contrast .accessibility-panel,
-                body.high-contrast .accessibility-panel *,
-                body.high-contrast .accessibility-icon,
-                body.high-contrast .accessibility-icon *,
-                body.high-contrast #accessibility-widget,
-                body.high-contrast #accessibility-widget *,
-                body.high-contrast #accessibility-panel,
-                body.high-contrast #accessibility-panel *,
-                body.high-contrast #accessibility-icon,
-                body.high-contrast #accessibility-icon *,
+                body.high-contrast .accessbit-widget,
+                body.high-contrast .accessbit-widget *,
+                body.high-contrast .accessbit-widget-panel,
+                body.high-contrast .accessbit-widget-panel *,
+                body.high-contrast .accessbit-widget-icon,
+                body.high-contrast .accessbit-widget-icon *,
+                body.high-contrast #accessbit-widget,
+                body.high-contrast #accessbit-widget *,
+                body.high-contrast #accessbit-widget-panel,
+                body.high-contrast #accessbit-widget-panel *,
+                body.high-contrast #accessbit-widget-icon,
+                body.high-contrast #accessbit-widget-icon *,
                 body.high-contrast [data-ck-widget],
                 body.high-contrast [data-ck-widget] *,
-                body.high-contrast [class*="accessibility"],
-                body.high-contrast [class*="accessibility"] * {
+                body.high-contrast [class*="accessbit"],
+                body.high-contrast [class*="accessbit"] * {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -20135,7 +20135,7 @@ class AccessibilityWidget {
     
         // Remove high contrast styles
         removeHighContrastStyles() {
-            const existingStyle = document.getElementById('accessibility-high-contrast-fix');
+            const existingStyle = document.getElementById('accessbit-high-contrast-fix');
             if (existingStyle) {
                 existingStyle.remove();
 
@@ -20278,7 +20278,7 @@ class AccessibilityWidget {
     
         // Remove high contrast styles
         removeHighContrastStyles() {
-            const existingStyle = document.getElementById('accessibility-high-contrast-fix');
+            const existingStyle = document.getElementById('accessbit-high-contrast-fix');
             if (existingStyle) {
                 existingStyle.remove();
               
@@ -20430,7 +20430,7 @@ class AccessibilityWidget {
             this.removeHighSaturationStyles();
 
             const style = document.createElement('style');
-            style.id = 'accessibility-high-saturation-css';
+            style.id = 'accessbit-high-saturation-css';
             style.textContent = `
                 /* Simple High Saturation Mode - Only increase saturation, preserve everything else */
                 /* CRITICAL: Apply filters ONLY to media inside main content areas - NEVER to nav/header or their ancestors */
@@ -20488,22 +20488,22 @@ class AccessibilityWidget {
                 }
                 
                 /* Preserve accessibility widget from saturation filters */
-                body.high-saturation .accessibility-widget,
-                body.high-saturation .accessibility-widget *,
-                body.high-saturation .accessibility-panel,
-                body.high-saturation .accessibility-panel *,
-                body.high-saturation .accessibility-icon,
-                body.high-saturation .accessibility-icon *,
-                body.high-saturation #accessibility-widget,
-                body.high-saturation #accessibility-widget *,
-                body.high-saturation #accessibility-panel,
-                body.high-saturation #accessibility-panel *,
-                body.high-saturation #accessibility-icon,
-                body.high-saturation #accessibility-icon *,
+                body.high-saturation .accessbit-widget,
+                body.high-saturation .accessbit-widget *,
+                body.high-saturation .accessbit-widget-panel,
+                body.high-saturation .accessbit-widget-panel *,
+                body.high-saturation .accessbit-widget-icon,
+                body.high-saturation .accessbit-widget-icon *,
+                body.high-saturation #accessbit-widget,
+                body.high-saturation #accessbit-widget *,
+                body.high-saturation #accessbit-widget-panel,
+                body.high-saturation #accessbit-widget-panel *,
+                body.high-saturation #accessbit-widget-icon,
+                body.high-saturation #accessbit-widget-icon *,
                 body.high-saturation [data-ck-widget],
                 body.high-saturation [data-ck-widget] *,
-                body.high-saturation [class*="accessibility"],
-                body.high-saturation [class*="accessibility"] * {
+                body.high-saturation [class*="accessbit"],
+                body.high-saturation [class*="accessbit"] * {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -20513,7 +20513,7 @@ class AccessibilityWidget {
         }
 
         removeHighSaturationStyles() {
-            const existingStyle = document.getElementById('accessibility-high-saturation-css');
+            const existingStyle = document.getElementById('accessbit-high-saturation-css');
             if (existingStyle) {
                 existingStyle.remove();
             }
@@ -20525,7 +20525,7 @@ class AccessibilityWidget {
             this.removeLowSaturationStyles();
 
             const style = document.createElement('style');
-            style.id = 'accessibility-low-saturation-css';
+            style.id = 'accessbit-low-saturation-css';
             style.textContent = `
                 /* Low Saturation Mode - Simple filter overlay approach */
                 body.low-saturation {
@@ -20551,14 +20551,14 @@ class AccessibilityWidget {
                 }
                 
                 /* Preserve accessibility widget from low saturation filters */
-                body.low-saturation .accessibility-widget,
-                body.low-saturation .accessibility-panel,
-                body.low-saturation .accessibility-icon,
-                body.low-saturation #accessibility-widget,
-                body.low-saturation #accessibility-panel,
-                body.low-saturation #accessibility-icon,
+                body.low-saturation .accessbit-widget,
+                body.low-saturation .accessbit-widget-panel,
+                body.low-saturation .accessbit-widget-icon,
+                body.low-saturation #accessbit-widget,
+                body.low-saturation #accessbit-widget-panel,
+                body.low-saturation #accessbit-widget-icon,
                 body.low-saturation [data-ck-widget],
-                body.low-saturation [class*="accessibility"] {
+                body.low-saturation [class*="accessbit"] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -20567,7 +20567,7 @@ class AccessibilityWidget {
         }
 
         removeLowSaturationStyles() {
-            const existingStyle = document.getElementById('accessibility-low-saturation-css');
+            const existingStyle = document.getElementById('accessbit-low-saturation-css');
             if (existingStyle) {
                 existingStyle.remove();
             }
@@ -20589,7 +20589,7 @@ class AccessibilityWidget {
     
             const style = document.createElement('style');
     
-            style.id = 'accessibility-monochrome-styles';
+            style.id = 'accessbit-monochrome-styles';
     
             style.textContent = `
                 /* Monochrome effect - Simple filter overlay approach */
@@ -20616,14 +20616,14 @@ class AccessibilityWidget {
                 }
                 
                 /* Preserve accessibility widget from monochrome filters */
-                body.monochrome .accessibility-widget,
-                body.monochrome .accessibility-panel,
-                body.monochrome .accessibility-icon,
-                body.monochrome #accessibility-widget,
-                body.monochrome #accessibility-panel,
-                body.monochrome #accessibility-icon,
+                body.monochrome .accessbit-widget,
+                body.monochrome .accessbit-widget-panel,
+                body.monochrome .accessbit-widget-icon,
+                body.monochrome #accessbit-widget,
+                body.monochrome #accessbit-widget-panel,
+                body.monochrome #accessbit-widget-icon,
                 body.monochrome [data-ck-widget],
-                body.monochrome [class*="accessibility"] {
+                body.monochrome [class*="accessbit"] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -20650,7 +20650,7 @@ class AccessibilityWidget {
     
             // Remove monochrome styles
     
-            const style = document.getElementById('accessibility-monochrome-styles');
+            const style = document.getElementById('accessbit-monochrome-styles');
     
             if (style) {
     
@@ -20777,7 +20777,7 @@ class AccessibilityWidget {
             this.removeDarkContrastCSS();
 
             const style = document.createElement('style');
-            style.id = 'accessibility-dark-contrast-css';
+            style.id = 'accessbit-dark-contrast-css';
             style.textContent = `
                 /* Contrast Modes */
                 body.dark-contrast {
@@ -21137,95 +21137,95 @@ class AccessibilityWidget {
                 }
 
                 /* Style accessibility widget for dark contrast */
-                .dark-contrast .accessibility-panel,
-                .dark-contrast .accessibility-icon,
-                .dark-contrast #accessibility-panel,
-                .dark-contrast #accessibility-icon {
+                .dark-contrast .accessbit-widget-panel,
+                .dark-contrast .accessbit-widget-icon,
+                .dark-contrast #accessbit-widget-panel,
+                .dark-contrast #accessbit-widget-icon {
                     background: #1a1a1a !important;
                     color: #ffffff !important;
                     border: 2px solid #ffffff !important;
                 }
 
-                .dark-contrast .accessibility-panel *,
-                .dark-contrast .accessibility-icon *,
-                .dark-contrast #accessibility-panel *,
-                .dark-contrast #accessibility-icon * {
+                .dark-contrast .accessbit-widget-panel *,
+                .dark-contrast .accessbit-widget-icon *,
+                .dark-contrast #accessbit-widget-panel *,
+                .dark-contrast #accessbit-widget-icon * {
                     background: inherit !important;
                     color: inherit !important;
                 }
 
                 /* Override text color for accessibility widget elements */
-                .dark-contrast .accessibility-panel p,
-                .dark-contrast .accessibility-panel h1,
-                .dark-contrast .accessibility-panel h2,
-                .dark-contrast .accessibility-panel h3,
-                .dark-contrast .accessibility-panel h4,
-                .dark-contrast .accessibility-panel h5,
-                .dark-contrast .accessibility-panel h6,
-                .dark-contrast .accessibility-panel span,
-                .dark-contrast .accessibility-panel div,
-                .dark-contrast .accessibility-panel li,
-                .dark-contrast .accessibility-panel td,
-                .dark-contrast .accessibility-panel th,
-                .dark-contrast .accessibility-panel label,
-                .dark-contrast .accessibility-panel small,
-                .dark-contrast .accessibility-panel em,
-                .dark-contrast .accessibility-panel strong,
-                .dark-contrast .accessibility-panel i,
-                .dark-contrast .accessibility-panel b,
-                .dark-contrast .accessibility-panel a {
+                .dark-contrast .accessbit-widget-panel p,
+                .dark-contrast .accessbit-widget-panel h1,
+                .dark-contrast .accessbit-widget-panel h2,
+                .dark-contrast .accessbit-widget-panel h3,
+                .dark-contrast .accessbit-widget-panel h4,
+                .dark-contrast .accessbit-widget-panel h5,
+                .dark-contrast .accessbit-widget-panel h6,
+                .dark-contrast .accessbit-widget-panel span,
+                .dark-contrast .accessbit-widget-panel div,
+                .dark-contrast .accessbit-widget-panel li,
+                .dark-contrast .accessbit-widget-panel td,
+                .dark-contrast .accessbit-widget-panel th,
+                .dark-contrast .accessbit-widget-panel label,
+                .dark-contrast .accessbit-widget-panel small,
+                .dark-contrast .accessbit-widget-panel em,
+                .dark-contrast .accessbit-widget-panel strong,
+                .dark-contrast .accessbit-widget-panel i,
+                .dark-contrast .accessbit-widget-panel b,
+                .dark-contrast .accessbit-widget-panel a {
                     color: #ffffff !important;
                 }
 
                 /* Style accessibility panel header for dark contrast */
-                .dark-contrast .accessibility-panel .panel-header {
+                .dark-contrast .accessbit-widget-panel .panel-header {
                     background: #2a2a2a !important;
                     color: #ffffff !important;
                     border-bottom: 1px solid #ffffff !important;
                 }
 
                 /* Style accessibility panel buttons for dark contrast */
-                .dark-contrast .accessibility-panel .action-btn {
+                .dark-contrast .accessbit-widget-panel .action-btn {
                     background: #2a2a2a !important;
                     color: #ffffff !important;
                     border: 1px solid #ffffff !important;
                 }
 
-                .dark-contrast .accessibility-panel .action-btn:hover {
+                .dark-contrast .accessbit-widget-panel .action-btn:hover {
                     background: #3a3a3a !important;
                     color: #ffffff !important;
                 }
 
                 /* Style accessibility panel footer for dark contrast */
-                .dark-contrast .accessibility-panel .panel-footer {
+                .dark-contrast .accessbit-widget-panel .panel-footer {
                     background: #2a2a2a !important;
                     color: #ffffff !important;
                     border-top: 1px solid #ffffff !important;
                 }
 
                 /* Style toggle switches for dark contrast */
-                .dark-contrast .accessibility-panel .toggle-switch {
+                .dark-contrast .accessbit-widget-panel .toggle-switch {
                     background: #2a2a2a !important;
                     border: 1px solid #ffffff !important;
                 }
 
-                .dark-contrast .accessibility-panel .toggle-switch .slider {
+                .dark-contrast .accessbit-widget-panel .toggle-switch .slider {
                     background: #ffffff !important;
                 }
 
-                .dark-contrast .accessibility-panel .toggle-switch input:checked + .slider {
+                .dark-contrast .accessbit-widget-panel .toggle-switch input:checked + .slider {
                     background: #6366f1 !important;
                 }
 
                 /* Style profile items for dark contrast */
-                .dark-contrast .accessibility-panel .profile-item {
+                .dark-contrast .accessbit-widget-panel .profile-item {
                     background: #2a2a2a !important;
                     color: #ffffff !important;
                     border: 1px solid #ffffff !important;
                     margin: 5px 0 !important;
                 }
 
-                .dark-contrast .accessibility-panel .profile-item:hover {
+                .dark-contrast .accessbit-widget-panel .profile-item:hover {
                     background: #3a3a3a !important;
                 }
             `;
@@ -21233,7 +21233,7 @@ class AccessibilityWidget {
         }
 
         removeDarkContrastCSS() {
-            const existingStyle = document.getElementById('accessibility-dark-contrast-css');
+            const existingStyle = document.getElementById('accessbit-dark-contrast-css');
             if (existingStyle) {
                 existingStyle.remove();
             }
@@ -21245,7 +21245,7 @@ class AccessibilityWidget {
             this.removeLightContrastCSS();
 
             const style = document.createElement('style');
-            style.id = 'accessibility-light-contrast-css';
+            style.id = 'accessbit-light-contrast-css';
             style.textContent = `
                 body.light-contrast {
                     background: #ffffff !important;
@@ -21418,12 +21418,12 @@ class AccessibilityWidget {
                 body.light-contrast .tooltip,
                 body.light-contrast .badge,
                 body.light-contrast .alert,
-                body.light-contrast .accessibility-panel,
-                body.light-contrast .accessibility-icon,
-                body.light-contrast #accessibility-panel,
-                body.light-contrast #accessibility-icon,
-                body.light-contrast #accessibility-widget-container,
-                body.light-contrast .accessibility-widget-container {
+                body.light-contrast .accessbit-widget-panel,
+                body.light-contrast .accessbit-widget-icon,
+                body.light-contrast #accessbit-widget-panel,
+                body.light-contrast #accessbit-widget-icon,
+                body.light-contrast #accessbit-widget-container,
+                body.light-contrast .accessbit-widget-container {
                     color: inherit !important;
                     background: inherit !important;
                 }
@@ -21446,14 +21446,14 @@ class AccessibilityWidget {
                 }
 
                 /* Completely exclude accessibility widget from light contrast effects */
-                .light-contrast .accessibility-panel,
-                .light-contrast .accessibility-icon,
-                .light-contrast #accessibility-panel,
-                .light-contrast #accessibility-icon,
-                .light-contrast .accessibility-panel *,
-                .light-contrast .accessibility-icon *,
-                .light-contrast #accessibility-panel *,
-                .light-contrast #accessibility-icon * {
+                .light-contrast .accessbit-widget-panel,
+                .light-contrast .accessbit-widget-icon,
+                .light-contrast #accessbit-widget-panel,
+                .light-contrast #accessbit-widget-icon,
+                .light-contrast .accessbit-widget-panel *,
+                .light-contrast .accessbit-widget-icon *,
+                .light-contrast #accessbit-widget-panel *,
+                .light-contrast #accessbit-widget-icon * {
                     filter: none !important;
                     -webkit-filter: none !important;
                     background: inherit !important;
@@ -21524,7 +21524,7 @@ class AccessibilityWidget {
         }
 
         removeLightContrastCSS() {
-            const existingStyle = document.getElementById('accessibility-light-contrast-css');
+            const existingStyle = document.getElementById('accessbit-light-contrast-css');
             if (existingStyle) {
                 existingStyle.remove();
             }
@@ -21802,7 +21802,7 @@ class AccessibilityWidget {
     
                 // Skip if element is inside a button, heading, link, or accessibility panel
     
-                if (!element.closest('button, h1, h2, h3, h4, h5, h6, a, .btn, .accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('button, h1, h2, h3, h4, h5, h6, a, .btn, .accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.color = color;
     
@@ -21820,7 +21820,7 @@ class AccessibilityWidget {
     
                 // Skip if element is inside accessibility panel
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.color = color;
     
@@ -21851,7 +21851,7 @@ class AccessibilityWidget {
     
             textElements.forEach(element => {
     
-                if (!element.closest('button, h1, h2, h3, h4, h5, h6, a, .btn, .accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('button, h1, h2, h3, h4, h5, h6, a, .btn, .accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.color = '';
     
@@ -21867,7 +21867,7 @@ class AccessibilityWidget {
     
             menuElements.forEach(element => {
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.color = '';
     
@@ -22073,7 +22073,7 @@ class AccessibilityWidget {
     
                 // Skip if element is inside accessibility panel
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.color = color;
     
@@ -22102,7 +22102,7 @@ class AccessibilityWidget {
     
             headingElements.forEach(element => {
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.color = '';
     
@@ -22304,7 +22304,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility panel elements
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     // Apply background color to specific content areas only
     
@@ -22324,7 +22324,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility panel elements and elements that already have the color
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon') && 
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon') && 
     
                     element.style.backgroundColor !== color) {
     
@@ -22398,7 +22398,7 @@ class AccessibilityWidget {
     
             mainContentAreas.forEach(element => {
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.backgroundColor = '';
     
@@ -22414,7 +22414,7 @@ class AccessibilityWidget {
     
             allElements.forEach(element => {
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon') &&
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon') &&
     
                     !element.classList.contains('color-option') && 
     
@@ -23934,7 +23934,7 @@ class AccessibilityWidget {
             // Create overlay directly on body for full page coverage
             const overlay = document.createElement('div');
             overlay.id = 'read-mode-overlay';
-            overlay.setAttribute('data-accessibility-widget-overlay', 'true');
+            overlay.setAttribute('data-accessbit-widget-overlay', 'true');
 
             overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: #e8f4f8 !important; z-index: 99997 !important; font-family: Arial, sans-serif !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important;';
             
@@ -24036,7 +24036,7 @@ class AccessibilityWidget {
                 }
     
                 // Skip accessibility widget elements
-                if (element.closest('.accessibility-panel') || element.closest('#accessibility-icon')) {
+                if (element.closest('.accessbit-widget-panel') || element.closest('#accessbit-widget-icon')) {
                    
                     return;
                 }
@@ -24383,7 +24383,7 @@ class AccessibilityWidget {
                             parent.closest('.advertisement') || parent.closest('.ad') ||
                             parent.closest('.banner') || parent.closest('.popup') ||
                             parent.closest('.modal') || parent.closest('.overlay') ||
-                            parent.closest('.accessibility-panel') || parent.closest('#accessibility-icon')) {
+                            parent.closest('.accessbit-widget-panel') || parent.closest('#accessbit-widget-icon')) {
                             return NodeFilter.FILTER_REJECT;
                         }
                         
@@ -24726,7 +24726,7 @@ class AccessibilityWidget {
     
                 // Apply to interactive elements not inside the panel (allow the icon itself)
     
-                if (!activeElement.closest('.accessibility-panel') && 
+                if (!activeElement.closest('.accessbit-widget-panel') && 
     
                     isInteractiveElement) {
     
@@ -24760,7 +24760,7 @@ class AccessibilityWidget {
     
                
                 // Special debugging for accessibility icon
-                if (e.target.classList && e.target.classList.contains('accessibility-icon')) {
+                if (e.target.classList && e.target.classList.contains('accessbit-widget-icon')) {
                   
                     // Always apply focus styles to accessibility icon when focused
                     e.target.style.outline = '3px solid #6366f1';
@@ -24804,7 +24804,7 @@ class AccessibilityWidget {
     
                         focusedElement === document.documentElement ||
     
-                        focusedElement.closest('.accessibility-panel') ||
+                        focusedElement.closest('.accessbit-widget-panel') ||
     
                         !isInteractiveElement) {
     
@@ -24862,7 +24862,7 @@ class AccessibilityWidget {
             
             // Add focusout handler to clean up accessibility icon styles
             this.highlightFocusOutHandler = (e) => {
-                if (e.target.classList && e.target.classList.contains('accessibility-icon')) {
+                if (e.target.classList && e.target.classList.contains('accessbit-widget-icon')) {
                 
                     e.target.style.outline = '';
                     e.target.style.outlineOffset = '';
@@ -24944,7 +24944,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility widget elements
     
-                if (element.closest('.accessibility-panel') || element.closest('#accessibility-icon')) {
+                if (element.closest('.accessbit-widget-panel') || element.closest('#accessbit-widget-icon')) {
     
                     return;
     
@@ -25077,15 +25077,15 @@ class AccessibilityWidget {
                     }
                     
                     /* EXCLUDE WIDGET - Never apply readable font to widget */
-                    .readable-font .accessibility-widget,
-                    .readable-font #accessibility-widget,
-                    .readable-font .accessibility-panel,
-                    .readable-font .accessibility-icon,
+                    .readable-font .accessbit-widget,
+                    .readable-font #accessbit-widget,
+                    .readable-font .accessbit-widget-panel,
+                    .readable-font .accessbit-widget-icon,
                     .readable-font [data-ck-widget],
-                    .readable-font [class*="accessibility"],
-                    .readable-font .accessibility-widget *,
-                    .readable-font #accessibility-widget *,
-                    .readable-font .accessibility-panel * {
+                    .readable-font [class*="accessbit"],
+                    .readable-font .accessbit-widget *,
+                    .readable-font #accessbit-widget *,
+                    .readable-font .accessbit-widget-panel * {
                         font-family: revert;
                     }
                     
@@ -25411,7 +25411,7 @@ class AccessibilityWidget {
     
             // Force reset cursor on accessibility panel elements specifically
     
-            const accessibilityElements = document.querySelectorAll('accessibility-widget, .accessibility-panel, #accessibility-icon');
+            const accessibilityElements = document.querySelectorAll('accessbit-widget, .accessbit-widget-panel, #accessbit-widget-icon');
     
             accessibilityElements.forEach(el => {
     
@@ -25569,7 +25569,7 @@ class AccessibilityWidget {
     
             // Force reset cursor on accessibility panel elements specifically
     
-            const accessibilityElements = document.querySelectorAll('accessibility-widget, .accessibility-panel, #accessibility-icon');
+            const accessibilityElements = document.querySelectorAll('accessbit-widget, .accessbit-widget-panel, #accessbit-widget-icon');
     
             accessibilityElements.forEach(el => {
     
@@ -25604,9 +25604,9 @@ class AccessibilityWidget {
             style.textContent = `
     
                 /* Only apply auto cursor when big cursors are NOT active */
-                body:not(.big-white-cursor):not(.big-black-cursor) .accessibility-panel *,
-                body:not(.big-white-cursor):not(.big-black-cursor) .accessibility-widget *,
-                body:not(.big-white-cursor):not(.big-black-cursor) #accessibility-widget * {
+                body:not(.big-white-cursor):not(.big-black-cursor) .accessbit-widget-panel *,
+                body:not(.big-white-cursor):not(.big-black-cursor) .accessbit-widget *,
+                body:not(.big-white-cursor):not(.big-black-cursor) #accessbit-widget * {
     
                     cursor: auto !important;
     
@@ -26001,12 +26001,12 @@ class AccessibilityWidget {
                 style.textContent = `
                     /* Per Webflow Security recommendations: Global CSS kill switch for Reduce Motion */
                     /* This provides stricter controls than prefers-reduced-motion for users who need it */
-                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
-                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
-                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after,
-                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget]),
-                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::before,
-                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessibility-widget-container):not([id*="accessibility-widget"]):not([class*="accessibility-widget"]):not([data-ck-widget])::after {
+                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]),
+                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::before,
+                    html.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::after,
+                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget]),
+                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::before,
+                    body.reduce-motion *:not(nav):not(header):not(.navbar):not([class*="nav"]):not(#accessbit-widget-container):not([id*="accessbit-widget"]):not([class*="accessbit-widget"]):not([data-ck-widget])::after {
                         animation: none !important;
                         transition: none !important;
                         scroll-behavior: auto !important;
@@ -28119,7 +28119,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility panel elements
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     // Apply background color to specific content areas only
     
@@ -28139,7 +28139,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility panel elements and elements that already have the color
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon') && 
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon') && 
     
                     element.style.backgroundColor !== color) {
     
@@ -28213,7 +28213,7 @@ class AccessibilityWidget {
     
             mainContentAreas.forEach(element => {
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
     
                     element.style.backgroundColor = '';
     
@@ -28229,7 +28229,7 @@ class AccessibilityWidget {
     
             allElements.forEach(element => {
     
-                if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon') &&
+                if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon') &&
     
                     !element.classList.contains('color-option') && 
     
@@ -28304,7 +28304,7 @@ class AccessibilityWidget {
             }
             
             // 2. Remove grey overlay
-            const existingGreyOverlay = document.getElementById('accessibility-seizure-safe-grey-overlay');
+            const existingGreyOverlay = document.getElementById('accessbit-seizure-safe-grey-overlay');
             if (existingGreyOverlay) {
                 existingGreyOverlay.remove();
             }
@@ -28360,7 +28360,7 @@ class AccessibilityWidget {
                 }
                 
                 // Also apply to the widget container if it exists
-                const widget = document.querySelector('.accessibility-widget');
+                const widget = document.querySelector('.accessbit-widget');
                 if (widget) {
                     widget.classList.add('vision-impaired');
                 }
@@ -28375,7 +28375,7 @@ class AccessibilityWidget {
                 this.applyVisionImpaired(true);
 
                 // CRITICAL FIX: Also save to the separate localStorage key that sync functions use
-                localStorage.setItem('accessibility-widget-vision-impaired', 'true');
+                localStorage.setItem('accessbit-widget-vision-impaired', 'true');
 
                 // Persist and sync
                 this.saveSettings();
@@ -28398,7 +28398,7 @@ class AccessibilityWidget {
                 document.body.classList.toggle('vision-impaired', !!on);
 
                 // Remove content wrapper if it exists (cleanup from old implementation)
-                const wrapper = document.getElementById('accessibility-content-wrapper');
+                const wrapper = document.getElementById('accessbit-content-wrapper');
                 if (wrapper && !on) {
                     // Move all wrapper children back to body
                     while (wrapper.firstChild) {
@@ -28407,10 +28407,10 @@ class AccessibilityWidget {
                     wrapper.remove();
                 }
                 
-                let style = document.getElementById('accessibility-vision-impaired-immediate-early');
+                let style = document.getElementById('accessbit-vision-impaired-immediate-early');
                 if (!style && on) {
                     style = document.createElement('style');
-                    style.id = 'accessibility-vision-impaired-immediate-early';
+                    style.id = 'accessbit-vision-impaired-immediate-early';
                     document.head.appendChild(style);
                 } else if (!on && style) {
                     style.remove();
@@ -28461,28 +28461,28 @@ class AccessibilityWidget {
             }
             
             /* Exclude widget from scaling and brightness */
-            body.vision-impaired .accessibility-widget,
-            body.vision-impaired #accessibility-widget,
-            body.vision-impaired .accessibility-panel,
-            .accessibility-panel {
+            body.vision-impaired .accessbit-widget,
+            body.vision-impaired #accessbit-widget,
+            body.vision-impaired .accessbit-widget-panel,
+            .accessbit-widget-panel {
                 font-size: 100% !important;
                 filter: none !important;
                 z-index: 2147483646 !important;
             }
             
-            body.vision-impaired .accessibility-icon,
-            body.vision-impaired #accessibility-icon,
-            .accessibility-icon,
-            #accessibility-icon {
+            body.vision-impaired .accessbit-widget-icon,
+            body.vision-impaired #accessbit-widget-icon,
+            .accessbit-widget-icon,
+            #accessbit-widget-icon {
                 font-size: 100% !important;
                 filter: none !important;
                 z-index: 2147483645 !important;
             }
             
-            body.vision-impaired .accessibility-widget,
-            body.vision-impaired #accessibility-widget,
-            .accessibility-widget,
-            #accessibility-widget {
+            body.vision-impaired .accessbit-widget,
+            body.vision-impaired #accessbit-widget,
+            .accessbit-widget,
+            #accessbit-widget {
                 font-size: 100% !important;
                 filter: none !important;
                 z-index: 2147483647 !important;
@@ -28531,7 +28531,7 @@ class AccessibilityWidget {
                 }
                 
                 // Also remove from the widget container if it exists
-                const widget = document.querySelector('.accessibility-widget');
+                const widget = document.querySelector('.accessbit-widget');
                 if (widget) {
                     widget.classList.remove('vision-impaired');
                 }
@@ -28543,13 +28543,13 @@ class AccessibilityWidget {
                 }
 
                 // Remove comprehensive vision impaired styles
-                const existingStyle = document.getElementById('accessibility-vision-impaired-immediate-early');
+                const existingStyle = document.getElementById('accessbit-vision-impaired-immediate-early');
                 if (existingStyle) {
                     existingStyle.remove();
                 }
                 
                 // Remove content wrapper and restore body children
-                const wrapper = document.getElementById('accessibility-content-wrapper');
+                const wrapper = document.getElementById('accessbit-content-wrapper');
                 if (wrapper) {
                     // Move all wrapper children back to body
                     while (wrapper.firstChild) {
@@ -28562,7 +28562,7 @@ class AccessibilityWidget {
                 this.applyVisionImpaired(false);
 
                 // CRITICAL FIX: Clear the separate localStorage key that sync functions use
-                localStorage.removeItem('accessibility-widget-vision-impaired');
+                localStorage.removeItem('accessbit-widget-vision-impaired');
                 
                 // Persist and sync
                 this.saveSettings();
@@ -29216,7 +29216,7 @@ class AccessibilityWidget {
                         // If element has animation/transition or is hidden, force to visible final state
                         if (hasAnimation || hasTransition || isHidden) {
                             // Skip widget elements
-                            if (element.closest && (element.closest('.accessibility-widget') || element.closest('.accessibility-panel') || element.closest('.accessibility-icon'))) {
+                            if (element.closest && (element.closest('.accessbit-widget') || element.closest('.accessbit-widget-panel') || element.closest('.accessbit-widget-icon'))) {
                                 return;
                             }
                             
@@ -29314,7 +29314,7 @@ class AccessibilityWidget {
                     try {
                         const children = container.querySelectorAll('*');
                         children.forEach(child => {
-                            if (child.closest && !child.closest('.accessibility-widget')) {
+                            if (child.closest && !child.closest('.accessbit-widget')) {
                                 child.style.opacity = '1';
                                 child.style.visibility = 'visible';
                             }
@@ -29745,14 +29745,14 @@ class AccessibilityWidget {
         // Apply only the grey overlay (grayscale filter) - this is the only difference from stop-animation
         addSeizureSafeGreyOverlay() {
             // Remove existing grey overlay if it exists
-            const existingStyle = document.getElementById('accessibility-seizure-safe-grey-overlay');
+            const existingStyle = document.getElementById('accessbit-seizure-safe-grey-overlay');
             if (existingStyle) {
                 existingStyle.remove();
             }
     
             // Create style element for grey overlay only
             const style = document.createElement('style');
-            style.id = 'accessibility-seizure-safe-grey-overlay';
+            style.id = 'accessbit-seizure-safe-grey-overlay';
             style.textContent = `
                 /* APPLY GREYISH COLOR FILTER - Reduce color intensity to prevent seizures */
                 /* CRITICAL: Apply filters to content containers, NOT to body/html, to preserve sticky nav */
@@ -29781,16 +29781,16 @@ class AccessibilityWidget {
                 }
                 
                 /* Exclude widget container and all its contents from color filter */
-                body.seizure-safe #accessibility-widget-container,
-                body.seizure-safe [id*="accessibility-widget"],
-                body.seizure-safe [class*="accessibility-widget"],
+                body.seizure-safe #accessbit-widget-container,
+                body.seizure-safe [id*="accessbit-widget"],
+                body.seizure-safe [class*="accessbit-widget"],
                 body.seizure-safe [data-ck-widget] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
                 
                 /* Also exclude any shadow DOM content by targeting the host element */
-                body.seizure-safe accessibility-widget {
+                body.seizure-safe accessbit-widget {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -29851,7 +29851,7 @@ class AccessibilityWidget {
     
             // Create style element for seizure-safe overlay
             const style = document.createElement('style');
-            style.id = 'accessibility-seizure-safe-styles';
+            style.id = 'accessbit-seizure-safe-styles';
             style.textContent = `
                 /* COMPREHENSIVE SEIZURE-SAFE STYLES - AccessiBe-style animation stopping */
                 
@@ -29863,16 +29863,16 @@ class AccessibilityWidget {
                 }
                 
                 /* Exclude widget container and all its contents from color filter */
-                body.seizure-safe #accessibility-widget-container,
-                body.seizure-safe [id*="accessibility-widget"],
-                body.seizure-safe [class*="accessibility-widget"],
+                body.seizure-safe #accessbit-widget-container,
+                body.seizure-safe [id*="accessbit-widget"],
+                body.seizure-safe [class*="accessbit-widget"],
                 body.seizure-safe [data-ck-widget] {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
                 
                 /* Also exclude any shadow DOM content by targeting the host element */
-                body.seizure-safe accessibility-widget {
+                body.seizure-safe accessbit-widget {
                     filter: none !important;
                     -webkit-filter: none !important;
                 }
@@ -30216,8 +30216,8 @@ class AccessibilityWidget {
                 } */
                 
                 /* Preserve accessibility widget */
-                body.seizure-safe .accessibility-widget,
-                body.seizure-safe .accessibility-panel,
+                body.seizure-safe .accessbit-widget,
+                body.seizure-safe .accessbit-widget-panel,
                 body.seizure-safe .toggle-switch {
                     filter: saturate(0.95) !important;
                 }
@@ -30231,7 +30231,7 @@ class AccessibilityWidget {
     
         removeSeizureSafeStyles() {
             // Remove old style if it exists (backward compatibility)
-            const existingStyle = document.getElementById('accessibility-seizure-safe-styles');
+            const existingStyle = document.getElementById('accessbit-seizure-safe-styles');
             if (existingStyle) {
                 existingStyle.remove();
             }
@@ -30243,7 +30243,7 @@ class AccessibilityWidget {
             }
             
             // Remove grey overlay
-            const existingGreyOverlay = document.getElementById('accessibility-seizure-safe-grey-overlay');
+            const existingGreyOverlay = document.getElementById('accessbit-seizure-safe-grey-overlay');
             if (existingGreyOverlay) {
                 existingGreyOverlay.remove();
             }
@@ -30364,7 +30364,7 @@ class AccessibilityWidget {
     
             // Also ensure the shadow root host has high z-index
     
-            const shadowHost = document.querySelector('#accessibility-widget');
+            const shadowHost = document.querySelector('#accessbit-widget');
     
             if (shadowHost) {
     
@@ -30675,7 +30675,7 @@ class AccessibilityWidget {
     
             // Process headings (non-intrusive: apply outline to element itself)
             headings.forEach(heading => {
-                if (heading.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (heading.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
                     return;
                 }
                 if (!heading.dataset.cognitiveBoxed) {
@@ -30691,7 +30691,7 @@ class AccessibilityWidget {
     
             // Process buttons (apply outline only)
             buttons.forEach(button => {
-                if (button.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (button.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
                     return;
                 }
                 if (!button.dataset.cognitiveBoxed) {
@@ -30707,7 +30707,7 @@ class AccessibilityWidget {
     
             // Process links (apply outline only)
             links.forEach(link => {
-                if (link.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon')) {
+                if (link.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon')) {
                     return;
                 }
                 if (!link.dataset.cognitiveBoxed) {
@@ -30869,7 +30869,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility controls
     
-                if (element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
+                if (element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
     
                     return;
     
@@ -30919,7 +30919,7 @@ class AccessibilityWidget {
     
                 elements.forEach(element => {
     
-                    if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
+                    if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
     
                         element.style.setProperty('text-align', alignment);
     
@@ -30958,7 +30958,7 @@ class AccessibilityWidget {
     
                 // Skip accessibility controls
     
-                if (element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
+                if (element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
     
                     return;
     
@@ -31008,7 +31008,7 @@ class AccessibilityWidget {
     
                 elements.forEach(element => {
     
-                    if (!element.closest('.accessibility-panel, #accessibility-icon, .accessibility-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
+                    if (!element.closest('.accessbit-widget-panel, #accessbit-widget-icon, .accessbit-widget-icon, .text-alignment-panel, #text-alignment-panel, .alignment-toggle-btn')) {
     
                         element.style.removeProperty('text-align');
     
@@ -31106,7 +31106,7 @@ class AccessibilityWidget {
         fixPanelScrolling() {
             
             
-            const panel = this.shadowRoot.querySelector('.accessibility-panel');
+            const panel = this.shadowRoot.querySelector('.accessbit-widget-panel');
             if (panel) {
                 // Force native scrolling behavior
                 panel.style.overflowY = 'auto';
@@ -31219,23 +31219,23 @@ class AccessibilityWidget {
     
                 // Skip accessibility widget elements completely
     
-                if (element.closest('#accessibility-widget-container') || 
+                if (element.closest('#accessbit-widget-container') || 
     
-                    element.closest('.accessibility-panel') ||
+                    element.closest('.accessbit-widget-panel') ||
     
-                    element.closest('#accessibility-icon') ||
+                    element.closest('#accessbit-widget-icon') ||
     
-                    element.closest('.accessibility-icon') ||
+                    element.closest('.accessbit-widget-icon') ||
     
                     element.closest('.text-alignment-panel') ||
     
                     element.closest('#text-alignment-panel') ||
     
-                    element.id === 'accessibility-widget-container' ||
+                    element.id === 'accessbit-widget-container' ||
     
-                    element.id === 'accessibility-panel' ||
+                    element.id === 'accessbit-widget-panel' ||
     
-                    element.id === 'accessibility-icon' ||
+                    element.id === 'accessbit-widget-icon' ||
     
                     element.id === 'text-alignment-panel') {
     
@@ -31274,23 +31274,23 @@ class AccessibilityWidget {
     
                 // Skip accessibility widget elements completely
     
-                if (element.closest('#accessibility-widget-container') || 
+                if (element.closest('#accessbit-widget-container') || 
     
-                    element.closest('.accessibility-panel') ||
+                    element.closest('.accessbit-widget-panel') ||
     
-                    element.closest('#accessibility-icon') ||
+                    element.closest('#accessbit-widget-icon') ||
     
-                    element.closest('.accessibility-icon') ||
+                    element.closest('.accessbit-widget-icon') ||
     
                     element.closest('.text-alignment-panel') ||
     
                     element.closest('#text-alignment-panel') ||
     
-                    element.id === 'accessibility-widget-container' ||
+                    element.id === 'accessbit-widget-container' ||
     
-                    element.id === 'accessibility-panel' ||
+                    element.id === 'accessbit-widget-panel' ||
     
-                    element.id === 'accessibility-icon' ||
+                    element.id === 'accessbit-widget-icon' ||
     
                     element.id === 'text-alignment-panel') {
     
@@ -31328,23 +31328,23 @@ class AccessibilityWidget {
     
                 // Skip accessibility widget elements completely
     
-                if (element.closest('#accessibility-widget-container') || 
+                if (element.closest('#accessbit-widget-container') || 
     
-                    element.closest('.accessibility-panel') ||
+                    element.closest('.accessbit-widget-panel') ||
     
-                    element.closest('#accessibility-icon') ||
+                    element.closest('#accessbit-widget-icon') ||
     
-                    element.closest('.accessibility-icon') ||
+                    element.closest('.accessbit-widget-icon') ||
     
                     element.closest('.text-alignment-panel') ||
     
                     element.closest('#text-alignment-panel') ||
     
-                    element.id === 'accessibility-widget-container' ||
+                    element.id === 'accessbit-widget-container' ||
     
-                    element.id === 'accessibility-panel' ||
+                    element.id === 'accessbit-widget-panel' ||
     
-                    element.id === 'accessibility-icon' ||
+                    element.id === 'accessbit-widget-icon' ||
     
                     element.id === 'text-alignment-panel') {
     
@@ -31414,16 +31414,16 @@ class AccessibilityWidget {
             textElements.forEach(element => {
     
                 // Skip if element is inside accessibility panel or widget
-                if (!element.closest('#accessibility-widget-container') && 
-                    !element.closest('.accessibility-panel') && 
-                    !element.closest('#accessibility-icon') && 
+                if (!element.closest('#accessbit-widget-container') && 
+                    !element.closest('.accessbit-widget-panel') && 
+                    !element.closest('#accessbit-widget-icon') && 
                     !element.closest('.text-alignment-panel') &&
-                    !element.closest('#accessibility-widget') &&
+                    !element.closest('#accessbit-widget') &&
                     !element.closest('[data-ck-widget]') &&
-                    element.id !== 'accessibility-icon' && 
-                    element.id !== 'accessibility-panel' &&
+                    element.id !== 'accessbit-widget-icon' && 
+                    element.id !== 'accessbit-widget-panel' &&
                     element.id !== 'text-alignment-panel' &&
-                    element.id !== 'accessibility-widget') {
+                    element.id !== 'accessbit-widget') {
     
                     element.style.textAlign = 'right';
     
@@ -31447,16 +31447,16 @@ class AccessibilityWidget {
             textElements.forEach(element => {
     
                 // Skip if element is inside accessibility panel or widget
-                if (!element.closest('#accessibility-widget-container') && 
-                    !element.closest('.accessibility-panel') && 
-                    !element.closest('#accessibility-icon') && 
+                if (!element.closest('#accessbit-widget-container') && 
+                    !element.closest('.accessbit-widget-panel') && 
+                    !element.closest('#accessbit-widget-icon') && 
                     !element.closest('.text-alignment-panel') &&
-                    !element.closest('#accessibility-widget') &&
+                    !element.closest('#accessbit-widget') &&
                     !element.closest('[data-ck-widget]') &&
-                    element.id !== 'accessibility-icon' && 
-                    element.id !== 'accessibility-panel' &&
+                    element.id !== 'accessbit-widget-icon' && 
+                    element.id !== 'accessbit-widget-panel' &&
                     element.id !== 'text-alignment-panel' &&
-                    element.id !== 'accessibility-widget') {
+                    element.id !== 'accessbit-widget') {
     
                     element.style.textAlign = '';
     
@@ -31694,7 +31694,7 @@ class AccessibilityWidget {
     
             if (this.shadowRoot && this.isPanelOpen) {
     
-                const panel = this.shadowRoot.getElementById('accessibility-panel');
+                const panel = this.shadowRoot.getElementById('accessbit-widget-panel');
     
                 if (panel && panel.classList.contains('active')) {
     
@@ -31732,8 +31732,8 @@ class AccessibilityWidget {
             console.log('[PANEL TOGGLE] togglePanel() called');
             // PERFORMANCE OPTIMIZATION: Use cached elements, but force refresh to ensure we have current elements
             const elements = this.getCachedElements(true); // Force refresh to get current elements
-            const panel = elements.panel || this.shadowRoot?.getElementById('accessibility-panel');
-            const icon = elements.icon || this.shadowRoot?.getElementById('accessibility-icon');
+            const panel = elements.panel || this.shadowRoot?.getElementById('accessbit-widget-panel');
+            const icon = elements.icon || this.shadowRoot?.getElementById('accessbit-widget-icon');
     
             console.log('[PANEL TOGGLE] Elements found:', {
                 hasPanel: !!panel,
@@ -31795,7 +31795,7 @@ class AccessibilityWidget {
                     // Only fix panel scrolling - don't affect website scroll animations
                     const fixScrolling = () => {
                         // Only fix panel scrolling, not website animations
-                        const panel = this.shadowRoot?.getElementById('accessibility-panel');
+                        const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
                         if (panel) {
                             // Force native scrolling behavior for panel only
                             panel.style.overflowY = 'auto';
@@ -32063,14 +32063,14 @@ class AccessibilityWidget {
                         // Payment status changed from invalid to valid - re-enable widget
                         this.paymentFailed = false;
                         // Re-initialize widget if it was disabled
-                        const widgetContainer = document.getElementById('accessibility-widget-container');
+                        const widgetContainer = document.getElementById('accessbit-widget-container');
                         if (widgetContainer) {
                             widgetContainer.style.display = '';
                             widgetContainer.style.visibility = '';
                             widgetContainer.style.opacity = '';
                         }
                         // Show icon if it exists
-                        const icon = this.shadowRoot?.getElementById('accessibility-icon');
+                        const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
                         if (icon) {
                             this.showIcon();
                         }
@@ -32170,7 +32170,7 @@ class AccessibilityWidget {
             // in init() after customizations are applied to avoid conflicts
             
             // Apply language - preserve user's language choice
-            const savedLanguage = localStorage.getItem('accessibility-widget-language');
+            const savedLanguage = localStorage.getItem('accessbit-widget-language');
             
             // Only apply language from customization if:
             // 1. There's a saved language AND it's different from customization (user changed it in app)
@@ -32241,7 +32241,7 @@ class AccessibilityWidget {
                 // Final verification for mobile shape
                 if (window.innerWidth <= 768) {
                     setTimeout(() => {
-                        const icon = this.shadowRoot?.getElementById('accessibility-icon');
+                        const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
                         if (icon) {
                             const computedBorderRadius = window.getComputedStyle(icon).borderRadius;
                             
@@ -32286,7 +32286,7 @@ class AccessibilityWidget {
                 paymentFailed: this.paymentFailed,
                 customizationData: this.customizationData ? 'exists' : 'null'
             });
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (!icon) {
                 console.log('[ICON DEBUG] showIcon() - Icon element not found');
                 return;
@@ -32335,7 +32335,7 @@ class AccessibilityWidget {
             }
             
             // Additional check: if widget container is hidden due to payment issues, don't show icon
-            const widgetContainer = document.getElementById('accessibility-widget-container');
+            const widgetContainer = document.getElementById('accessbit-widget-container');
             if (widgetContainer && (widgetContainer.style.display === 'none' || 
                 widgetContainer.style.visibility === 'hidden' || 
                 widgetContainer.style.opacity === '0')) {
@@ -32424,8 +32424,8 @@ class AccessibilityWidget {
             const now = Date.now();
             // Refresh cache every 5 seconds or if forced
             if (forceRefresh || now - this._cachedElements.lastCacheTime > 5000) {
-                this._cachedElements.icon = this.shadowRoot?.getElementById('accessibility-icon');
-                this._cachedElements.panel = this.shadowRoot?.getElementById('accessibility-panel');
+                this._cachedElements.icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
+                this._cachedElements.panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
                 this._cachedElements.closeBtn = this.shadowRoot?.getElementById('close-panel');
                 this._cachedElements.lastCacheTime = now;
             }
@@ -32483,8 +32483,8 @@ class AccessibilityWidget {
                         debouncedResizeFn();
                     });
                     
-                    const panel = self.shadowRoot.getElementById('accessibility-panel');
-                    const icon = self.shadowRoot.getElementById('accessibility-icon');
+                    const panel = self.shadowRoot.getElementById('accessbit-widget-panel');
+                    const icon = self.shadowRoot.getElementById('accessbit-widget-icon');
                     if (panel) resizeObserver.observe(panel);
                     if (icon) resizeObserver.observe(icon);
                     
@@ -32586,7 +32586,7 @@ class AccessibilityWidget {
             
             // Throttled callback using requestAnimationFrame
             const throttledCallback = this.throttle(() => {
-                const panel = this._cachedElements.panel || this.shadowRoot.getElementById('accessibility-panel');
+                const panel = this._cachedElements.panel || this.shadowRoot.getElementById('accessbit-widget-panel');
                 if (panel) {
                     this.ensureBasePanelCSS();
                 }
@@ -32605,7 +32605,7 @@ class AccessibilityWidget {
                 }
             });
             
-            const panel = this.shadowRoot.getElementById('accessibility-panel');
+            const panel = this.shadowRoot.getElementById('accessbit-widget-panel');
             if (panel) {
                 observer.observe(panel, { 
                     attributes: true, 
@@ -32619,7 +32619,7 @@ class AccessibilityWidget {
         setupPeriodicStyleCheck() {
             // Check every 3 seconds instead of 2, and use requestAnimationFrame
             setInterval(() => {
-                const panel = this._cachedElements.panel || this.shadowRoot?.getElementById('accessibility-panel');
+                const panel = this._cachedElements.panel || this.shadowRoot?.getElementById('accessbit-widget-panel');
                 if (!panel) return;
                 
                 // Use requestAnimationFrame to batch the check
@@ -32648,7 +32648,7 @@ class AccessibilityWidget {
         applyLanguage(language) {
           
             // Save language to localStorage for persistence
-            localStorage.setItem('accessibility-widget-language', language);
+            localStorage.setItem('accessbit-widget-language', language);
 
             
             const content = this.translations[language] || this.translations.en;
@@ -32663,7 +32663,7 @@ class AccessibilityWidget {
            
             
             // Update panel title
-            const titleElement = this.shadowRoot?.querySelector('.accessibility-panel h2');
+            const titleElement = this.shadowRoot?.querySelector('.accessbit-widget-panel h2');
             if (titleElement) {
                 titleElement.textContent = content.title;
                 
@@ -32958,7 +32958,7 @@ class AccessibilityWidget {
         showHideInterfaceModal() {
 
             const modal = this.shadowRoot?.querySelector('#hide-interface-modal');
-            const panel = this.shadowRoot?.querySelector('#accessibility-panel');
+            const panel = this.shadowRoot?.querySelector('#accessbit-widget-panel');
 
             
             if (modal && panel) {
@@ -33000,8 +33000,8 @@ class AccessibilityWidget {
         
         ensureIconVisible() {
 
-            const icon = this.shadowRoot?.querySelector('#accessibility-icon');
-            const panel = this.shadowRoot?.querySelector('#accessibility-panel');
+            const icon = this.shadowRoot?.querySelector('#accessbit-widget-icon');
+            const panel = this.shadowRoot?.querySelector('#accessbit-widget-panel');
             
             if (icon) {
                 icon.style.display = 'flex';
@@ -33611,12 +33611,12 @@ class AccessibilityWidget {
          
             
             // Set flag in localStorage to hide interface permanently
-            localStorage.setItem('accessibility-widget-hidden', 'true');
+            localStorage.setItem('accessbit-widget-hidden', 'true');
         
             
             // Hide the panel and icon completely
-            const panel = this.shadowRoot?.querySelector('#accessibility-panel');
-            const icon = this.shadowRoot?.querySelector('#accessibility-icon');
+            const panel = this.shadowRoot?.querySelector('#accessbit-widget-panel');
+            const icon = this.shadowRoot?.querySelector('#accessbit-widget-icon');
             
         
             
@@ -33653,7 +33653,7 @@ class AccessibilityWidget {
             const normalizedDirection = (direction || '').toLowerCase();
             const pos = (position || '').toLowerCase();
             
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 if (normalizedDirection === 'vertical') {
                     // Force remove any existing positioning
@@ -33708,7 +33708,7 @@ class AccessibilityWidget {
         // Helper methods for applying customizations with actual DOM manipulation
         updateTriggerButtonColor(color) {
          
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 icon.style.backgroundColor = color;
                 icon.style.borderColor = color;
@@ -33722,7 +33722,7 @@ class AccessibilityWidget {
         updateTriggerButtonShape(shape) {
            
             
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             
             if (icon) {
 
@@ -33825,12 +33825,12 @@ class AccessibilityWidget {
                             
                             const style = document.createElement('style');
                             style.textContent = `
-                                .accessibility-icon[data-shape="rounded"] {
+                                .accessbit-widget-icon[data-shape="rounded"] {
                                     border-radius: ${borderRadius} !important;
                                     -webkit-border-radius: ${borderRadius} !important;
                                     -moz-border-radius: ${borderRadius} !important;
                                 }
-                                .accessibility-icon.rounded {
+                                .accessbit-widget-icon.rounded {
                                     border-radius: ${borderRadius} !important;
                                     -webkit-border-radius: ${borderRadius} !important;
                                     -moz-border-radius: ${borderRadius} !important;
@@ -33916,7 +33916,7 @@ class AccessibilityWidget {
         
         // Ensure base panel CSS is always applied
         ensureBasePanelCSS() {
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
             if (panel) {
                 // Apply essential base CSS properties that should never be removed
                 panel.style.setProperty('position', 'fixed', 'important');
@@ -33949,8 +33949,8 @@ class AccessibilityWidget {
         
         // Force apply mobile responsive styles
         applyMobileResponsiveStyles() {
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             
           
             
@@ -34105,8 +34105,8 @@ class AccessibilityWidget {
         
         // Remove mobile responsive styles for desktop
         removeMobileResponsiveStyles() {
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             
           
             
@@ -34155,7 +34155,7 @@ class AccessibilityWidget {
         updateTriggerOffset(direction, offset) {
           
             
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 const isMobile = window.innerWidth <= 768;
 
@@ -34254,7 +34254,7 @@ class AccessibilityWidget {
         
         updateTriggerButtonSize(size) {
          
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 if (size === 'Small') {
                     icon.style.width = '40px';
@@ -34273,7 +34273,7 @@ class AccessibilityWidget {
         }
         
         updateTriggerVisibility(hidden) {
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (!icon) return;
             
             if (hidden) {
@@ -34293,7 +34293,7 @@ class AccessibilityWidget {
         
         updateInterfaceColor(color) {
      
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
             if (panel) {
                 panel.style.backgroundColor = color;
             }
@@ -34313,7 +34313,7 @@ class AccessibilityWidget {
                 // CSS is missing - inject it immediately
                 style = document.createElement('style');
                 style.setAttribute('data-widget-css', 'true');
-                style.setAttribute('id', 'accessibility-widget-styles');
+                style.setAttribute('id', 'accessbit-widget-styles');
                 style.textContent = this.getWidgetCSS();
                 // Insert CSS FIRST in shadowRoot to ensure it loads before any HTML
                 this.shadowRoot.insertBefore(style, this.shadowRoot.firstChild);
@@ -34326,8 +34326,8 @@ class AccessibilityWidget {
         }
         
         updateInterfacePosition() {
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
             
             if (!icon || !panel) {
                 return; // Don't proceed if elements don't exist
@@ -34420,16 +34420,16 @@ class AccessibilityWidget {
     
         updateInterfaceFooter(content) {
         
-            let footer = this.shadowRoot?.getElementById('accessibility-footer');
+            let footer = this.shadowRoot?.getElementById('accessbit-widget-footer');
             if (!footer) {
                 // Create footer if it doesn't exist
                 footer = document.createElement('div');
-                footer.id = 'accessibility-footer';
+                footer.id = 'accessbit-widget-footer';
                 footer.style.padding = '10px';
                 footer.style.borderTop = '1px solid #eee';
                 footer.style.fontSize = '12px';
                 footer.style.color = '#666';
-                const panel = this.shadowRoot?.getElementById('accessibility-panel');
+                const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
                 if (panel) {
                     panel.appendChild(footer);
                 }
@@ -34441,11 +34441,11 @@ class AccessibilityWidget {
         
         updateAccessibilityStatementLink(link) {
            
-            let statementLink = this.shadowRoot?.getElementById('accessibility-statement-link');
+            let statementLink = this.shadowRoot?.getElementById('accessbit-statement-link');
             if (!statementLink) {
                 // Create link if it doesn't exist
                 statementLink = document.createElement('a');
-                statementLink.id = 'accessibility-statement-link';
+                statementLink.id = 'accessbit-statement-link';
                 statementLink.style.display = 'block';
                 statementLink.style.padding = '10px';
                 statementLink.style.textAlign = 'center';
@@ -34453,7 +34453,7 @@ class AccessibilityWidget {
                 statementLink.style.textDecoration = 'none';
                 statementLink.style.fontSize = '12px';
                 statementLink.target = '_blank';
-                const panel = this.shadowRoot?.getElementById('accessibility-panel');
+                const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
                 if (panel) {
                     panel.appendChild(statementLink);
                 }
@@ -34466,7 +34466,7 @@ class AccessibilityWidget {
         
        updateSelectedIcon(icon) {
         console.log('[DEBUG] Applying Icon:', icon);
-    const iconElement = this.shadowRoot?.getElementById('accessibility-icon');
+    const iconElement = this.shadowRoot?.getElementById('accessbit-widget-icon');
     
     if (iconElement) {
         const iconMap = {
@@ -34506,7 +34506,7 @@ class AccessibilityWidget {
         
         updateSelectedIconName(name) {
           
-            const iconElement = this.shadowRoot?.getElementById('accessibility-icon');
+            const iconElement = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (iconElement) {
                 iconElement.setAttribute('aria-label', name);
                 iconElement.setAttribute('title', name);
@@ -34522,7 +34522,7 @@ class AccessibilityWidget {
           
             const normalizedDirection = (direction || '').toLowerCase();
             const pos = (position || '').toLowerCase();
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 const isMobile = window.innerWidth <= 768;
                 if (isMobile) {
@@ -34568,7 +34568,7 @@ class AccessibilityWidget {
         // New method to handle combined positioning (e.g., "right middle")
         updateMobileTriggerCombinedPosition(horizontalPos, verticalPos) {
            
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
        
             if (icon) {
                 const isMobile = window.innerWidth <= 768;
@@ -34665,7 +34665,7 @@ class AccessibilityWidget {
         
         updateMobileTriggerSize(size) {
          
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 const isMobile = window.innerWidth <= 768;
                 if (isMobile) {
@@ -34689,7 +34689,7 @@ class AccessibilityWidget {
         updateMobileTriggerShape(shape) {
            
             
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 const isMobile = window.innerWidth <= 768;
                 if (isMobile) {
@@ -34771,12 +34771,12 @@ class AccessibilityWidget {
                             // Last resort: Create a new style element with maximum specificity
                             const style = document.createElement('style');
                             style.textContent = `
-                                .accessibility-icon[data-shape="rounded"] {
+                                .accessbit-widget-icon[data-shape="rounded"] {
                                     border-radius: ${borderRadius} !important;
                                     -webkit-border-radius: ${borderRadius} !important;
                                     -moz-border-radius: ${borderRadius} !important;
                                 }
-                                .accessibility-icon.rounded {
+                                .accessbit-widget-icon.rounded {
                                     border-radius: ${borderRadius} !important;
                                     -webkit-border-radius: ${borderRadius} !important;
                                     -moz-border-radius: ${borderRadius} !important;
@@ -34805,7 +34805,7 @@ class AccessibilityWidget {
         
         updateMobileTriggerOffset(direction, offset) {
             
-            const icon = this.shadowRoot?.getElementById('accessibility-icon');
+            const icon = this.shadowRoot?.getElementById('accessbit-widget-icon');
             if (icon) {
                 const isMobile = window.innerWidth <= 768;
 
@@ -34884,7 +34884,7 @@ class AccessibilityWidget {
         
         // Helper function to update panel visibility based on position
         updatePanelVisibility(isOpen) {
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
             if (panel) {
                 const currentTransform = panel.style.transform;
                 if (isOpen) {
@@ -34986,7 +34986,7 @@ class AccessibilityWidget {
 
             
             const dropdown = this.shadowRoot?.getElementById('language-dropdown');
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
             
             if (!dropdown || !panel) {
                 
@@ -35022,7 +35022,7 @@ class AccessibilityWidget {
     
         positionLanguageDropdown() {
             const dropdown = this.shadowRoot?.getElementById('language-dropdown');
-            const panel = this.shadowRoot?.getElementById('accessibility-panel');
+            const panel = this.shadowRoot?.getElementById('accessbit-widget-panel');
             
             if (!dropdown || !panel) {
               
@@ -35273,11 +35273,11 @@ class AccessibilityWidget {
             }
             
             // Remove any injected styles
-            const widgetStyles = document.querySelectorAll('style[id*="accessibility"], style[id*="widget"]');
+            const widgetStyles = document.querySelectorAll('style[id*="accessbit-widget"], style[id*="accessbit-"]');
             widgetStyles.forEach(style => style.remove());
             
             // Remove any injected elements
-            const widgetElements = document.querySelectorAll('[id*="accessibility"], [class*="accessibility-widget"]');
+            const widgetElements = document.querySelectorAll('[id*="accessbit-widget"], [class*="accessbit-widget"], [class*="accessbit-root"]');
             widgetElements.forEach(el => el.remove());
             
             return; // Exit early
