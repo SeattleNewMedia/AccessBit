@@ -3239,12 +3239,24 @@ class AccessibilityWidget {
                         shouldShow: !hideTrigger || (isMobile && mobileVisibility === 'Show')
                     });
                     
-                    // Only show if not hidden by settings
-                    if (!hideTrigger || (isMobile && mobileVisibility === 'Show')) {
+                    // Determine if icon should be shown based on settings
+                    let shouldShow = false;
+                    
+                    // Desktop/Tablet: show only if hideTriggerButton is NOT 'Yes'
+                    if (!isMobile) {
+                        shouldShow = !hideTrigger;
+                    } 
+                    // Mobile: show only if showOnMobile is 'Show'
+                    else {
+                        shouldShow = mobileVisibility === 'Show';
+                    }
+                    
+                    if (shouldShow) {
                         console.log('[ICON SHOW] init() - Showing icon after customization loaded', {
                             hideTrigger,
                             isMobile,
-                            mobileVisibility
+                            mobileVisibility,
+                            shouldShow
                         });
                         // Remove any conflicting inline styles first
                         icon.style.removeProperty('display');
@@ -3258,6 +3270,18 @@ class AccessibilityWidget {
                         // Mark that icon was explicitly shown during initialization
                         // This prevents showIcon() from hiding it during resize events
                         this._iconExplicitlyShown = true;
+                    } else {
+                        console.log('[ICON HIDE] init() - Hiding icon based on settings', {
+                            hideTrigger,
+                            isMobile,
+                            mobileVisibility,
+                            shouldShow
+                        });
+                        // Ensure icon is hidden
+                        icon.style.setProperty('display', 'none', 'important');
+                        icon.style.setProperty('visibility', 'hidden', 'important');
+                        icon.style.setProperty('opacity', '0', 'important');
+                        this._iconExplicitlyShown = false;
                         
                         // Inject CSS rule into shadow DOM to force icon visibility IMMEDIATELY
                         // This overrides any CSS rules that might be hiding it
@@ -32427,7 +32451,25 @@ class AccessibilityWidget {
                 return;
             }
     
-            // Show icon if visibility rules pass
+            // Desktop/Tablet default: show only if hideTriggerButton is NOT 'Yes'
+            if (!isMobile && !hideTrigger) {
+                console.log('[ICON SHOW] showIcon() - Desktop default, hideTriggerButton is not Yes');
+                icon.style.display = 'flex';
+                icon.style.visibility = 'visible';
+                icon.style.opacity = '1';
+                icon.style.transition = 'opacity 0.3s ease';
+                return;
+            }
+            
+            // If we reach here, icon should be hidden (desktop with hideTriggerButton=Yes, or mobile with showOnMobile=Hide or undefined)
+            console.log('[ICON HIDE] showIcon() - Default hide case', {
+                isMobile,
+                hideTrigger,
+                mobileVisibility
+            });
+            icon.style.display = 'none';
+            icon.style.visibility = 'hidden';
+            icon.style.opacity = '0';
            
                 icon.style.display = 'flex';
                 icon.style.visibility = 'visible';
